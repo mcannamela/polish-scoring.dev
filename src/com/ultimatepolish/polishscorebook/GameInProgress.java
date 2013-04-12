@@ -135,7 +135,7 @@ public class GameInProgress extends MenuContainerActivity {
 			}
 		}
 		displayMetadata();
-		initSpinners();
+		initNumPickers();
 		initTableRows();
 		initThrows();
 		changeCurrentThrow(0);
@@ -249,7 +249,7 @@ public class GameInProgress extends MenuContainerActivity {
 		tv.setText("p2");
 		tr.addView(tv);
 	}
-	void initSpinners(){		
+	void initNumPickers(){		
 		NumberPicker p;
 		
 		p = (NumberPicker) findViewById(R.id.numPicker_errorScore);

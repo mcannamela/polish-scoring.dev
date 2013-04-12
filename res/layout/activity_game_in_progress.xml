@@ -104,35 +104,25 @@
         android:onClick="confirmThrow"
         android:text="@string/gip_confirm_button" />
 	
-    <RadioGroup
-        android:id="@+id/radioGroup1"
-        android:orientation="vertical"
-        android:layout_column="0"
-        android:layout_columnSpan="3" >
-
-        <RadioButton
-            android:id="@+id/radio_drop"
-            android:text="@string/gip_drop_radio" />
-
-        <RadioButton
-            android:id="@+id/radio_catch"
-            android:checked="true"
-            android:text="@string/gip_catch_radio" />
-
-        <RadioButton
-            android:id="@+id/radio_stalwart"
-            android:text="@string/gip_stalwart_radio" />
-    </RadioGroup>
+     <NumberPicker
+         android:id="@+id/numPicker_catch"
+         android:layout_gravity="fill_horizontal"
+         android:layout_height="120dp"
+         android:layout_column="0"
+         android:layout_columnSpan="3" />
     
     <CheckBox
-           android:id="@+id/checkBox_error"
-           android:layout_column="0"
-           android:layout_columnSpan="2"
-           android:onClick="checkboxClicked"
-           android:text="@string/gip_error_check" />
+        android:id="@+id/checkBox_error"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:layout_gravity="center_vertical"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_error_check" />
 
-    <Spinner
-        android:id="@+id/spinner_errorScore" />
+    <NumberPicker
+        android:id="@+id/numPicker_errorScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
 
     <CheckBox
         android:id="@+id/checkBox_ownGoal"
@@ -141,9 +131,10 @@
         android:onClick="checkboxClicked"
         android:text="@string/gip_owngoal_check" />
 
-    <Spinner
-        android:id="@+id/spinner_ownGoalScore"
-        android:layout_marginLeft="18dp" />
+    <NumberPicker
+        android:id="@+id/numPicker_ownGoalScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
 
     <CheckBox
         android:id="@+id/checkBox_goaltend"
@@ -152,11 +143,14 @@
         android:onClick="checkboxClicked"
         android:text="@string/gip_goaltend_check" />
 
-    <Spinner
-        android:id="@+id/spinner_goaltendScore" />
+    <NumberPicker
+        android:id="@+id/numPicker_goaltendScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
 
     <CheckBox
         android:id="@+id/checkBox_short"
+        android:layout_gravity="fill_horizontal"
         android:layout_column="0"
         android:layout_columnSpan="1"
         android:onClick="checkboxClicked"
