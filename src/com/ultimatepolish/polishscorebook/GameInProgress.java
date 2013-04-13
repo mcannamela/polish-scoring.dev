@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -71,6 +72,12 @@ public class GameInProgress extends MenuContainerActivity {
         }
     };
     
+    private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
+		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
+			updateThrow();
+		}
+	};
+    
     private OnClickListener throwClickedListener = new OnClickListener(){
     	public void onClick(View v){
     		int row, col, newThrowNr;
@@ -96,12 +103,6 @@ public class GameInProgress extends MenuContainerActivity {
     	}
     };
     
-	private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
-		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
-			updateThrow();
-		}
-		
-	};
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
     
@@ -110,6 +111,7 @@ public class GameInProgress extends MenuContainerActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		throwsTable = (TableLayout) findViewById(R.id.tableLayout_throws);
+		
 		
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_game_in_progress);
@@ -149,8 +151,14 @@ public class GameInProgress extends MenuContainerActivity {
 		np.setMinValue(0);
 		np.setMaxValue(2);
 		np.setDisplayedValues(catchText);
-		np.setWrapSelectorWheel(false);
 		np.setOnValueChangedListener(numberPickerChangeListener);
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		menu.findItem(R.id.addButton).setVisible(false);
+		return true;
 	}
 	@Override
 	protected void onResume(){
@@ -161,8 +169,7 @@ public class GameInProgress extends MenuContainerActivity {
 	protected void onRestart(){
 		super.onResume();
 		initThrows();
-	}
-	
+	}	
 	@Override
     protected void onStop() {
     	super.onStop();
@@ -206,48 +213,21 @@ public class GameInProgress extends MenuContainerActivity {
 		
 	}
     void initTableRows(){
-		Context context = getApplicationContext();
-		TableRow tr = (TableRow) findViewById(R.id.tableRow_playerOne);
 		TextView tv;
-		TableLayout layout = getTableLayout();
-		layout.setStretchAllColumns(false);
 		
-		tv = new TextView(context);
+		tv = (TextView) findViewById(R.id.header_p1);
 		tv.setText(p[0].getNickName() );
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tr.addView(tv);
 
-		tv = new TextView(context);
-		tv.setText("sp");
+		tv = (TextView) findViewById(R.id.header_p2);
+		tv.setText(p[1].getNickName() );
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tr.addView(tv);
-
-
-		tv = new TextView(context);
-		tv.setText(p[1].getNickName());
-		tv.setTextColor(ThrowTableRow.tableTextColor);
-		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tr.addView(tv);
 		
-		tv = new TextView(context);
-		tv.setText("sp");
-		tv.setTextColor(ThrowTableRow.tableTextColor);
-		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tr.addView(tv);
+		TableLayout layout = getTableLayout();
+//        layout.setStretchAllColumns(true);
 		
-		tv = new TextView(context);
-		tv.setTextColor(ThrowTableRow.tableTextColor);
-		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tv.setText("p1");
-		tr.addView(tv);
-		
-		tv = new TextView(context);
-		tv.setTextColor(ThrowTableRow.tableTextColor);
-		tv.setTextSize(ThrowTableRow.tableTextSize);
-		tv.setText("p2");
-		tr.addView(tv);
 	}
 	void initNumPickers(){		
 		NumberPicker p;
@@ -527,7 +507,6 @@ public class GameInProgress extends MenuContainerActivity {
 //		}
 	}
 	
-
 	void changeCurrentThrow(int newThrowNr){
 		setThrowHighlighted(false);
 		applyUIStateToCurrentThrow(getThrow(throwNr));
@@ -598,8 +577,6 @@ public class GameInProgress extends MenuContainerActivity {
 	private void setScrollPosition() {
 		// TODO Auto-generated method stub
 	}
-	
-	
 	
 	public void checkboxClicked(View view){
 		updateThrow();

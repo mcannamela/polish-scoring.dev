@@ -55,9 +55,9 @@
     <string name="gip_stalwart">stalwart</string>
     <string name="gip_ballRight_button">right</string>
     <string name="gip_ballLow_button">low</string>
-    <string name="gip_error_check">error</string>
-    <string name="gip_owngoal_check">own goal</string>
-    <string name="gip_goaltend_check">goaltend</string>
+    <string name="gip_error_check">er</string>
+    <string name="gip_owngoal_check">og</string>
+    <string name="gip_goaltend_check">gt</string>
     <string name="gip_short_check">short</string>
     <string name="gip_trap_check">trap</string>
     <string name="gip_broken_check">broken</string>
