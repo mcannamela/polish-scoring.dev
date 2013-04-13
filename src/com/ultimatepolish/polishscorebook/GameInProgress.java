@@ -509,7 +509,9 @@ public class GameInProgress extends MenuContainerActivity {
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
 	
-	
+	public void confirmThrow(){
+		changeCurrentThrow(throwNr+1);
+	}
 	public void confirmThrow(View view){
 		changeCurrentThrow(throwNr+1);
 		
@@ -633,15 +635,16 @@ public class GameInProgress extends MenuContainerActivity {
 		}
 		
 		updateThrow();
+		confirmThrow();
 		
-		switch (currentThrowType){
-		case ThrowType.STRIKE:
-		case ThrowType.BALL_HIGH:
-		case ThrowType.BALL_LEFT:
-		case ThrowType.BALL_RIGHT:
-		case ThrowType.BALL_LOW:
-			 confirmThrow(findViewById(R.id.button_confirm));
-		}
+//		switch (currentThrowType){
+//		case ThrowType.STRIKE:
+//		case ThrowType.BALL_HIGH:
+//		case ThrowType.BALL_LEFT:
+//		case ThrowType.BALL_RIGHT:
+//		case ThrowType.BALL_LOW:
+//			confirmThrow(findViewById(R.id.button_confirm));
+//		}
 		
 		
 	}

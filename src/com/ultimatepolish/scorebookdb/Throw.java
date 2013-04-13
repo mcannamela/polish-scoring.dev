@@ -205,6 +205,12 @@ public class Throw implements Comparable<Throw>{
 		if (isShort){
 			s+="v";
 		}
+		if (isDrinkDropped){
+			s+="d";
+		}
+		if (isDrinkHit){
+			s+="d";
+		}
 		if (s.length()==0){
 			s = "--";
 		}
