@@ -120,7 +120,7 @@ public class NewGame extends MenuContainerActivity {
 		sessionNames.clear();
 		venueNames.clear();
 		for(Player p: players){
-			playerNames.add(String.valueOf(p.getId())+" "+p.getFirstName());
+			playerNames.add(String.valueOf(p.getId())+" "+p.getNickName());
 		}
 		for(Session s: sessions){
 			sessionNames.add(String.valueOf(s.getId())+" "+s.getSessionName());

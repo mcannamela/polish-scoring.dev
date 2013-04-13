@@ -36,6 +36,7 @@ public class ViewAdapter_Game extends ArrayAdapter<Game> {
             holder.gameId = (TextView) v.findViewById(R.id.textView_gameId);
             holder.playerOne = (TextView) v.findViewById(R.id.textView_playerOne);
             holder.playerTwo = (TextView) v.findViewById(R.id.textView_playerTwo);
+            holder.score = (TextView) v.findViewById(R.id.textView_score);
             v.setTag(holder);
         }
         else
@@ -46,8 +47,9 @@ public class ViewAdapter_Game extends ArrayAdapter<Game> {
         	try{
         		Player[] players = g.getPlayers(v.getContext());
         		holder.gameId.setText(String.valueOf(g.getId()));
-                holder.playerOne.setText(players[0].getDisplayName());
-                holder.playerTwo.setText(players[1].getDisplayName());
+                holder.playerOne.setText(players[0].getNickName());
+                holder.playerTwo.setText(players[1].getNickName());
+                holder.score.setText(String.valueOf(g.getFirstPlayerScore()) + " / " + String.valueOf(g.getSecondPlayerScore()));
         	}
         	catch (SQLException e){
         		

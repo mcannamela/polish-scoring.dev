@@ -6,6 +6,7 @@ public class ViewHolder_Game {
 	public TextView gameId;
     public TextView playerOne;
     public TextView playerTwo;
+    public TextView score;
     
     public String getGameId(){
     	return gameId.getText().toString();
@@ -15,6 +16,9 @@ public class ViewHolder_Game {
     }
     public String getPlayerTwo(){
     	return playerTwo.getText().toString();
+    }
+    public String getScore(){
+    	return score.getText().toString();
     }
     
 }
