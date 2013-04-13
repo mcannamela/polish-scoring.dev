@@ -1,0 +1,264 @@
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:columnCount="4" 
+    android:gravity="bottom"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".GameInProgress" >
+
+    <TextView
+        android:id="@+id/textView_players"
+        android:layout_columnSpan="4"
+        android:layout_gravity="center_horizontal"
+        android:textIsSelectable="false"
+        android:hint="@string/gip_p1_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_session"
+        android:layout_columnSpan="2"
+        android:layout_gravity="left"    
+        android:textIsSelectable="false"
+        android:hint="@string/gip_session_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/textView_gid"
+        android:layout_columnSpan="2"
+        android:layout_gravity="right"
+        android:textIsSelectable="false"
+        android:hint="@string/gip_gid_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_venue"
+        android:layout_columnSpan="2"
+        android:layout_gravity="left"
+        android:textIsSelectable="false"
+        android:hint="@string/gip_venue_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_datePlayed"
+        android:layout_columnSpan="2"
+        android:layout_gravity="right"
+        android:textIsSelectable="false"
+        android:hint="@string/gip_date_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+         android:id="@+id/button_high"
+         android:layout_columnSpan="3"
+         android:layout_gravity="fill_horizontal"
+         android:onClick="buttonPressed"
+         android:text="@string/gip_ballHigh_button" />
+
+    <Button
+        android:id="@+id/button_left"
+        android:layout_column="0"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_ballLeft_button" />
+
+    <Button
+        android:id="@+id/button_strike"                        
+        android:onClick="buttonPressed"
+        android:text="@string/gip_strike_button" />
+    
+    <Button
+        android:id="@+id/button_right"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_ballRight_button" />
+    
+    <Button
+        android:id="@+id/button_low"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:layout_gravity="fill_horizontal"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_ballLow_button" />
+    
+    <Button
+        android:id="@+id/button_pole"
+        android:layout_column="0"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_pole_button" />
+	
+	<Button
+        android:id="@+id/button_bottle"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_bottle_button" />
+    
+    <Button
+        android:id="@+id/button_cup"
+        android:onClick="buttonPressed"
+        android:text="@string/gip_cup_button" />
+    
+     <Button
+        android:id="@+id/button_confirm"
+        android:layout_column="1"
+        android:layout_columnSpan="2"
+        android:onClick="confirmThrow"
+        android:text="@string/gip_confirm_button" />
+	
+     <NumberPicker
+         android:id="@+id/numPicker_catch"
+         android:layout_gravity="fill_horizontal"
+         android:layout_height="120dp"
+         android:layout_column="0"
+         android:layout_columnSpan="3" />
+    
+    <CheckBox
+        android:id="@+id/checkBox_error"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:layout_gravity="center_vertical"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_error_check" />
+
+    <NumberPicker
+        android:id="@+id/numPicker_errorScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
+
+    <CheckBox
+        android:id="@+id/checkBox_ownGoal"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_owngoal_check" />
+
+    <NumberPicker
+        android:id="@+id/numPicker_ownGoalScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
+
+    <CheckBox
+        android:id="@+id/checkBox_goaltend"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_goaltend_check" />
+
+    <NumberPicker
+        android:id="@+id/numPicker_goaltendScore"
+        android:layout_gravity="fill_horizontal"
+        android:layout_height="120dp" />
+
+    <CheckBox
+        android:id="@+id/checkBox_short"
+        android:layout_gravity="fill_horizontal"
+        android:layout_column="0"
+        android:layout_columnSpan="1"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_short_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_trap"
+        android:layout_column="1"
+        android:layout_columnSpan="1"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_trap_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_broken"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_broken_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_onFire"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_onfire_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_firedOn"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_firedon_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_drinkHit"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_drinkhit_check" />
+
+    <CheckBox
+        android:id="@+id/checkBox_drinkDrop"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:onClick="checkboxClicked"
+        android:text="@string/gip_drinkdrop_check" />
+ 
+    <ScrollView
+        android:id="@+id/scrollView_throwsAndScore"
+        android:layout_column="3"
+        android:layout_row="3"
+        android:layout_rowSpan="16"
+        android:layout_gravity="left|top" >
+
+        <TableLayout
+            android:id="@+id/tableLayout_throws"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+  			android:layout_marginLeft="2dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="5dp" >
+
+            <TableRow
+                android:id="@+id/tableRow_playerOne" >
+            </TableRow>
+        </TableLayout>
+
+    </ScrollView>
+<!-- 
+    <ScrollView
+        android:id="@+id/scrollView_p2Throws"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+
+        <TableLayout
+            android:id="@+id/tableLayout_p2Throws"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" >
+
+            <TableRow
+                android:id="@+id/tableRow_playerTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+            </TableRow>
+        </TableLayout>
+
+    </ScrollView>
+
+    <ScrollView
+        android:id="@+id/scrollView_score"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+
+        <TableLayout
+            android:id="@+id/tableLayout_score"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="5dp" >
+
+            <TableRow
+                android:id="@+id/tableRow_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+            </TableRow>
+        </TableLayout>
+
+    </ScrollView> -->
+</GridLayout>
