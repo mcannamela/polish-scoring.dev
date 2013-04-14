@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -20,14 +21,15 @@ import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Player;
 
 public class View_Players extends MenuContainerActivity {
-
+	private LinearLayout ll;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_view_list);
         
-        refreshPlayerList();
+//        refreshPlayerList();
         
         // Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -40,21 +42,18 @@ public class View_Players extends MenuContainerActivity {
     	super.onStop();
     	finish();
     }
-    
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		menu.findItem(R.id.players).setEnabled(false);
 		return true;
-	}
-    
+	}    
     @Override
 	public void openAddActivity() {
     	Intent intent = new Intent(this, NewPlayer.class);
     	startActivity(intent);
     }
-
     private OnItemClickListener mPlayerClickedHandler = new OnItemClickListener() {
         public void onItemClick(AdapterView parent, View v, int position, long id) {
         	String msg;
@@ -65,7 +64,6 @@ public class View_Players extends MenuContainerActivity {
     		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         }
     };
-
     @Override
     protected void onRestart(){
     	super.onRestart();
@@ -76,7 +74,6 @@ public class View_Players extends MenuContainerActivity {
     	super.onResume();
     	refreshPlayerList();
     }
-    
     protected void refreshPlayerList(){
     	ArrayList<String> firstNames = new ArrayList<String>();
     	ArrayList<String> lastNames = new ArrayList<String>();
@@ -108,25 +105,25 @@ public class View_Players extends MenuContainerActivity {
     		displayNames.add(buildDisplayName(first, last, nick));
     	}
         
-        ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
-											                R.id.layout_player_list_item, 
-											                R.id.textView_firstName, 
-											                players);
-        ListView listView = (ListView) findViewById(R.id.db_listView);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(mPlayerClickedHandler); 
+    	ll = (LinearLayout) findViewById (R.id.db_viewListings);
+    	ListView lv = new ListView(this);
+    	ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
+                R.id.layout_player_list_item, 
+                R.id.textView_firstName, 
+                players);
+        lv.setAdapter(adapter);
+        ll.addView(lv);
+        lv.setOnItemClickListener(mPlayerClickedHandler); 
+
     }
     protected String buildDisplayName(String first, String last, String nick){
     	return first+" \"" +nick+"\" "+last;
     	
     }
-    
     public void startNewPlayerDialog(View view) {
     	Intent intent = new Intent(this, NewPlayer.class);
     	startActivity(intent);
     }
-    public void editPlayerDialog(View view){
-    	
+    public void editPlayerDialog(View view){    	
     }
-
 }
