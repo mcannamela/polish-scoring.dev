@@ -3,22 +3,34 @@ package com.ultimatepolish.polishscorebook;
 import android.widget.TextView;
 
 public class ViewHolder_Game {
-	public TextView gameId;
-    public TextView playerOne;
-    public TextView playerTwo;
-    public TextView score;
+	public String gameId;
+    public String playerOne;
+    public String playerTwo;
+    public String score;
     
     public String getGameId(){
-    	return gameId.getText().toString();
+    	return gameId;
     }
     public String getPlayerOne(){
-    	return playerOne.getText().toString();
+    	return playerOne;
     }
     public String getPlayerTwo(){
-    	return playerTwo.getText().toString();
+    	return playerTwo;
     }
     public String getScore(){
-    	return score.getText().toString();
+    	return score;
     }
     
+    public void setGameId(String gameId){
+    	this.gameId = gameId;
+    }
+    public void setPlayerOne(String playerOne){
+    	this.playerOne = playerOne;
+    }
+    public void setPlayerTwo(String playerTwo){
+    	this.playerTwo = playerTwo;
+    }
+    public void setScore(String score){
+    	this.score = score;
+    }
 }
