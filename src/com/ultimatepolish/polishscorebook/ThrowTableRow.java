@@ -39,6 +39,7 @@ public class ThrowTableRow extends TableRow {
 		int[] scores = t1.getFinalScores();
 		this.appendScore(scores[0], scores[1]);
 	}
+	
 	public static ThrowTableRow buildBlankRow(Context context){
 		ThrowTableRow tr = new ThrowTableRow(context);
 		tr.appendBlank();
@@ -112,6 +113,60 @@ public class ThrowTableRow extends TableRow {
 			this.addView(views[i]);
 		}
 	}
+	
+	protected void updateText(Throw t){
+		/*looks at parity of t to determine which views to update*/
+		
+		//p1 throw
+		if (t.getThrowNumber()%2==0){
+			updateP1Text(t);
+		}
+		//p2 throw
+		else{
+			updateP2Text(t);
+		}
+	}
+	
+	protected void updateP1Text(Throw t){		
+		getP1ThrowView().setText(t.getThrowString());
+		getP1SpecialView().setText(t.getSpecialString());
+		
+		int sc[]  = t.getFinalScores();
+		updateScoreText(sc[0], sc[1]);
+		
+		
+	}
+	protected void updateP2Text(Throw t){
+		getP2ThrowView().setText(t.getThrowString());
+		getP2SpecialView().setText(t.getSpecialString());
+		
+		int sc[]  = t.getFinalScores();
+		updateScoreText(sc[1], sc[2]);
+	}
+	protected void updateScoreText(int p1Score, int p2Score){
+		getP1ScoreView().setText(String.valueOf(p1Score));
+		getP2ScoreView().setText(String.valueOf(p2Score));
+	}
+	
+	protected TextView getP1ThrowView(){
+		return (TextView) getChildAt(0);
+	}
+	protected TextView getP1SpecialView(){
+		return (TextView) getChildAt(1);
+	}
+	protected TextView getP1ScoreView(){
+		return (TextView) getChildAt(4);
+	}
+	protected TextView getP2ThrowView(){
+		return (TextView) getChildAt(2);
+	}
+	protected TextView getP2SpecialView(){
+		return (TextView) getChildAt(3);
+	}
+	protected TextView getP2ScoreView(){
+		return (TextView) getChildAt(5);
+	}
+	
 	
 	
 	
