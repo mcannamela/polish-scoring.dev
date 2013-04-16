@@ -225,8 +225,8 @@ public class GameInProgress extends MenuContainerActivity {
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
 		
-		TableLayout layout = getTableLayout();
-//        layout.setStretchAllColumns(true);
+		
+//        throwsTable.setStretchAllColumns(true);
 		
 	}
 	void initNumPickers(){		
@@ -391,13 +391,6 @@ public class GameInProgress extends MenuContainerActivity {
 		ThrowTableRow tr;
 		Throw t,pt;
 		Context context = getApplicationContext();
-		throwsTable = getTableLayout();
-		//clear out old views
-		if (throwsTable.getChildCount()>1){
-			int tableRow = throwNumberToTableRow(fromThrowNumber);
-			throwsTable.removeViews(tableRow, 
-					throwsTable.getChildCount()-tableRow);
-		}
 		
 		//add new views, skipping p1 throws unless it is the last throw
 		for(int i=fromThrowNumber;i<throwArray.size();i++){
@@ -405,37 +398,32 @@ public class GameInProgress extends MenuContainerActivity {
 			pt = getPreviousThrow(i);
 			t.setInitialScores(pt);
 			
-			//we have a p2 throw
-			if (i%2==1){
-				tr = new ThrowTableRow(pt, t, context);
-				throwsTable.addView(tr);
+			if (i==fromThrowNumber){
+				renderThrow(t);
 			}
-			//we have a p1 throw and it's the last throw
-			else if (i%2==0 && i==throwArray.size()-1){
-				tr = new ThrowTableRow(t, context);
-				throwsTable.addView(tr);
+			else{
+				renderScore(t);
 			}
 		}
 		
 		//highlight the current throw
 		setThrowHighlighted(true);
 		
-		//set click listeners
-		for (int j=1;j<throwsTable.getChildCount();j++){
-			tr = (ThrowTableRow) throwsTable.getChildAt(j);
-			for (int i=0;i<tr.getChildCount();i++){
-				tr.getChildAt(i).setOnClickListener(throwClickedListener);
-			}
+	}
+	
+	private void renderThrow(Throw t){
+		ThrowTableRow tr = getThrowTableRow(t);
+		tr.updateText(t);
+	}
+	private void renderScore(Throw t){
+		ThrowTableRow tr = getThrowTableRow(t);
+		int[] score = t.getFinalScores();
+		if (isP1Throw(t.getThrowNumber())){
+			tr.updateScoreText(score[0], score[1]);
 		}
-		
-		for (int i=0;i<10;i++){
-			throwsTable.addView(ThrowTableRow.buildBlankRow(getApplicationContext()));
+		else{
+			tr.updateScoreText(score[1], score[0]);
 		}
-		updateCurrentScore();
-		saveGame();
-		
-		
-		
 	}
 	private void updateCurrentScore(){
 		int lastThrowNumber = throwArray.size()-1;
@@ -453,18 +441,9 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	private void setThrowHighlighted(boolean highlight) {
-		TableLayout layout = getTableLayout();
-		ThrowTableRow tr;
-		if (throwNumberToTableRow()==layout.getChildCount()){
-			tr = ThrowTableRow.buildBlankRow(getApplicationContext());
-		}
-		else if (throwNumberToTableRow()<layout.getChildCount()){
-			tr = (ThrowTableRow) layout.getChildAt(throwNumberToTableRow());
-		}
-		else{
-			throw new RuntimeException("current table row index exceeds the number " +
-					"of children in the layout by more than 1");
-		}
+		
+		ThrowTableRow tr = getThrowTableRow(getThrow(throwNr));
+		
 		TextView tv;
 		int start, stop;
 		if (isP1Throw()){
@@ -527,6 +506,7 @@ public class GameInProgress extends MenuContainerActivity {
 //		Toast.makeText(getApplicationContext(), 
 //				"old: "+throwNr+", new: "+newThrowNr, 
 //				Toast.LENGTH_SHORT).show();
+		
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
 		
@@ -544,7 +524,11 @@ public class GameInProgress extends MenuContainerActivity {
 			"could not save throw "+throwNr+", "+e.getMessage(), 
 			Toast.LENGTH_LONG).show();
 		}
+		
 		renderThrows(oldThrowNr);
+		
+		updateCurrentScore();
+		saveGame();
 		
 	}
 	
@@ -632,10 +616,7 @@ public class GameInProgress extends MenuContainerActivity {
 		renderThrows();
 	}
 	
-	private TableLayout getTableLayout() {
-		return  (TableLayout) findViewById(R.id.tableLayout_throws);
-	}
-	
+		
 	boolean isP1Throw(){
 		return isP1Throw(throwNr);
 	}
@@ -646,10 +627,10 @@ public class GameInProgress extends MenuContainerActivity {
 		return throwNumberToTableRow(throwNr);
 	}
 	int throwNumberToTableRow(int throwNr){
-		return 1+throwNr/2;
+		return throwNr/2;
 	}
 	int tableRowColToThrowNr(int row, int col){
-		int throwNr = 2*(row-1);
+		int throwNr = 2*row;
 		if (col>=2){
 			throwNr++;
 		}
@@ -697,6 +678,26 @@ public class GameInProgress extends MenuContainerActivity {
 	
 	Throw getNextThrow(int throwNr){
 		return getThrow(throwNr+1);
+	}
+	ThrowTableRow getThrowTableRow(Throw t){
+		int throwNr = t.getThrowNumber();
+		int rowIdx = throwNumberToTableRow(throwNr);
+		
+		if (rowIdx<throwsTable.getChildCount()){
+			return (ThrowTableRow) throwsTable.getChildAt(rowIdx);
+		}
+		else if (rowIdx==throwsTable.getChildCount()){
+			ThrowTableRow tr = ThrowTableRow.buildBlankRow(getApplicationContext());
+			for (int i=0;i<tr.getChildCount();i++){
+				tr.getChildAt(i).setOnClickListener(throwClickedListener);
+			}
+			throwsTable.addView(tr);
+			return tr;
+		}
+		else{
+			throw new RuntimeException("tried to get a ThrowTableRow from the future");
+		}
+		
 	}
 	
 	boolean isError(){
