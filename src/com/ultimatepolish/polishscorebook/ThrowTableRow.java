@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.ultimatepolish.scorebookdb.Throw;
 
 public class ThrowTableRow extends TableRow {
-	private Throw t;
+	
 	public static int tableTextSize = 20;
 	public static int tableTextColor = Color.BLACK;
 	public static int tableBackgroundColor = Color.WHITE;
@@ -23,7 +23,7 @@ public class ThrowTableRow extends TableRow {
 	}
 	public ThrowTableRow(Throw t1, Throw t2, Context context) {
 		super(context);
-		this.t = t1;
+		
 		this.appendThrow(t1);
 		this.appendThrow(t2);
 		t2.setInitialScores(t1);
@@ -33,7 +33,6 @@ public class ThrowTableRow extends TableRow {
 	
 	public ThrowTableRow(Throw t1,  Context context) {
 		super(context);
-		this.t = t1;
 		this.appendThrow(t1);
 		this.appendBlank();
 		int[] scores = t1.getFinalScores();
@@ -50,7 +49,7 @@ public class ThrowTableRow extends TableRow {
 
 	public static ThrowTableRow buildThrowRow(Throw t, Context context){
 		ThrowTableRow tr = new ThrowTableRow(context);
-		tr.t = t;
+		
 		TextView[] views = buildThrowViews(t, context);
 		for (TextView tv: views){
 			tr.addView(tv);

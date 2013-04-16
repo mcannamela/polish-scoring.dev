@@ -36,5 +36,7 @@
 	    android:layout_height="wrap_content"
 	    android:text="loadDB"
 	    android:onClick="loadDB" />
+
+	
     
 </LinearLayout>
