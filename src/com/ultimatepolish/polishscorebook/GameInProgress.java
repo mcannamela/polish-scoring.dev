@@ -62,13 +62,13 @@ public class GameInProgress extends MenuContainerActivity {
 	NumberPicker ownGoalNumPicker;
 	NumberPicker goaltendNumPicker;
 	
-	TableLayout throwsTable;
+//	TableLayout throwsTable;
 	
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	//:::::::::::::::listeners:::::::::::::::::::::::::::::::::::::::::
 	private OnCheckedChangeListener throwResultChangedListener = new OnCheckedChangeListener() {
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-        	updateThrow();
+        	updateThrow(); 
         }
     };
     
@@ -110,7 +110,8 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		throwsTable = (TableLayout) findViewById(R.id.tableLayout_throws);
+//		throwsTable = (TableLayout) findViewById(R.id.tableLayout_throws);
+		
 		
 		
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -119,7 +120,8 @@ public class GameInProgress extends MenuContainerActivity {
 		Long gid = intent.getLongExtra("GID", -1); 
 		Context context = getApplicationContext();
 		
-		
+		TableLayout throwsTable = getThrowsTable();
+		throwsTable.removeViews(0, throwsTable.getChildCount());
 		if (gid!=-1){
 			try{
 				gDao = Game.getDao(context);
@@ -140,7 +142,7 @@ public class GameInProgress extends MenuContainerActivity {
 		initNumPickers();
 		initTableRows();
 		initThrows();
-		changeCurrentThrow(0);
+//		changeCurrentThrow(0);
 		
 		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
 		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -163,12 +165,12 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
 	protected void onResume(){
 		super.onResume();
-		initThrows();
+//		initThrows();
 	}
 	@Override
 	protected void onRestart(){
-		super.onResume();
-		initThrows();
+		super.onRestart();
+//		initThrows();
 	}	
 	@Override
     protected void onStop() {
@@ -184,11 +186,15 @@ public class GameInProgress extends MenuContainerActivity {
 			 tList = tDao.queryForFieldValuesArgs(m);
 		}
 		catch (SQLException e){
-			//TODO:put something useful here
+			Toast.makeText(getApplicationContext(), 
+			"error querying throw dao", 
+			Toast.LENGTH_SHORT).show();
 		}
 		
 		if (tList.isEmpty()) {
-			// this is a new game?
+			Toast.makeText(getApplicationContext(), 
+			"throw list is empty", 
+			Toast.LENGTH_SHORT).show();
 		}
 		else {
 			Collections.sort(tList);
@@ -226,7 +232,7 @@ public class GameInProgress extends MenuContainerActivity {
 		tv.setTextSize(ThrowTableRow.tableTextSize);
 		
 		
-//        throwsTable.setStretchAllColumns(true);
+//        getThrowsTable().setStretchAllColumns(true);
 		
 	}
 	void initNumPickers(){		
@@ -388,9 +394,7 @@ public class GameInProgress extends MenuContainerActivity {
 		renderThrows(0);
 	}
 	private void renderThrows(int fromThrowNumber){
-		ThrowTableRow tr;
 		Throw t,pt;
-		Context context = getApplicationContext();
 		
 		//add new views, skipping p1 throws unless it is the last throw
 		for(int i=fromThrowNumber;i<throwArray.size();i++){
@@ -398,16 +402,17 @@ public class GameInProgress extends MenuContainerActivity {
 			pt = getPreviousThrow(i);
 			t.setInitialScores(pt);
 			
-			if (i==fromThrowNumber){
-				renderThrow(t);
-			}
-			else{
-				renderScore(t);
-			}
+//			if (i==fromThrowNumber){
+//				renderThrow(t);
+//			}
+//			else{
+//				renderScore(t);
+//			}
+			renderThrow(t);
 		}
 		
 		//highlight the current throw
-		setThrowHighlighted(true);
+//		setThrowHighlighted(true);
 		
 	}
 	
@@ -489,7 +494,7 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	void changeCurrentThrow(int newThrowNr){
-		setThrowHighlighted(false);
+//		setThrowHighlighted(false);
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -682,7 +687,7 @@ public class GameInProgress extends MenuContainerActivity {
 	ThrowTableRow getThrowTableRow(Throw t){
 		int throwNr = t.getThrowNumber();
 		int rowIdx = throwNumberToTableRow(throwNr);
-		
+		TableLayout throwsTable = getThrowsTable();
 		if (rowIdx<throwsTable.getChildCount()){
 			return (ThrowTableRow) throwsTable.getChildAt(rowIdx);
 		}
@@ -698,6 +703,10 @@ public class GameInProgress extends MenuContainerActivity {
 			throw new RuntimeException("tried to get a ThrowTableRow from the future");
 		}
 		
+	}
+	
+	private TableLayout getThrowsTable(){
+		return (TableLayout) findViewById(R.id.tableLayout_throws);
 	}
 	
 	boolean isError(){

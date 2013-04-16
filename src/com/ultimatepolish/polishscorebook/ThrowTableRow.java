@@ -47,15 +47,6 @@ public class ThrowTableRow extends TableRow {
 		return tr;
 	}
 
-	public static ThrowTableRow buildThrowRow(Throw t, Context context){
-		ThrowTableRow tr = new ThrowTableRow(context);
-		
-		TextView[] views = buildThrowViews(t, context);
-		for (TextView tv: views){
-			tr.addView(tv);
-			}
-		return tr;
-	}
 	public static TextView[] buildThrowViews(Throw t, Context context){
 		TextView[] views = {new TextView(context), 
 				new TextView(context)};
@@ -72,14 +63,11 @@ public class ThrowTableRow extends TableRow {
 		TextView[] views = {new TextView(context), 
 				new TextView(context)
 		};
-		
 		views[0].setText(String.valueOf(p1Score));
 		views[1].setText(String.valueOf(p2Score));
 		
-		
 		for (TextView tv: views){
 			ThrowTableRow.formatTextView(tv);
-			
 		}
 		return views;
 	}
@@ -140,7 +128,7 @@ public class ThrowTableRow extends TableRow {
 		getP2SpecialView().setText(t.getSpecialString());
 		
 		int sc[]  = t.getFinalScores();
-		updateScoreText(sc[1], sc[2]);
+		updateScoreText(sc[1], sc[0]);
 	}
 	protected void updateScoreText(int p1Score, int p2Score){
 		getP1ScoreView().setText(String.valueOf(p1Score));
