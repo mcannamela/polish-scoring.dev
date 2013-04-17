@@ -47,7 +47,7 @@ public class GameInProgress extends MenuContainerActivity {
 	Venue v;
 	
 	Dao<Game, Long> gDao;
-	Dao<Throw, Long>tDao;
+	Dao<Throw, Long>tDao; 
 	ArrayList<Throw> throwArray = new ArrayList<Throw>(100);
 
 	int throwNr = -1;
@@ -175,7 +175,7 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
     protected void onStop() {
     	super.onStop();
-    	finish();
+//    	finish();
     }
 	private void initThrows(){
 		
@@ -233,7 +233,7 @@ public class GameInProgress extends MenuContainerActivity {
 		
 	}
 	private void initNumPickers(){		
-		NumberPicker p;
+		NumberPicker p; 
 		
 		p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
 		p.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -244,7 +244,7 @@ public class GameInProgress extends MenuContainerActivity {
 		
 		p = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
 		p.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		p.setMinValue(2);
+		p.setMinValue(2); 
 		p.setMaxValue(3);
 		ownGoalNumPicker = p;
 		p.setOnValueChangedListener(numberPickerChangeListener);
