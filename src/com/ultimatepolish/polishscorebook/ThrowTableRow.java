@@ -14,6 +14,7 @@ public class ThrowTableRow extends TableRow {
 	public static int tableTextSize = 20;
 	public static int tableTextColor = Color.BLACK;
 	public static int tableBackgroundColor = Color.WHITE;
+	public static int columnWidth = 60;
 	
 	public ThrowTableRow(Context context) {
 		super(context);
@@ -77,6 +78,7 @@ public class ThrowTableRow extends TableRow {
 		v.setTextSize(tableTextSize);
 		v.setBackgroundColor(tableBackgroundColor);
 		v.setGravity(Gravity.CENTER);
+		v.setWidth(columnWidth);
 	}
 	public void appendThrow(Throw t){
 		TextView[] views = buildThrowViews(t, this.getContext());
@@ -93,7 +95,6 @@ public class ThrowTableRow extends TableRow {
 			this.addView(tv);
 		}
 	}
-	
 	public  void appendScore(int p1Score, int p2Score){
 		TextView[] views = buildScoreViews(p1Score,p2Score, this.getContext());
 		for (int i=0; i<views.length;i++){
@@ -102,8 +103,6 @@ public class ThrowTableRow extends TableRow {
 	}
 	
 	protected void updateText(Throw t){
-		/*looks at parity of t to determine which views to update*/
-		
 		//p1 throw
 		if (t.getThrowNumber()%2==0){
 			updateP1Text(t);
@@ -120,8 +119,6 @@ public class ThrowTableRow extends TableRow {
 		
 		int sc[]  = t.getFinalScores();
 		updateScoreText(sc[0], sc[1]);
-		
-		
 	}
 	protected void updateP2Text(Throw t){
 		getP2ThrowView().setText(t.getThrowString());
