@@ -42,7 +42,7 @@ public class GameInProgress extends MenuContainerActivity {
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	
 	Game g;
-	Player[] p = new Player[2];
+	Player[] p = new Player[2]; 
 	Session s;
 	Venue v;
 	
@@ -142,7 +142,7 @@ public class GameInProgress extends MenuContainerActivity {
 		initNumPickers();
 		initTableRows();
 		initThrows();
-//		changeCurrentThrow(0);
+		changeCurrentThrow(0);
 		
 		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
 		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -165,19 +165,19 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
 	protected void onResume(){
 		super.onResume();
-//		initThrows();
+		initThrows();
 	}
 	@Override
 	protected void onRestart(){
 		super.onRestart();
-//		initThrows();
+		initThrows();
 	}	
 	@Override
     protected void onStop() {
     	super.onStop();
     	finish();
     }
-	void initThrows(){
+	private void initThrows(){
 		
 		HashMap<String,Object> m = new HashMap<String,Object>();
 		m.put("gameId", g.getId());
@@ -218,7 +218,7 @@ public class GameInProgress extends MenuContainerActivity {
 		}
 		
 	}
-    void initTableRows(){
+	private void initTableRows(){
 		TextView tv;
 		
 		tv = (TextView) findViewById(R.id.header_p1);
@@ -231,11 +231,8 @@ public class GameInProgress extends MenuContainerActivity {
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
 		
-		
-//        getThrowsTable().setStretchAllColumns(true);
-		
 	}
-	void initNumPickers(){		
+	private void initNumPickers(){		
 		NumberPicker p;
 		
 		p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
@@ -260,7 +257,7 @@ public class GameInProgress extends MenuContainerActivity {
 		p.setOnValueChangedListener(numberPickerChangeListener);
 		
 	}
-	void displayMetadata(){
+	private void displayMetadata(){
 		DateFormat df = new SimpleDateFormat("EEE MMM dd, yyyy @HH:mm");
 		TextView tv;
 		
@@ -409,11 +406,8 @@ public class GameInProgress extends MenuContainerActivity {
 //				renderScore(t);
 //			}
 			renderThrow(t);
-		}
-		
-		//highlight the current throw
-//		setThrowHighlighted(true);
-		
+			
+		}		
 	}
 	
 	private void renderThrow(Throw t){
@@ -445,7 +439,7 @@ public class GameInProgress extends MenuContainerActivity {
 		
 	}
 	
-	private void setThrowHighlighted(boolean highlight) {
+	private void setThrowHighlighted(int throwNr, boolean highlight) {
 		
 		ThrowTableRow tr = getThrowTableRow(getThrow(throwNr));
 		
@@ -494,7 +488,7 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	void changeCurrentThrow(int newThrowNr){
-//		setThrowHighlighted(false);
+		setThrowHighlighted(throwNr, false);
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -531,6 +525,8 @@ public class GameInProgress extends MenuContainerActivity {
 		}
 		
 		renderThrows(oldThrowNr);
+		
+		setThrowHighlighted(newThrowNr, true);
 		
 		updateCurrentScore();
 		saveGame();
