@@ -43,8 +43,8 @@
     <string name="gip_session_hint">sessionName</string>
     <string name="gip_date_hint">date</string>
     <string name="gip_venue_hint">venue</string>
-    <string name="gip_ballHigh_button">high</string>
-    <string name="gip_ballLeft_button">left</string>
+    <string name="gip_ballHigh_button">v</string>
+    <string name="gip_ballLeft_button">&lt;</string>
     <string name="gip_bottle_button">bottle</string>
     <string name="gip_pole_button">pole</string>
     <string name="gip_cup_button">cup</string>
@@ -53,8 +53,8 @@
     <string name="gip_drop">drop</string>
     <string name="gip_catch">catch</string>
     <string name="gip_stalwart">stalwart</string>
-    <string name="gip_ballRight_button">right</string>
-    <string name="gip_ballLow_button">low</string>
+    <string name="gip_ballRight_button">&gt;</string>
+    <string name="gip_ballLow_button">v</string>
     <string name="gip_error_check">er</string>
     <string name="gip_owngoal_check">og</string>
     <string name="gip_goaltend_check">gt</string>
