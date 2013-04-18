@@ -23,8 +23,8 @@ import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -510,8 +510,6 @@ public class GameInProgress extends MenuContainerActivity {
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
 		
-		setScrollPosition();
-		
 		Throw t = getThrow(throwNr);
 		Throw u = getPreviousThrow(throwNr);
 		t.setInitialScores(u);
@@ -531,6 +529,7 @@ public class GameInProgress extends MenuContainerActivity {
 		
 		updateCurrentScore();
 		saveGame();
+		setScrollPosition();
 		
 	}
 	
@@ -563,6 +562,8 @@ public class GameInProgress extends MenuContainerActivity {
 	
 	
 	private void setScrollPosition() {
+		ScrollView sv = (ScrollView) findViewById(R.id.gip_scrollView);
+		sv.fullScroll(View.FOCUS_DOWN);
 		// TODO Auto-generated method stub
 	}
 	
