@@ -152,7 +152,9 @@
          android:layout_alignParentLeft="true"
          android:layout_below="@+id/button_bottle"
          android:layout_width="230dp"
-         android:layout_height="120dp" />
+         android:layout_height="120dp"
+         android:layout_marginTop="20dp"
+         android:layout_marginBottom="20dp" />
     
     <CheckBox
         android:id="@+id/checkBox_error"
@@ -187,7 +189,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/checkBox_error"
         android:layout_width="wrap_content"
-        android:layout_height="120dp" />
+        android:layout_height="120dp"
+        android:layout_marginBottom="20dp" />
 
     <NumberPicker
         android:id="@+id/numPicker_ownGoalScore"
@@ -224,7 +227,7 @@
     <CheckBox
         android:id="@+id/checkBox_broken"
 		android:layout_toRightOf="@+id/checkBox_short"
-		android:layout_below="@+id/numPicker_goaltendScore"
+		android:layout_alignTop="@+id/checkBox_short"
 		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="35sp"
