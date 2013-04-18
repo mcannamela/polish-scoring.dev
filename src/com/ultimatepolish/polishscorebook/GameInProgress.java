@@ -152,6 +152,7 @@ public class GameInProgress extends MenuContainerActivity {
 		catchText[2] = getString(R.string.gip_stalwart);
 		np.setMinValue(0);
 		np.setMaxValue(2);
+		np.setValue(1);
 		np.setDisplayedValues(catchText);
 		np.setOnValueChangedListener(numberPickerChangeListener);
 	}
