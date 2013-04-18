@@ -306,6 +306,7 @@
 	</TableLayout>
 	
 	<ScrollView
+		android:id="@+id/gip_scrollView"
 		android:layout_toRightOf="@+id/button_high"
 		android:layout_below="@+id/scoreTable_header"
 	    android:layout_width="fill_parent"
@@ -322,7 +323,7 @@
 	        android:layout_marginTop="2dp"
 	        android:paddingLeft="34dp"
 	        android:paddingRight="5dp"
-	        android:paddingBottom="20dp" />
+	        android:paddingBottom="40sp" />
 	    
 	</ScrollView>
 	
