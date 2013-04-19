@@ -14,13 +14,13 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/textView_firstName"
-        android:layout_width="100dp"
+        android:id="@+id/textView_name"
+        android:layout_width="200sp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/textView_playerId"
-        android:hint="firstName"
+        android:hint="name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -29,18 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/textView_firstName"
+        android:layout_toRightOf="@+id/textView_name"
         android:hint="nick"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView_lastName"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/textView_nickName"
-        android:hint="lastName"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

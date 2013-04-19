@@ -59,7 +59,7 @@ public class View_Players extends MenuContainerActivity {
         	String msg;
         	
         	ViewHolder_Player h = (ViewHolder_Player) v.getTag();
-        	msg = h.getFirstName() +" was clicked";
+        	msg = h.getName() +" was clicked";
         	Context context = getApplicationContext();
     		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     		
@@ -83,7 +83,6 @@ public class View_Players extends MenuContainerActivity {
     	ArrayList<String> firstNames = new ArrayList<String>();
     	ArrayList<String> lastNames = new ArrayList<String>();
     	ArrayList<String> nicknames = new ArrayList<String>();
-    	ArrayList<String> displayNames = new ArrayList<String>();
     	ArrayList<Player> players = new ArrayList<Player>();
         Dao<Player, Long> playerDao=null;
     	
@@ -107,23 +106,18 @@ public class View_Players extends MenuContainerActivity {
     		first = firstNames.get(i);
     		last = lastNames.get(i);
     		nick = nicknames.get(i);
-    		displayNames.add(buildDisplayName(first, last, nick));
     	}
         
     	ll = (LinearLayout) findViewById (R.id.db_viewListings);
     	ListView lv = new ListView(this);
     	ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
                 R.id.layout_player_list_item, 
-                R.id.textView_firstName, 
+                R.id.textView_name, 
                 players);
         lv.setAdapter(adapter);
         ll.addView(lv);
         lv.setOnItemClickListener(mPlayerClickedHandler); 
 
-    }
-    protected String buildDisplayName(String first, String last, String nick){
-    	return first+" \"" +nick+"\" "+last;
-    	
     }
     public void startNewPlayerDialog(View view) {
     	Intent intent = new Intent(this, NewPlayer.class);

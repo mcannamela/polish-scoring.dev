@@ -31,8 +31,7 @@ public class ViewAdapter_Player extends ArrayAdapter<Player> {
                 (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.list_item_player, null);
             holder = new ViewHolder_Player();
-            holder.firstName = (TextView) v.findViewById(R.id.textView_firstName);
-            holder.lastName = (TextView) v.findViewById(R.id.textView_lastName);
+            holder.name = (TextView) v.findViewById(R.id.textView_name);
             holder.nickName = (TextView) v.findViewById(R.id.textView_nickName);
             holder.id = (TextView) v.findViewById(R.id.textView_playerId);
             v.setTag(holder);
@@ -42,9 +41,8 @@ public class ViewAdapter_Player extends ArrayAdapter<Player> {
  
         final Player p = entries.get(position);
         if (p != null) {
-            holder.firstName.setText(p.getFirstName());
-            holder.lastName.setText(p.getLastName());
-            holder.nickName.setText("\"" + p.getNickName() + "\"");           
+            holder.name.setText(p.getFirstName() + " " + p.getLastName());
+            holder.nickName.setText("(" + p.getNickName() + ")");           
             holder.id.setText( String.valueOf(p.getId()));
         }
         return v;
