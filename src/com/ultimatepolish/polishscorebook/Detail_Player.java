@@ -14,7 +14,7 @@ import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 
-public class Detail_Player extends Activity {
+public class Detail_Player extends MenuContainerActivity {
 	Long pId;
 	Player p;
 	Dao<Player, Long> pDao;
