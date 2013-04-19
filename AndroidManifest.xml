@@ -7,7 +7,8 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -40,7 +41,7 @@
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.NewPlayer"
-            android:label="@string/title_activity_new_player" 
+            android:label="@string/title_activity_new_player"
             android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
         </activity>
         <activity
@@ -77,6 +78,10 @@
             android:name="com.ultimatepolish.polishscorebook.SimpleSettings"
             android:label="@string/title_activity_simple_settings"
             android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+        </activity>
+        <activity
+            android:name="com.ultimatepolish.polishscorebook.Detail_Player"
+            android:label="@string/title_activity_detail__player" >
         </activity>
     </application>
 

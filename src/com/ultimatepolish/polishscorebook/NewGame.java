@@ -4,16 +4,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.DragShadowBuilder;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -28,6 +33,7 @@ public class NewGame extends MenuContainerActivity {
 	Spinner spinner_p2 ;
 	Spinner spinner_session ;
 	Spinner spinner_venue ;
+	ListView lv_players;
 	
 	int p1_pos = 0;
 	int p2_pos = 1;
@@ -51,6 +57,7 @@ public class NewGame extends MenuContainerActivity {
 		spinner_p2 = (Spinner) findViewById(R.id.spinner_player2);
 		spinner_session = (Spinner) findViewById(R.id.spinner_session);
 		spinner_venue = (Spinner) findViewById(R.id.spinner_venue);
+//		lv_players = (ListView) findViewById(R.id.listView1);
 		
 		refreshSpinners(spinner_p1);
 		
@@ -58,6 +65,7 @@ public class NewGame extends MenuContainerActivity {
 		spinner_p2.setOnItemSelectedListener(mPlayerTwoSelectedHandler);
 		spinner_session.setOnItemSelectedListener(mSessionSelectedHandler);
 		spinner_venue.setOnItemSelectedListener(mVenueSelectedHandler);
+//		lv_players.setOnTouchListener(new MyTouchListener());
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -104,6 +112,19 @@ public class NewGame extends MenuContainerActivity {
         }
         public void onNothingSelected(AdapterView<?> parent) {}
     };
+//    private final class MyTouchListener implements OnTouchListener {
+//    	  public boolean onTouch(View view, MotionEvent motionEvent) {
+//    	    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+//    	      ClipData data = ClipData.newPlainText("", "");
+//    	      DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+//    	      view.startDrag(data, shadowBuilder, view, 0);
+//    	      view.setVisibility(View.INVISIBLE);
+//    	      return true;
+//    	    } else {
+//    	    return false;
+//    	    }
+//    	  }
+//    	} 
 	public void refreshSpinners(View view){
 		Context context = getApplicationContext();
 		try{
@@ -122,6 +143,11 @@ public class NewGame extends MenuContainerActivity {
 		for(Player p: players){
 			playerNames.add(String.valueOf(p.getId())+" "+p.getNickName());
 		}
+//		ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
+//                R.id.layout_player_list_item, 
+//                R.id.textView_firstName, 
+//                players);
+//        lv_players.setAdapter(adapter);
 		for(Session s: sessions){
 			sessionNames.add(String.valueOf(s.getId())+" "+s.getSessionName());
 		}
