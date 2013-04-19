@@ -3,16 +3,12 @@ package com.ultimatepolish.polishscorebook;
 import android.widget.TextView;
 
 public class ViewHolder_Player {
-	public TextView firstName;
-    public TextView lastName;
+	public TextView name;
     public TextView nickName;
     public TextView id;
     
-    public String getFirstName(){
-    	return firstName.getText().toString();
-    }
-    public String getLastName(){
-    	return lastName.getText().toString();
+    public String getName(){
+    	return name.getText().toString();
     }
     public String getNickName(){
     	return nickName.getText().toString();
