@@ -62,6 +62,11 @@ public class View_Players extends MenuContainerActivity {
         	msg = h.getFirstName() +" was clicked";
         	Context context = getApplicationContext();
     		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    		
+    		Long pId  = Long.valueOf(h.getId());
+    		Intent intent = new Intent(getApplicationContext(), Detail_Player.class);
+            intent.putExtra("PID", pId);
+            startActivity(intent);
         }
     };
     @Override

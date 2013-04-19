@@ -6,7 +6,6 @@
     <string name="create">Create!</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello World</string>
-    
     <string name="title_activity_polish_scorebook">PolishScorebook</string>
     <string name="title_activity_players">Players</string>
     <string name="title_activity_new_player">Create New Player</string>
@@ -20,7 +19,6 @@
     <string name="title_activity_simple_settings">Settings</string>
     <string name="title_activity_venues">Venues</string>
     <string name="title_activity_sessions">Sessions</string>
-    
     <string name="button_players">Players</string>
     <string name="button_games">Games</string>
     <string name="button_venues">New Venue</string>
@@ -65,5 +63,6 @@
     <string name="gip_firedon_check">firedOn</string>
     <string name="gip_drinkhit_check">drinkHit</string>
     <string name="gip_drinkdrop_check">drinkDrop</string>
+    <string name="title_activity_detail__player">Player Details</string>
 
 </resources>
