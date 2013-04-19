@@ -81,7 +81,7 @@
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.Detail_Player"
-            android:label="@string/title_activity_detail__player" >
+            android:label="@string/title_activity_detail_player" >
         </activity>
     </application>
 

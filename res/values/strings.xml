@@ -63,6 +63,6 @@
     <string name="gip_firedon_check">firedOn</string>
     <string name="gip_drinkhit_check">drinkHit</string>
     <string name="gip_drinkdrop_check">drinkDrop</string>
-    <string name="title_activity_detail__player">Player Details</string>
+    <string name="title_activity_detail_player">Player Details</string>
 
 </resources>
