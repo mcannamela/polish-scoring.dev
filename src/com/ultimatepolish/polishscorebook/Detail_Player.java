@@ -62,15 +62,28 @@ public class Detail_Player extends MenuContainerActivity {
 		TextView pName = (TextView) findViewById(R.id.pDet_name);
 		pName.setText(p.getFirstName() + ' ' + p.getLastName() + " (" + p.getNickName() + ")");
 		
+		TextView pId = (TextView) findViewById(R.id.pDet_id);
+		pId.setText(String.valueOf(p.getId()));
+		
 		TextView pHeight = (TextView) findViewById(R.id.pDet_height);
 		pHeight.setText("Height: " + String.valueOf(p.getHeight_cm()) + " cm");
 		
 		TextView pWeight = (TextView) findViewById(R.id.pDet_weight);
 		pWeight.setText("Weight: " + String.valueOf(p.getWeight_kg()) + " kg");
 		
-//		TextView pWeight = (TextView) findViewById(R.id.pDet_weight);
-//		pWeight.setText();
-
+		TextView pWinRatio = (TextView) findViewById(R.id.pDet_winRatio);
+		pWinRatio.setText(String.valueOf(p.getnWins()) + "/" + String.valueOf(p.getnLosses()));
+		
+		TextView pHanded = (TextView) findViewById(R.id.pDet_handed);
+		if (p.throwsLeftHanded) {
+			if (p.throwsRightHanded) {
+				pHanded.setText("L + R");
+			}
+			else { pHanded.setText("L");
+			}
+		}
+		else {pHanded.setText("R");
+		}
 	}
 
 }
