@@ -33,7 +33,7 @@ public class View_Games extends MenuContainerActivity {
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_view_listing);
 			
-//		refreshGamesListing();
+		
 		
 		// Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -47,6 +47,8 @@ public class View_Games extends MenuContainerActivity {
         expandAll();
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
+        
+        refreshGamesListing();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -73,7 +75,7 @@ public class View_Games extends MenuContainerActivity {
     @Override
     protected void onStop() {
     	super.onStop();
-    	finish();
+//    	finish();
     }
 
     private void expandAll() {
@@ -91,6 +93,8 @@ public class View_Games extends MenuContainerActivity {
     	}
     }
     protected void refreshGamesListing(){
+    	sHash.clear();
+    	sessionList.clear();
     	// add all the sessions to the headers
     	Dao<Session, Long> sessionDao = null;
         try{
