@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -62,6 +64,8 @@ public class GameInProgress extends MenuContainerActivity {
 	NumberPicker ownGoalNumPicker;
 	NumberPicker goaltendNumPicker;
 	
+	
+	
 //	TableLayout throwsTable;
 	
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -110,18 +114,25 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		throwsTable = (TableLayout) findViewById(R.id.tableLayout_throws);
-		
-		
 		
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_game_in_progress);
 		Intent intent = getIntent();
-		Long gid = intent.getLongExtra("GID", -1); 
+		Long gid = intent.getLongExtra("GID", -1);
 		Context context = getApplicationContext();
 		
+//		
+//		FragmentManager fragmentManager = getFragmentManager();
+//		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//		ThrowTableFragment tableFragment = new ThrowTableFragment();
+//		fragmentTransaction.add(R.id.gip_scrollView, tableFragment, "fragment_throwTable");
+//		fragmentTransaction.commit();
+//		
+		
+		
 		TableLayout throwsTable = getThrowsTable();
-		throwsTable.removeViews(0, throwsTable.getChildCount());
+		throwsTable.removeAllViews();
+		
 		if (gid!=-1){
 			try{
 				gDao = Game.getDao(context);
@@ -140,21 +151,11 @@ public class GameInProgress extends MenuContainerActivity {
 		}
 		displayMetadata();
 		initNumPickers();
-		initTableRows();
+		initTableHeaders();
 		initThrows();
 		changeCurrentThrow(0);
 		
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		String[] catchText = new String[3];
-		catchText[0] = getString(R.string.gip_drop);
-		catchText[1] = getString(R.string.gip_catch);
-		catchText[2] = getString(R.string.gip_stalwart);
-		np.setMinValue(0);
-		np.setMaxValue(2);
-		np.setValue(1);
-		np.setDisplayedValues(catchText);
-		np.setOnValueChangedListener(numberPickerChangeListener);
+		
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -176,7 +177,7 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
     protected void onStop() {
     	super.onStop();
-//    	finish();
+    	finish();
     }
 	private void initThrows(){
 		
@@ -209,17 +210,17 @@ public class GameInProgress extends MenuContainerActivity {
 		
 		renderThrows();
 		
-		for (Throw t: throwArray){
-			try{
-				saveThrow(t);
-			}
-			catch (SQLException e){
-				//TODO:put something useful here
-			}
-		}
+//		for (Throw t: throwArray){
+//			try{
+//				saveThrow(t);
+//			}
+//			catch (SQLException e){
+//				//TODO:put something useful here
+//			}
+//		}
 		
 	}
-	private void initTableRows(){
+	private void initTableHeaders(){
 		TextView tv;
 		
 		tv = (TextView) findViewById(R.id.header_p1);
@@ -233,7 +234,19 @@ public class GameInProgress extends MenuContainerActivity {
 		tv.setTextSize(ThrowTableRow.tableTextSize);
 		
 	}
-	private void initNumPickers(){		
+	private void initNumPickers(){
+		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
+		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		String[] catchText = new String[3];
+		catchText[0] = getString(R.string.gip_drop);
+		catchText[1] = getString(R.string.gip_catch);
+		catchText[2] = getString(R.string.gip_stalwart);
+		np.setMinValue(0);
+		np.setMaxValue(2);
+		np.setValue(1);
+		np.setDisplayedValues(catchText);
+		np.setOnValueChangedListener(numberPickerChangeListener);
+		
 		NumberPicker p; 
 		
 		p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
@@ -704,7 +717,21 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	private TableLayout getThrowsTable(){
-		return (TableLayout) findViewById(R.id.tableLayout_throws);
+		TableLayout layout = null;
+//		layout = (TableLayout) findViewById(R.id.tableLayout_throws);
+		
+		ScrollView scrollView = (ScrollView) findViewById(R.id.gip_scrollView);
+//		Toast.makeText(getApplicationContext(), 
+//				"scroll view has "+scrollView.getChildCount() +" children", 
+//				Toast.LENGTH_LONG).show();
+		layout = (TableLayout) scrollView.getChildAt(0);
+		
+//		ThrowTableFragment frag = (ThrowTableFragment) getFragmentManager().findFragmentByTag("fragment_throwTable");
+//		layout = (TableLayout) frag.getView();
+		
+		
+		return layout; 
+		
 	}
 	
 	boolean isError(){
