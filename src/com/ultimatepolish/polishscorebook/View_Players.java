@@ -80,9 +80,6 @@ public class View_Players extends MenuContainerActivity {
     	refreshPlayerList();
     }
     protected void refreshPlayerList(){
-    	ArrayList<String> firstNames = new ArrayList<String>();
-    	ArrayList<String> lastNames = new ArrayList<String>();
-    	ArrayList<String> nicknames = new ArrayList<String>();
     	ArrayList<Player> players = new ArrayList<Player>();
         Dao<Player, Long> playerDao=null;
     	
@@ -90,9 +87,6 @@ public class View_Players extends MenuContainerActivity {
     		 playerDao = getHelper().getPlayerDao();
     		 for(Player p: playerDao){
     			 players.add(p);
-    			 firstNames.add(p.getFirstName());
-    			 lastNames.add(p.getLastName());
-    			 nicknames.add(p.getNickName());
     			}
     	}
     	catch (SQLException e){
@@ -101,13 +95,6 @@ public class View_Players extends MenuContainerActivity {
     		Log.e(View_Players.class.getName(), "Retrieval of players failed", e);
     	}
     	
-    	String first, last, nick;
-    	for(int i=0; i<firstNames.size();i++){
-    		first = firstNames.get(i);
-    		last = lastNames.get(i);
-    		nick = nicknames.get(i);
-    	}
-        
     	ll = (LinearLayout) findViewById (R.id.db_viewListings);
     	ListView lv = new ListView(this);
     	ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
