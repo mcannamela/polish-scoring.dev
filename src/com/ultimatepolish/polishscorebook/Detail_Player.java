@@ -2,16 +2,15 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
-import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 
 public class Detail_Player extends MenuContainerActivity {
@@ -84,6 +83,11 @@ public class Detail_Player extends MenuContainerActivity {
 		}
 		else {pHanded.setText("R");
 		}
+	}
+	public void modifyPlayer(View view){
+		Intent intent = new Intent(getApplicationContext(), NewPlayer.class);
+        intent.putExtra("PID", pId);
+        startActivity(intent);
 	}
 
 }
