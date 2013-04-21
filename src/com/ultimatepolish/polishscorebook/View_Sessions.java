@@ -27,7 +27,6 @@ public class View_Sessions extends MenuContainerActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_view_list);
 		
 		// Make sure we're running on Honeycomb or higher to use ActionBar APIs
