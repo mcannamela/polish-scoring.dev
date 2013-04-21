@@ -93,7 +93,6 @@ public class SimpleSettings extends MenuContainerActivity {
         dbxSaveButton.setVisibility(View.VISIBLE);
         dbxLoadButton.setVisibility(View.VISIBLE);
     }
-
     private void showUnlinkedView() {
         mLinkButton.setVisibility(View.VISIBLE);
         dbxSaveButton.setVisibility(View.GONE);
@@ -155,7 +154,6 @@ public class SimpleSettings extends MenuContainerActivity {
 	   		Log.e(PolishScorebook.class.getName(), "Clearing tables failed", e);
 	   	}
     }
-
 	public void doPopulateTest(View view){
     	Dao<Player, Long> playerDao=null;
     	Player[] players = {
@@ -197,44 +195,6 @@ public class SimpleSettings extends MenuContainerActivity {
     		Log.e(PolishScorebook.class.getName(), "Creation of players failed", e);
     	}
     }
-	public void saveDB(View view){
-    	if (isExternalStorageWritable()){
-    		File internalDB = getInternalPath();
-    		File externalDB = getExternalPath();
-    		try{
-	    		copyFile(internalDB, externalDB);
-    		}
-	        catch (Exception e){
-	        	Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
-	        }
-    	}
-    	else{
-    		Toast.makeText(getApplicationContext(), 
-					"db not saved; storage not writable", 
-					Toast.LENGTH_SHORT).show();
-    	}
-    }
-	public void loadDB(View view){
-//    	if (isExternalStorageWritable()){
-//    		File internalDB = getInternalPath();
-//    		File externalDB = getExternalPath();
-//    		try{
-//	    		copyFile(externalDB, internalDB);
-//    		}
-//	        catch (Exception e){
-//	        	Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
-//	        }
-//    	}
-//    	else{
-//    		Toast.makeText(getApplicationContext(), 
-//					"db not loaded; storage not writable", 
-//					Toast.LENGTH_SHORT).show();
-//    	}
-    	Toast.makeText(getApplicationContext(), 
-				"feature not yet implemented!", 
-				Toast.LENGTH_SHORT).show();
-    }
-	
 	public void saveDBdropbox(View view) {
 		Context context = getApplicationContext();
    		Toast.makeText(context, "Saved to dropbox", Toast.LENGTH_SHORT).show();
@@ -295,44 +255,11 @@ public class SimpleSettings extends MenuContainerActivity {
             mTestOutput.setText("Dropbox test failed: " + e);
         }
 	}
-	
-	File getExternalPath(){
-		File externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-		File externalDB = new File(externalPath, "polish.bak.db");
-		return externalDB;
-	}
 	File getInternalPath(){
 		String dbPath = getHelper().getReadableDatabase().getPath();
 		File internalDB = new File(dbPath);
 		return internalDB;
 	}
-	boolean isExternalStorageWritable(){
-		String state = Environment.getExternalStorageState();
-		return Environment.MEDIA_MOUNTED.equals(state);
-	}
-	
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
-        if(!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        FileChannel source = null;
-        FileChannel destination = null;
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        }
-        finally {
-            if(source != null) {
-                source.close();
-            }
-            if(destination != null) {
-                destination.close();
-            }
-        }
-    }
     public static void copyDbxFile(DbxFile sourceFile, File destFile) throws IOException {
         if(!destFile.exists()) {
             destFile.createNewFile();
