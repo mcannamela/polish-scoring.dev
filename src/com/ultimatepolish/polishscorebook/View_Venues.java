@@ -22,6 +22,7 @@ import com.ultimatepolish.scorebookdb.Venue;
 
 public class View_Venues extends MenuContainerActivity {
 	private LinearLayout ll;
+	private ListView lv;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +30,17 @@ public class View_Venues extends MenuContainerActivity {
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_view_list);
 		
-//		refreshVenuesListing();
-		
 		// Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Show the Up button in the action bar.
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        
+        ll = (LinearLayout) findViewById (R.id.db_viewListings);
+    	lv = new ListView(this);
+    	ll.addView(lv);
+        lv.setOnItemClickListener(mVenueClickedHandler);
+    	
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -62,7 +67,6 @@ public class View_Venues extends MenuContainerActivity {
     @Override
     protected void onStop() {
     	super.onStop();
-    	finish();
     }
     private OnItemClickListener mVenueClickedHandler = new OnItemClickListener() {
         public void onItemClick(AdapterView parent, View v, int position, long id) {
@@ -95,14 +99,9 @@ public class View_Venues extends MenuContainerActivity {
     		Log.e(View_Venues.class.getName(), "Retrieval of venues failed", e);
     	}
     	
-    	ll = (LinearLayout) findViewById (R.id.db_viewListings);
-    	ListView lv = new ListView(this);
     	ViewAdapter_Venue adapter = new ViewAdapter_Venue(this, 
                 R.id.layout_session_list_item, 
                 venuesArray);
         lv.setAdapter(adapter);
-        ll.addView(lv);
-        lv.setOnItemClickListener(mVenueClickedHandler); 
-
     }
 }

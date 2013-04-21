@@ -7,9 +7,8 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
-
     
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
     
     <!-- required for dropbox -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -48,7 +47,7 @@
         <activity
             android:name="com.ultimatepolish.polishscorebook.GameInProgress"
             android:label="@string/title_activity_game_in_progress"
-            android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Games" >
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.MenuContainerActivity"
@@ -58,22 +57,22 @@
         <activity
             android:name="com.ultimatepolish.polishscorebook.NewGame"
             android:label="@string/title_activity_new_game"
-            android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Games" >
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.NewPlayer"
             android:label="@string/title_activity_new_player"
-            android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.NewSession"
             android:label="@string/title_activity_new_session"
-            android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Sessions" >
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.NewVenue"
             android:label="@string/title_activity_new_venue"
-            android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Venues" >
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.View_Games"
@@ -102,7 +101,8 @@
         </activity>
         <activity
             android:name="com.ultimatepolish.polishscorebook.Detail_Player"
-            android:label="@string/title_activity_detail_player" >
+            android:label="@string/title_activity_detail_player"
+            android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >
         </activity>
     </application>
 

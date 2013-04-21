@@ -22,6 +22,7 @@ import com.ultimatepolish.scorebookdb.Session;
 
 public class View_Sessions extends MenuContainerActivity {
 	private LinearLayout ll;
+	private ListView lv;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,13 +30,16 @@ public class View_Sessions extends MenuContainerActivity {
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_view_list);
 		
-//		refreshSessionsListing();
-		
 		// Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Show the Up button in the action bar.
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        
+        ll = (LinearLayout) findViewById (R.id.db_viewListings);
+    	lv = new ListView(this);
+    	ll.addView(lv);
+        lv.setOnItemClickListener(mSessionClickedHandler);
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -62,7 +66,6 @@ public class View_Sessions extends MenuContainerActivity {
     @Override
     protected void onStop() {
     	super.onStop();
-    	finish();
     }
     private OnItemClickListener mSessionClickedHandler = new OnItemClickListener() {
         public void onItemClick(AdapterView parent, View v, int position, long id) {
@@ -95,13 +98,10 @@ public class View_Sessions extends MenuContainerActivity {
     		Log.e(View_Sessions.class.getName(), "Retrieval of sessions failed", e);
     	}
         
-    	ll = (LinearLayout) findViewById (R.id.db_viewListings);
-    	ListView lv = new ListView(this);
+    	
     	ViewAdapter_Session adapter = new ViewAdapter_Session(this, 
                 R.id.layout_session_list_item, 
                 sessionsArray);
         lv.setAdapter(adapter);
-        ll.addView(lv);
-        lv.setOnItemClickListener(mSessionClickedHandler); 
     }
 }
