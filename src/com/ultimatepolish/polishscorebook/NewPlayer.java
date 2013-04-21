@@ -33,7 +33,6 @@ public class NewPlayer extends MenuContainerActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_new_player);
 		
 		name = (TextView) findViewById(R.id.editText_playerName);

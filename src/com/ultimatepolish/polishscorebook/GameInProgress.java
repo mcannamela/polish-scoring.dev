@@ -115,7 +115,6 @@ public class GameInProgress extends MenuContainerActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_game_in_progress);
 		Intent intent = getIntent();
 		Long gid = intent.getLongExtra("GID", -1);
@@ -152,9 +151,7 @@ public class GameInProgress extends MenuContainerActivity {
 		displayMetadata();
 		initNumPickers();
 		initTableHeaders();
-		initThrows();
 		changeCurrentThrow(0);
-		
 		
 	}
 	@Override
@@ -177,7 +174,6 @@ public class GameInProgress extends MenuContainerActivity {
 	@Override
     protected void onStop() {
     	super.onStop();
-    	finish();
     }
 	private void initThrows(){
 		
