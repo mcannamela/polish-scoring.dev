@@ -22,6 +22,7 @@ import com.ultimatepolish.scorebookdb.Player;
 
 public class View_Players extends MenuContainerActivity {
 	private LinearLayout ll;
+	private ListView lv;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,11 +35,15 @@ public class View_Players extends MenuContainerActivity {
             // Show the Up button in the action bar.
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        
+        ll = (LinearLayout) findViewById (R.id.db_viewListings);
+    	lv = new ListView(this);
+    	ll.addView(lv);
+        lv.setOnItemClickListener(mPlayerClickedHandler); 
     }
     @Override
     protected void onStop() {
     	super.onStop();
-    	finish();
     }
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -93,15 +98,11 @@ public class View_Players extends MenuContainerActivity {
     		Log.e(View_Players.class.getName(), "Retrieval of players failed", e);
     	}
     	
-    	ll = (LinearLayout) findViewById (R.id.db_viewListings);
-    	ListView lv = new ListView(this);
     	ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
                 R.id.layout_player_list_item, 
                 R.id.textView_name, 
                 players);
         lv.setAdapter(adapter);
-        ll.addView(lv);
-        lv.setOnItemClickListener(mPlayerClickedHandler); 
 
     }
     public void startNewPlayerDialog(View view) {

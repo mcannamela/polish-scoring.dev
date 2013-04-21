@@ -4,17 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.DragShadowBuilder;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -51,7 +46,6 @@ public class NewGame extends MenuContainerActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_new_game);
 		spinner_p1 = (Spinner) findViewById(R.id.spinner_player1);
 		spinner_p2 = (Spinner) findViewById(R.id.spinner_player2);
