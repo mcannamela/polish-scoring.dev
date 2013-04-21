@@ -6,17 +6,32 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dropbox.sync.android.DbxAccountManager;
+import com.dropbox.sync.android.DbxException;
+import com.dropbox.sync.android.DbxFile;
+import com.dropbox.sync.android.DbxFileInfo;
+import com.dropbox.sync.android.DbxFileSystem;
+import com.dropbox.sync.android.DbxPath;
+import com.dropbox.sync.android.DbxSyncStatus;
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
@@ -26,11 +41,34 @@ import com.ultimatepolish.scorebookdb.Venue;
 
 public class SimpleSettings extends MenuContainerActivity {
 
+	private DbxAccountManager mDbxAcctMgr;
+	private static final String appKey = "v08dmrsen6b8pr5";
+    private static final String appSecret = "epzfibxnco03c9v";
+    private Button mLinkButton;
+    private Button dbxSaveButton;
+    private Button dbxLoadButton;
+    private TextView mTestOutput;
+
+    private static final int REQUEST_LINK_TO_DBX = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.activity_simple_settings);
+
+		mDbxAcctMgr = DbxAccountManager.getInstance(getApplicationContext(), appKey, appSecret);
+		
+		mLinkButton = (Button) findViewById(R.id.settings_linkToDropbox);
+        mLinkButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickLinkToDropbox();
+            }
+        });
+        dbxSaveButton = (Button) findViewById(R.id.button_saveDB_dropbox);
+		dbxLoadButton = (Button) findViewById(R.id.button_loadDB_dropbox);
+		mTestOutput = (TextView) findViewById(R.id.settings_dbxFiles);
 	}
 
 	@Override
@@ -40,6 +78,46 @@ public class SimpleSettings extends MenuContainerActivity {
 		menu.findItem(R.id.addButton).setVisible(false);
 		menu.findItem(R.id.action_settings).setVisible(false);
 		return true;
+	}
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mDbxAcctMgr.hasLinkedAccount()) {
+		    showLinkedView();
+		} else {
+			showUnlinkedView();
+		}
+	}
+    private void showLinkedView() {
+        mLinkButton.setVisibility(View.GONE);
+        dbxSaveButton.setVisibility(View.VISIBLE);
+        dbxLoadButton.setVisibility(View.VISIBLE);
+    }
+
+    private void showUnlinkedView() {
+        mLinkButton.setVisibility(View.VISIBLE);
+        dbxSaveButton.setVisibility(View.GONE);
+        dbxLoadButton.setVisibility(View.GONE);
+    }
+	private void onClickLinkToDropbox() {
+	    mDbxAcctMgr.startLink((Activity)this, REQUEST_LINK_TO_DBX);
+	}
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == REQUEST_LINK_TO_DBX) {
+	        if (resultCode == Activity.RESULT_OK) {
+	            // ... Start using Dropbox files.
+	        	Context context = getApplicationContext();
+	       		Toast.makeText(context, "Successfully connected to dropbox!", Toast.LENGTH_SHORT).show();
+	       		mLinkButton.setVisibility(View.GONE);
+	        } else {
+	            // ... Link failed or was cancelled by the user.
+	        	Context context = getApplicationContext();
+	       		Toast.makeText(context, "Link failed or was cancelled by the user.", Toast.LENGTH_SHORT).show();
+	        }            
+	    } else {
+	        super.onActivityResult(requestCode, resultCode, data);
+	    }
 	}
 	public void clearTables(View view){
     	Dao<Player, Long> pd;
@@ -157,6 +235,67 @@ public class SimpleSettings extends MenuContainerActivity {
 				Toast.LENGTH_SHORT).show();
     }
 	
+	public void saveDBdropbox(View view) {
+		Context context = getApplicationContext();
+   		Toast.makeText(context, "Saved to dropbox", Toast.LENGTH_SHORT).show();
+   		
+   		try {
+            // Create DbxFileSystem for synchronized file access.
+            DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+            
+            String fileName = new SimpleDateFormat("yyyy-MM-dd_hh-mm'.db'", Locale.US).format(new Date());
+
+            DbxPath phDBpath = new DbxPath(DbxPath.ROOT, fileName);
+            if (!dbxFs.exists(phDBpath)) {
+            	DbxFile phDBfile = dbxFs.create(phDBpath);
+            	try {
+            		phDBfile.writeFromExistingFile(getInternalPath(), false);
+                } finally {
+                	phDBfile.close();
+                }
+            	mTestOutput.append("\nCreated new file '" + phDBpath + "'.\n");
+            }
+        } catch (IOException e) {
+            mTestOutput.setText("Dropbox test failed: " + e);
+        }
+	}
+	public void loadDBdropbox(View view) {
+		DbxPath latestFile = null;
+		
+   		try {
+            // Create DbxFileSystem for synchronized file access.
+            DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+
+            // Print the contents of the root folder.  This will block until we can
+            // sync metadata the first time.
+            List<DbxFileInfo> infos = dbxFs.listFolder(DbxPath.ROOT);
+            mTestOutput.setText("\nStored .db Files:\n");
+            for (DbxFileInfo info : infos) {
+            	if (info.path.toString().contains(".db")) { //exclude files that dont have .db in the name
+		        	if (latestFile == null) { //latestFile starts as null, so make first file latest
+		        		latestFile = info.path;
+		        	} else { //compare each file to latestFile, update if necessary
+		        		if (info.modifiedTime.after(dbxFs.getFileInfo(latestFile).modifiedTime)) {
+		        			latestFile = info.path;
+		            	}
+		        	}
+		        // list all the .db files in the dropbox folder
+                mTestOutput.append("    " + info.path + ", " + info.modifiedTime + '\n');
+            	}
+            }
+
+            //open the latest .db file and copy over the local database
+            DbxFile latestDb = dbxFs.open(latestFile);
+            copyDbxFile(latestDb, getInternalPath());
+            
+            mTestOutput.append("Loaded: " + latestDb.getPath() + '\n');
+            latestDb.close();
+            
+        } catch (IOException e) {
+            mTestOutput.setText("Dropbox test failed: " + e);
+        }
+	}
+	
 	File getExternalPath(){
 		File externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 		File externalDB = new File(externalPath, "polish.bak.db");
@@ -194,8 +333,26 @@ public class SimpleSettings extends MenuContainerActivity {
             }
         }
     }
-    
-   
-    
-	
+    public static void copyDbxFile(DbxFile sourceFile, File destFile) throws IOException {
+        if(!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        try {
+            source = sourceFile.getReadStream().getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        }
+        finally {
+            if(source != null) {
+                source.close();
+            }
+            if(destination != null) {
+                destination.close();
+            }
+        }
+    }
 }
