@@ -24,22 +24,6 @@
 	    android:layout_margin="10dp"
 	    android:text="populateDB"
 	    android:onClick="doPopulateTest" />
-
-	<Button
-	    android:id="@+id/button_saveDB"
-	    android:layout_width="200sp"
-	    android:layout_height="wrap_content"
-	    android:layout_margin="10dp"
-	    android:text="saveDB" 
-	    android:onClick="saveDB"/>
-
-	<Button
-	    android:id="@+id/button_loadDB"
-	    android:layout_width="200sp"
-	    android:layout_height="wrap_content"
-	    android:layout_margin="10dp"
-	    android:text="loadDB"
-	    android:onClick="loadDB" />
 	
 	<Button
 	    android:id="@+id/settings_linkToDropbox"
