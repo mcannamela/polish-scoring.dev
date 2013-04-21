@@ -56,6 +56,7 @@ public class NewSession extends MenuContainerActivity {
     		Dao<Session, Long> dao = getHelper().getSessionDao();
 	   		dao.create(session);
 	   		Toast.makeText(context, "Session created!", Toast.LENGTH_SHORT).show();
+	   		finish();
 		   	}
 		 catch (SQLException e){
 			 Log.e(PolishScorebook.class.getName(), "Could not create Session", e);

@@ -52,6 +52,7 @@ public class NewVenue extends MenuContainerActivity {
     		Dao<Venue, Long> dao = getHelper().getVenueDao();
 	   		dao.create(venue);
 	   		Toast.makeText(context, "venue created!", Toast.LENGTH_SHORT).show();
+	   		finish();
 		   	}
 		 catch (SQLException e){
 			 Log.e(PolishScorebook.class.getName(), "Could not create venue", e);

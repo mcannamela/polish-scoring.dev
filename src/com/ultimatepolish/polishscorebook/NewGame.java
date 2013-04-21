@@ -141,7 +141,7 @@ public class NewGame extends MenuContainerActivity {
 		sessionNames.clear();
 		venueNames.clear();
 		for(Player p: players){
-			playerNames.add(String.valueOf(p.getId())+" "+p.getNickName());
+			playerNames.add(p.getFirstName() + " " + p.getLastName());
 		}
 //		ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
 //                R.id.layout_player_list_item, 
@@ -195,6 +195,7 @@ public class NewGame extends MenuContainerActivity {
 			Intent intent = new Intent(this, GameInProgress.class);
 			intent.putExtra("GID", gid);
 	    	startActivity(intent);
+	    	finish();
 			
 		}
 		catch(SQLException e){
