@@ -1,7 +1,6 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -12,11 +11,12 @@ import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -26,12 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.sync.android.DbxAccountManager;
-import com.dropbox.sync.android.DbxException;
 import com.dropbox.sync.android.DbxFile;
 import com.dropbox.sync.android.DbxFileInfo;
 import com.dropbox.sync.android.DbxFileSystem;
 import com.dropbox.sync.android.DbxPath;
-import com.dropbox.sync.android.DbxSyncStatus;
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
@@ -69,6 +67,34 @@ public class SimpleSettings extends MenuContainerActivity {
         dbxSaveButton = (Button) findViewById(R.id.button_saveDB_dropbox);
 		dbxLoadButton = (Button) findViewById(R.id.button_loadDB_dropbox);
 		mTestOutput = (TextView) findViewById(R.id.settings_dbxFiles);
+		
+		dbxLoadButton.setOnClickListener(new OnClickListener() {
+			 
+			@Override
+			public void onClick(View view) {
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
+				alertDialogBuilder.setTitle("Overwrite local database?");
+				alertDialogBuilder.setMessage("The local database will be overwritten by the most recent file in dropbox.")
+					.setPositiveButton("Overwrite",new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,int id) {
+								// if this button is clicked, close
+								// current activity
+							loadDBdropbox();
+						}
+					  })
+					.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,int id) {
+							// if this button is clicked, just close
+							// the dialog box and do nothing
+							dialog.cancel();
+						}
+					});
+		 
+					AlertDialog alertDialog = alertDialogBuilder.create();
+					alertDialog.show();
+				}
+			});
+		
 	}
 
 	@Override
@@ -219,9 +245,9 @@ public class SimpleSettings extends MenuContainerActivity {
             mTestOutput.setText("Dropbox test failed: " + e);
         }
 	}
-	public void loadDBdropbox(View view) {
+	public void loadDBdropbox() {
 		DbxPath latestFile = null;
-		
+	
    		try {
             // Create DbxFileSystem for synchronized file access.
             DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
@@ -245,11 +271,14 @@ public class SimpleSettings extends MenuContainerActivity {
             }
 
             //open the latest .db file and copy over the local database
-            DbxFile latestDb = dbxFs.open(latestFile);
-            copyDbxFile(latestDb, getInternalPath());
-            
-            mTestOutput.append("Loaded: " + latestDb.getPath() + '\n');
-            latestDb.close();
+            if (latestFile != null) {
+	            DbxFile latestDb = dbxFs.open(latestFile);
+	            copyDbxFile(latestDb, getInternalPath());
+	            mTestOutput.append("Loaded: " + latestDb.getPath() + '\n');
+	            latestDb.close();
+            } else {
+            	mTestOutput.append("No database files were found.\n");
+            }
             
         } catch (IOException e) {
             mTestOutput.setText("Dropbox test failed: " + e);
