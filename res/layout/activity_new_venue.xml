@@ -29,7 +29,7 @@
         android:layout_alignLeft="@+id/editText_venueName"
         android:layout_below="@+id/editText_venueName"
         android:layout_marginLeft="14dp"
-        android:layout_marginTop="62dp"
+        android:layout_marginTop="32dp"
         android:checked="true"
         android:text="Score kept from top?" />
 
@@ -37,9 +37,9 @@
         android:id="@+id/button_createVenue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="70dp"
+        android:layout_alignBaseline="@+id/editText_venueName"
+        android:layout_toRightOf="@+id/editText_venueName"
+        android:layout_marginLeft="70dp"
         android:text="@string/create"
         android:onClick="createNewVenue" />
 
