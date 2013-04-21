@@ -26,6 +26,28 @@ public class Detail_Player extends MenuContainerActivity {
 		
 		Intent intent = getIntent();
 		pId = intent.getLongExtra("PID", -1);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		menu.findItem(R.id.addButton).setVisible(false);
+		
+		return true;
+	}
+	@Override
+    protected void onRestart(){
+    	super.onRestart();
+    	refreshDetails();
+    }
+    @Override
+    protected void onResume(){
+    	super.onResume();
+    	refreshDetails();
+    }
+	
+	public void refreshDetails(){
 		if (pId != -1){
 			try{
 				pDao = Player.getDao(getApplicationContext());
@@ -37,26 +59,6 @@ public class Detail_Player extends MenuContainerActivity {
 						Toast.LENGTH_LONG).show();
 			}
 		}
-		
-		
-//		spinner_p1 = (Spinner) findViewById(R.id.spinner_player1);
-//		spinner_p2 = (Spinner) findViewById(R.id.spinner_player2);
-//		spinner_session = (Spinner) findViewById(R.id.spinner_session);
-//		spinner_venue = (Spinner) findViewById(R.id.spinner_venue);
-
-		refreshDetails();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
-		
-		return true;
-	}
-	
-	public void refreshDetails(){
 		
 		TextView pName = (TextView) findViewById(R.id.pDet_name);
 		pName.setText(p.getFirstName() + ' ' + p.getLastName() + " (" + p.getNickName() + ")");

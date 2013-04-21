@@ -127,6 +127,7 @@ public class NewPlayer extends MenuContainerActivity {
     		Toast.makeText(context, "Player modified.", Toast.LENGTH_SHORT).show();
     		try {
 				pDao.update(p);
+				finish();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -142,6 +143,7 @@ public class NewPlayer extends MenuContainerActivity {
 	    		Dao<Player, Long> dao = getHelper().getPlayerDao();
 		   		dao.create(newPlayer);
 		   		Toast.makeText(context, "player created!", Toast.LENGTH_SHORT).show();
+		   		finish();
 			   	}
 			 catch (SQLException e){
 				 Log.e(PolishScorebook.class.getName(), "Could not create player", e);
