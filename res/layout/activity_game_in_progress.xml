@@ -61,16 +61,16 @@
         android:textIsSelectable="false" />
 
     <Button
-         android:id="@+id/button_high"
-         android:layout_alignParentLeft="true"
-         android:layout_below="@+id/textView_venue"
-         android:layout_width="230dp"
-         android:layout_height="wrap_content"
-         android:padding="10dp"
-         android:rotation="180"
-         android:textAppearance="?android:attr/textAppearanceLarge"
-         android:onClick="buttonPressed"
-         android:text="@string/gip_ballHigh_button" />
+        android:id="@+id/button_high"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView_venue"
+        android:onClick="buttonPressed"
+        android:padding="10dp"
+        android:rotation="0"
+        android:text="@string/gip_ballHigh_button"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/button_left"
