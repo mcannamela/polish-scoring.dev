@@ -52,7 +52,6 @@ public class NewGame extends MenuContainerActivity {
 		spinner_p2 = (Spinner) findViewById(R.id.spinner_player2);
 		spinner_session = (Spinner) findViewById(R.id.spinner_session);
 		spinner_venue = (Spinner) findViewById(R.id.spinner_venue);
-//		lv_players = (ListView) findViewById(R.id.listView1);
 		
 		refreshSpinners(spinner_p1);
 		
@@ -60,7 +59,6 @@ public class NewGame extends MenuContainerActivity {
 		spinner_p2.setOnItemSelectedListener(mPlayerTwoSelectedHandler);
 		spinner_session.setOnItemSelectedListener(mSessionSelectedHandler);
 		spinner_venue.setOnItemSelectedListener(mVenueSelectedHandler);
-//		lv_players.setOnTouchListener(new MyTouchListener());
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,9 +70,6 @@ public class NewGame extends MenuContainerActivity {
 	private OnItemSelectedListener mPlayerOneSelectedHandler = new OnItemSelectedListener() {
 		public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
 			p1_pos = position;
-//			Toast.makeText(getApplicationContext(), 
-//					"p1 is "+playerNames.get(p1_pos), 
-//					Toast.LENGTH_SHORT).show();
 		}
 		public void onNothingSelected(AdapterView<?> parent) {}
 	    
@@ -82,9 +77,6 @@ public class NewGame extends MenuContainerActivity {
 	private OnItemSelectedListener mPlayerTwoSelectedHandler = new OnItemSelectedListener() {
 		public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
 			p2_pos = position;
-//			Toast.makeText(getApplicationContext(), 
-//					"p2 is "+playerNames.get(p2_pos), 
-//					Toast.LENGTH_SHORT).show();
 		}
 		public void onNothingSelected(AdapterView<?> parent) {}
 		
@@ -92,18 +84,13 @@ public class NewGame extends MenuContainerActivity {
 	private OnItemSelectedListener mSessionSelectedHandler = new OnItemSelectedListener() {
 		public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
 			session_pos = position;
-//			Toast.makeText(getApplicationContext(), 
-//					"session is "+sessionNames.get(session_pos), 
-//					Toast.LENGTH_SHORT).show();
+
 		}
 		public void onNothingSelected(AdapterView<?> parent) {}
 	};
 	private OnItemSelectedListener mVenueSelectedHandler = new OnItemSelectedListener() {
         public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         	venue_pos = position;
-//        	Toast.makeText(getApplicationContext(), 
-//					"venue is "+venueNames.get(venue_pos), 
-//					Toast.LENGTH_SHORT).show();
         }
         public void onNothingSelected(AdapterView<?> parent) {}
     };
@@ -114,7 +101,6 @@ public class NewGame extends MenuContainerActivity {
 			players = Player.getAll(context);
 			sessions = Session.getAll(context);
 			venues = Venue.getAll(context);
-//			Toast.makeText(context, players.toString(), Toast.LENGTH_LONG).show();
 		}
 		catch (SQLException e){
 			Log.e(PolishScorebook.class.getName(), "Could not get objects", e);
@@ -166,9 +152,6 @@ public class NewGame extends MenuContainerActivity {
 		try{
 			Dao<Game, Long> d = Game.getDao(getApplicationContext());
 			d.createIfNotExists(g);
-//			Toast.makeText(getApplicationContext(), 
-//					"create game with id = " + String.valueOf(g.getId()), 
-//					Toast.LENGTH_LONG).show() ;
 			gid = g.getId();
 			Intent intent = new Intent(this, GameInProgress.class);
 			intent.putExtra("GID", gid);
@@ -181,8 +164,6 @@ public class NewGame extends MenuContainerActivity {
 					e.getMessage(), 
 					Toast.LENGTH_LONG).show();
 		}
-		
-		
 	}
 
 

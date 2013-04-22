@@ -489,23 +489,7 @@ public class GameInProgress extends MenuContainerActivity {
 	public void confirmThrow(){
 		changeCurrentThrow(throwNr+1);
 	}
-	public void confirmThrow(View view){
-		changeCurrentThrow(throwNr+1);
 		
-//		try{
-//			Dao<Throw, Long> d = Throw.getDao(getApplicationContext());
-//			long  nThrows = d.countOf();
-//			Toast.makeText(getApplicationContext(), 
-//					"there are  "+nThrows+" throws in the db ", 
-//					Toast.LENGTH_SHORT).show();
-//		}
-//		catch (SQLException e){
-//			Toast.makeText(getApplicationContext(), 
-//					e.getMessage(), 
-//					Toast.LENGTH_SHORT).show();
-//		}
-	}
-	
 	void changeCurrentThrow(int newThrowNr){
 		setThrowHighlighted(throwNr, false);
 		applyUIStateToCurrentThrow(getThrow(throwNr));
@@ -520,10 +504,6 @@ public class GameInProgress extends MenuContainerActivity {
 				Toast.LENGTH_LONG).show();
 			}
 		}
-		
-//		Toast.makeText(getApplicationContext(), 
-//				"old: "+throwNr+", new: "+newThrowNr, 
-//				Toast.LENGTH_SHORT).show();
 		
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
@@ -582,7 +562,6 @@ public class GameInProgress extends MenuContainerActivity {
 	private void setScrollPosition() {
 		ScrollView sv = (ScrollView) findViewById(R.id.gip_scrollView);
 		sv.fullScroll(View.FOCUS_DOWN);
-		// TODO Auto-generated method stub
 	}
 	
 	public void checkboxClicked(View view){
@@ -618,17 +597,6 @@ public class GameInProgress extends MenuContainerActivity {
 		
 		updateThrow();
 		confirmThrow();
-		
-//		switch (currentThrowType){
-//		case ThrowType.STRIKE:
-//		case ThrowType.BALL_HIGH:
-//		case ThrowType.BALL_LEFT:
-//		case ThrowType.BALL_RIGHT:
-//		case ThrowType.BALL_LOW:
-//			confirmThrow(findViewById(R.id.button_confirm));
-//		}
-		
-		
 	}
 	
 	private void updateThrow(){
