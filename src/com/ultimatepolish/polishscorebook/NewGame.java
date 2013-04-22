@@ -39,6 +39,7 @@ public class NewGame extends MenuContainerActivity {
 	ArrayList<Session> sessions= new ArrayList<Session>();
 	ArrayList<Venue> venues= new ArrayList<Venue>();
 	
+	
 	ArrayList<String> playerNames = new ArrayList<String>();
 	ArrayList<String> sessionNames = new ArrayList<String>();
 	ArrayList<String> venueNames = new ArrayList<String>();
@@ -106,19 +107,7 @@ public class NewGame extends MenuContainerActivity {
         }
         public void onNothingSelected(AdapterView<?> parent) {}
     };
-//    private final class MyTouchListener implements OnTouchListener {
-//    	  public boolean onTouch(View view, MotionEvent motionEvent) {
-//    	    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-//    	      ClipData data = ClipData.newPlainText("", "");
-//    	      DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-//    	      view.startDrag(data, shadowBuilder, view, 0);
-//    	      view.setVisibility(View.INVISIBLE);
-//    	      return true;
-//    	    } else {
-//    	    return false;
-//    	    }
-//    	  }
-//    	} 
+
 	public void refreshSpinners(View view){
 		Context context = getApplicationContext();
 		try{
@@ -137,11 +126,6 @@ public class NewGame extends MenuContainerActivity {
 		for(Player p: players){
 			playerNames.add(p.getFirstName() + " " + p.getLastName());
 		}
-//		ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
-//                R.id.layout_player_list_item, 
-//                R.id.textView_firstName, 
-//                players);
-//        lv_players.setAdapter(adapter);
 		for(Session s: sessions){
 			sessionNames.add(String.valueOf(s.getId())+" "+s.getSessionName());
 		}
@@ -171,10 +155,10 @@ public class NewGame extends MenuContainerActivity {
 	}
 	
 	public void createGame(View view){
-		Long p1id = getIdFromDisplayString(playerNames.get(p1_pos));
-		Long p2id = getIdFromDisplayString(playerNames.get(p2_pos));
-		Long sid = getIdFromDisplayString(sessionNames.get(session_pos));
-		Long vid = getIdFromDisplayString(venueNames.get(venue_pos));
+		Long p1id = players.get(p1_pos).getId();
+		Long p2id = players.get(p2_pos).getId();
+		Long sid = sessions.get(session_pos).getId();
+		Long vid = venues.get(venue_pos).getId();
 		Game g = new Game(p1id, p2id, sid, vid);
 		long gid; 
 		g.setDatePlayed(new Date());
@@ -200,9 +184,6 @@ public class NewGame extends MenuContainerActivity {
 		
 		
 	}
-	
-	public Long getIdFromDisplayString(String s){
-		 return Long.valueOf(s.split("\\s+")[0]);
-	}	
+
 
 }

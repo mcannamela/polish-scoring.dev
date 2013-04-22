@@ -151,7 +151,11 @@ public class GameInProgress extends MenuContainerActivity {
 		displayMetadata();
 		initNumPickers();
 		initTableHeaders();
-		changeCurrentThrow(0);
+		
+		initThrows();
+		
+		
+		
 		
 	}
 	@Override
@@ -214,6 +218,11 @@ public class GameInProgress extends MenuContainerActivity {
 //				//TODO:put something useful here
 //			}
 //		}
+		int initThrowNr = 0;
+		if (throwArray.size()>0){
+			initThrowNr = throwArray.size()-1;
+		}
+		changeCurrentThrow(initThrowNr);
 		
 	}
 	private void initTableHeaders(){
