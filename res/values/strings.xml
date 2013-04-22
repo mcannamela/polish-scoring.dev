@@ -41,7 +41,7 @@
     <string name="gip_session_hint">sessionName</string>
     <string name="gip_date_hint">date</string>
     <string name="gip_venue_hint">venue</string>
-    <string name="gip_ballHigh_button">v</string>
+    <string name="gip_ballHigh_button">^</string>
     <string name="gip_ballLeft_button">&lt;</string>
     <string name="gip_bottle_button">bottle</string>
     <string name="gip_pole_button">pole</string>
