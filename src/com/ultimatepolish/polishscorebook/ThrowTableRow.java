@@ -90,7 +90,7 @@ public class ThrowTableRow extends TableRow {
 		TextView[] views = {new TextView(this.getContext()), 
 							new TextView(this.getContext())};
 		for (TextView tv: views){
-			tv.setText(" ");
+			tv.setText("-");
 			ThrowTableRow.formatTextView(tv);
 			this.addView(tv);
 		}

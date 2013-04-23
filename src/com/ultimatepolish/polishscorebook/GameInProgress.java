@@ -70,14 +70,6 @@ public class GameInProgress extends MenuContainerActivity {
 	NumberPicker ownGoalNumPicker;
 	NumberPicker goaltendNumPicker;
 	
-	
-	
-	
-	
-	
-	
-//	TableLayout throwsTable;
-	
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	//:::::::::::::::listeners:::::::::::::::::::::::::::::::::::::::::
 	private OnCheckedChangeListener throwResultChangedListener = new OnCheckedChangeListener() {
@@ -152,7 +144,7 @@ public class GameInProgress extends MenuContainerActivity {
 		public void onPageSelected(int position) {
 			super.onPageSelected(position);
 			TextView tv = (TextView) findViewById(R.id.textView_pageIndex);
-			tv.setText(String.valueOf(position));
+			tv.setText("page: "+position);
 			page_idx = position;
 			renderPage(page_idx);
 		}
@@ -176,7 +168,7 @@ public class GameInProgress extends MenuContainerActivity {
 		initNumPickers();
 		initTableHeaders();
 		initTableFragments();
-//		initThrows();
+		initThrows();
 			
 	}
 	@Override
@@ -256,11 +248,11 @@ public class GameInProgress extends MenuContainerActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
         vp.setAdapter(vpAdapter);
         vp.setOnPageChangeListener(new MyPageChangeListener());
+        
+        vp.setCurrentItem(0);
 	}
 	private void initThrows(){
-//		TableLayout throwsTable = getThrowsTable();
-//		throwsTable.removeAllViews(); 
-		
+
 		HashMap<String,Object> m = new HashMap<String,Object>();
 		m.put("gameId", g.getId());
 		List<Throw> tList = null;
@@ -288,20 +280,14 @@ public class GameInProgress extends MenuContainerActivity {
 			throwArray.add(t);
 		}
 		
-		renderThrows();
-		
-//		for (Throw t: throwArray){
-//			try{
-//				saveThrow(t);
-//			}
-//			catch (SQLException e){
-//				//TODO:put something useful here
-//			}
-//		}
+		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
+		tv.setText("nThrows: "+throwArray.size());
+	
 		int initThrowNr = 0;
 		if (throwArray.size()>0){
 			initThrowNr = throwArray.size()-1;
 		}
+		
 		changeCurrentThrow(initThrowNr);
 		
 	}
@@ -464,25 +450,22 @@ public class GameInProgress extends MenuContainerActivity {
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
 	private void renderThrows(){
-		renderThrows(0);
+		for (int i=0;i<N_PAGES;i++){
+			renderPage(i);
+		}
 	}
-	private void renderThrows(int fromThrowNumber){
-		Throw t,pt;
-		
-		//add new views, skipping p1 throws unless it is the last throw
-		for(int i=fromThrowNumber;i<throwArray.size();i++){
-			t = getThrow(i);
-			pt = getPreviousThrow(i);
-			t.setInitialScores(pt);
-			renderThrow(t);
-		}		
-	}
-	private void renderPage(int pageIdx){
-		ThrowTableFragment frag = fragArray.get(pageIdx);
+
+	private void renderPage(int pidx){
 		Throw t,pt;
 		int nThrows = throwArray.size();
 		
-		int[] range = frag.throwNrRange();
+		ThrowTableFragment frag = fragArray.get(pidx);
+		int[] range = ThrowTableFragment.throwNrRange(pidx);
+		
+//		Toast.makeText(getApplicationContext(), 
+//				"range for page "+pidx+" is "+range[0] +" to "+range[1], 
+//				Toast.LENGTH_SHORT).show();
+		
 		if (nThrows<range[0]){
 			return;
 		}
@@ -528,7 +511,9 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	private void setThrowHighlighted(int throwNr, boolean highlight) {
-		
+		if (throwNr<0){
+			return;
+		}
 		ThrowTableRow tr = getThrowTableRow(getThrow(throwNr));
 		
 		TextView tv;
@@ -560,7 +545,7 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 		
 	void changeCurrentThrow(int newThrowNr){
-		setThrowHighlighted(throwNr, false);
+//		setThrowHighlighted(throwNr, false);
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -590,13 +575,16 @@ public class GameInProgress extends MenuContainerActivity {
 			Toast.LENGTH_LONG).show();
 		}
 		
-		renderThrows(oldThrowNr);
+		int new_page_idx = ThrowTableFragment.throwNrToPageIdx(newThrowNr);
+		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+		vp.setCurrentItem(new_page_idx);
+		assert page_idx==new_page_idx;
+//		renderPage(page_idx);
 		
-		setThrowHighlighted(newThrowNr, true);
+//		setThrowHighlighted(newThrowNr, true);
 		
 		updateCurrentScore();
 		saveGame();
-		setScrollPosition();
 		
 	}
 	
@@ -627,11 +615,6 @@ public class GameInProgress extends MenuContainerActivity {
 		
 	}
 	
-	
-	private void setScrollPosition() {
-		ScrollView sv = (ScrollView) findViewById(R.id.gip_scrollView);
-		sv.fullScroll(View.FOCUS_DOWN);
-	}
 	
 	public void checkboxClicked(View view){
 		updateThrow();
@@ -704,6 +687,8 @@ public class GameInProgress extends MenuContainerActivity {
 			t.setThrowType(ThrowType.STRIKE);
 			t.setThrowResult(ThrowResult.CATCH);
 			throwArray.add(t);
+			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
+			tv.setText("nThrows: "+throwArray.size());
 			return t;
 		}
 		else if (throwNr==-1){
@@ -713,9 +698,9 @@ public class GameInProgress extends MenuContainerActivity {
 			return t;
 		}
 		else{
-			throw new RuntimeException("tried to get a throw from the future");
+			throw new RuntimeException("tried to get a throw from the "+
+						"future, throwNr "+throwNr +" of "+throwArray.size());
 		}
-		
 	}
 	
 	Throw getPreviousThrow(int throwNr){
@@ -741,37 +726,17 @@ public class GameInProgress extends MenuContainerActivity {
 		return fragArray.get(page_idx);
 	}
 	ThrowTableRow getThrowTableRow(Throw t){
-//		int throwNr = t.getThrowNumber();
-//		int rowIdx = throwNumberToTableRow(throwNr);
-//		TableLayout throwsTable = getThrowsTable();
-//		if (rowIdx<throwsTable.getChildCount()){
-//			return (ThrowTableRow) throwsTable.getChildAt(rowIdx);
-//		}
-//		else if (rowIdx==throwsTable.getChildCount()){
-//			ThrowTableRow tr = ThrowTableRow.buildBlankRow(getApplicationContext());
-//			for (int i=0;i<tr.getChildCount();i++){
-//				tr.getChildAt(i).setOnClickListener(throwClickedListener);
-//			}
-//			throwsTable.addView(tr);
-//			return tr;
-//		}
-//		else{
-//			throw new RuntimeException("tried to get a ThrowTableRow from the future");
-//		}
-		return getCurrentFragment().getTableRow(t.getThrowNumber());
+		int pidx = ThrowTableFragment.throwNrToPageIdx(t.getThrowNumber());
+		try{
+			return fragArray.get(pidx).getTableRow(t.getThrowNumber());
+		}
+		catch (ArrayIndexOutOfBoundsException e){
+			throw new RuntimeException("wrong page idx for throw nr "+
+					t.getThrowNumber()+", pidx = "+pidx+": "+e.getMessage());
+		}
+		
 	}
 	
-//	private TableLayout getThrowsTable(){
-//		TableLayout layout = null;
-//		
-//		ScrollView scrollView = (ScrollView) findViewById(R.id.gip_scrollView);
-//		layout = (TableLayout) scrollView.getChildAt(0);
-//		
-//		
-//		
-//		return layout; 
-//		
-//	}
 	
 	boolean isError(){
 		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_error);

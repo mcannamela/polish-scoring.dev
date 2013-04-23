@@ -12,30 +12,34 @@ public class ThrowTableFragment extends Fragment {
 	public static final int N_ROWS = 20;
 	
 	
-	int page_idx = -1;
-	
 	static ThrowTableFragment newInstance(int position) {
 		
 		ThrowTableFragment f = new ThrowTableFragment();
 
-        // Supply pager index as an argument.
-        Bundle args = new Bundle();
-        args.putInt(PAGE_IDX_KEY, position);
-        f.setArguments(args);
+       
 
         return f;
     }
 	
 	public static int throwNrToPageIdx(int throwNr){
+		assert throwNr>=0;
 		int global_ridx = throwNr/2;
 		int pidx = global_ridx/N_ROWS;
 		return pidx;
 	}
+	public static int throwNrToRowIdx(int throwNr) throws ArrayIndexOutOfBoundsException{
+		return(throwNr/2)%N_ROWS;
+	}
+	public static int[] throwNrRange(int page_idx){
+		int[] range = new int[2];
+		range[0] = (2*N_ROWS)*page_idx;
+		range[1] = range[0]+2*N_ROWS;
+		return range;
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		page_idx = getArguments().getInt(PAGE_IDX_KEY);
+		
 	}
 
 	@Override
@@ -50,7 +54,6 @@ public class ThrowTableFragment extends Fragment {
 			tr = ThrowTableRow.buildBlankRow(container.getContext());
 			layout.addView(tr);
 		}
-			
 		return  layout;
 	}
 
@@ -62,29 +65,22 @@ public class ThrowTableFragment extends Fragment {
 	
 	public ThrowTableRow getTableRow(int throwNr){
 		TableLayout layout = getTableLayout();
-		int ridx = throwNrToRowIdx(throwNr);
-		return (ThrowTableRow) layout.getChildAt(ridx);
+		int ridx = ThrowTableFragment.throwNrToRowIdx(throwNr);
+		ThrowTableRow tr;
+		try{
+			tr = (ThrowTableRow) layout.getChildAt(ridx);
+		}
+		catch (NullPointerException e){
+			throw new RuntimeException("Child for throw nr "+throwNr +" dne at row "+ridx);
+		}
+
+		return tr;
 	}
 	TableLayout getTableLayout(){
 		return (TableLayout) getView();
 	}
 	
-	int throwNrToRowIdx(int throwNr) throws ArrayIndexOutOfBoundsException{
-		int pidx = throwNrToPageIdx(throwNr);
-		if (pidx!=page_idx){
-			throw new ArrayIndexOutOfBoundsException("throw dne on this page");
-		}
-		int ridx = (throwNr/2)%N_ROWS;
-		return ridx;
-	}
 	
-	int[] throwNrRange(){
-		int[] range = new int[2];
-		range[0] = (2*N_ROWS)*page_idx;
-		range[1] = range[0]+2*N_ROWS;
-		
-		return range;
-	}
 	
 
 }

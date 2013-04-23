@@ -342,5 +342,15 @@
         android:layout_marginRight="150dp"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView_throwCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/textView_pageIndex"
+        android:layout_marginRight="30dp"
+        android:layout_toLeftOf="@id/textView_pageIndex"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 </RelativeLayout>
