@@ -1,14 +1,11 @@
 package com.ultimatepolish.polishscorebook;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -16,13 +13,10 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.Toast;
 
-import com.j256.ormlite.dao.Dao;
-import com.ultimatepolish.scorebookdb.Player;
-
 public class View_Teams extends MenuContainerActivity {
-	private LinkedHashMap<String, ViewHolderHeader_Player> sHash = new LinkedHashMap<String, ViewHolderHeader_Player>();
-	private ArrayList<ViewHolderHeader_Player> statusList = new ArrayList<ViewHolderHeader_Player>();
-	private ListAdapter_Player playerAdapter;
+	private LinkedHashMap<String, ViewHolderHeader_Team> sHash = new LinkedHashMap<String, ViewHolderHeader_Team>();
+	private ArrayList<ViewHolderHeader_Team> statusList = new ArrayList<ViewHolderHeader_Team>();
+	private ListAdapter_Team teamAdapter;
 	private ExpandableListView elv;
 	
     @Override
@@ -37,8 +31,8 @@ public class View_Teams extends MenuContainerActivity {
         }
         
         elv = (ExpandableListView) findViewById(R.id.dbListing);
-        playerAdapter = new ListAdapter_Player(View_Teams.this, statusList);
-        elv.setAdapter(playerAdapter);
+        teamAdapter = new ListAdapter_Team(View_Teams.this, statusList);
+        elv.setAdapter(teamAdapter);
         expandAll();
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
@@ -48,23 +42,23 @@ public class View_Teams extends MenuContainerActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.players).setEnabled(false);
+		menu.findItem(R.id.teams).setEnabled(false);
 		return true;
 	}    
     @Override
 	public void openAddActivity() {
-    	Intent intent = new Intent(this, NewPlayer.class);
+    	Intent intent = new Intent(this, NewTeam.class);
     	startActivity(intent);
     }
     @Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshPlayersListing();
+    	refreshTeamsListing();
     }
     @Override
     protected void onResume(){
     	super.onResume();
-    	refreshPlayersListing();
+    	refreshTeamsListing();
     }    
     @Override
     protected void onStop() {
@@ -72,19 +66,19 @@ public class View_Teams extends MenuContainerActivity {
     }
     private void expandAll() {
     	//method to expand all groups
-    	int count = playerAdapter.getGroupCount();
+    	int count = teamAdapter.getGroupCount();
     	for (int i = 0; i < count; i++){
 		elv.expandGroup(i);
     	}
     }
     private void collapseAll() {
     	//method to collapse all groups
-    	int count = playerAdapter.getGroupCount();
+    	int count = teamAdapter.getGroupCount();
     	for (int i = 0; i < count; i++){
     	elv.collapseGroup(i);
     	}
     }
-    protected void refreshPlayersListing(){
+    protected void refreshTeamsListing(){
     	sHash.clear();
     	statusList.clear();
     	
@@ -92,23 +86,23 @@ public class View_Teams extends MenuContainerActivity {
         addStatus("Active");
         addStatus("Retired");
         
-        // add all the players
-    	Dao<Player, Long> playerDao = null;
-        try{
-        	playerDao = getHelper().getPlayerDao();
-        	for (Player p: playerDao) {
-        		addPlayer("Active", 
-        				String.valueOf(p.getId()), 
-        				p.getFirstName() + " " + p.getLastName(), 
-        				"(" + p.getNickName() + ")"
-        				);
-        	}
-    	}
-        catch (SQLException e){
-    		Context context = getApplicationContext();
-    		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Teams.class.getName(), "Retrieval of players failed", e);
-        }
+        // add all the teams
+//    	Dao<Team, Long> teamDao = null;
+//        try{
+//        	teamDao = getHelper().getTeamDao();
+//        	for (Team p: teamDao) {
+//        		addTeam("Active", 
+//        				String.valueOf(p.getId()), 
+//        				p.getFirstName() + " " + p.getLastName(), 
+//        				"(" + p.getNickName() + ")"
+//        				);
+//        	}
+//    	}
+//        catch (SQLException e){
+//    		Context context = getApplicationContext();
+//    		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+//    		Log.e(View_Teams.class.getName(), "Retrieval of teams failed", e);
+//        }
         
     	expandAll();
     }
@@ -117,17 +111,17 @@ public class View_Teams extends MenuContainerActivity {
     	int groupPosition, int childPosition, long id) {
 
 	    //get the group header
-	    ViewHolderHeader_Player statusInfo = statusList.get(groupPosition);
+	    ViewHolderHeader_Team statusInfo = statusList.get(groupPosition);
 	    //get the child info
-   		ViewHolder_Player playerInfo =  statusInfo.getPlayerList().get(childPosition);
+   		ViewHolder_Team teamInfo =  statusInfo.getTeamList().get(childPosition);
    		//display it or do something with it
-   		Toast.makeText(getBaseContext(), "Selected " + playerInfo.getName(), Toast.LENGTH_SHORT).show();
+//   		Toast.makeText(getBaseContext(), "Selected " + teamInfo.getName(), Toast.LENGTH_SHORT).show();
     	
    		// load the game in progress screen
-   		Long pId  = Long.valueOf(playerInfo.getId());
-		Intent intent = new Intent(getApplicationContext(), Detail_Player.class);
-        intent.putExtra("PID", pId);
-        startActivity(intent);
+//   		Long pId  = Long.valueOf(teamInfo.getId());
+//		Intent intent = new Intent(getApplicationContext(), Detail_Team.class);
+//        intent.putExtra("PID", pId);
+//        startActivity(intent);
     	return false;
     	}
     };
@@ -136,29 +130,30 @@ public class View_Teams extends MenuContainerActivity {
     	int groupPosition, long id) {
     	    
     	//get the group header
-    	ViewHolderHeader_Player statusInfo = statusList.get(groupPosition);
+    	ViewHolderHeader_Team statusInfo = statusList.get(groupPosition);
     	//display it or do something with it
     	Toast.makeText(getBaseContext(), "Tapped " + statusInfo.getName(), Toast.LENGTH_SHORT).show();
     	return false;
     	}
     };
     private void addStatus(String statusName){
-    	ViewHolderHeader_Player vhh_Player = new ViewHolderHeader_Player();
-    	vhh_Player.setName(statusName);
-    	statusList.add(vhh_Player);
-    	sHash.put(statusName, vhh_Player);
+    	ViewHolderHeader_Team vhh_Team = new ViewHolderHeader_Team();
+    	vhh_Team.setName(statusName);
+    	statusList.add(vhh_Team);
+    	sHash.put(statusName, vhh_Team);
     }
-    private void addPlayer(String sort, String playerId, String playerName, String playerNick){
+    private void addTeam(String sort, String teamId, String teamName, String teamP1, String teamP2){
     	//find the index of the session header
-    	ViewHolderHeader_Player statusInfo = sHash.get(sort);
-	    ArrayList<ViewHolder_Player> playerList = statusInfo.getPlayerList();
+    	ViewHolderHeader_Team statusInfo = sHash.get(sort);
+	    ArrayList<ViewHolder_Team> teamList = statusInfo.getTeamList();
 	    
 	    //create a new child and add that to the group
-	    ViewHolder_Player playerInfo = new ViewHolder_Player();
-	    playerInfo.setId(playerId);
-	    playerInfo.setName(playerName);
-	    playerInfo.setNickName(playerNick);
-	    playerList.add(playerInfo);
-		statusInfo.setPlayerList(playerList);
+	    ViewHolder_Team teamInfo = new ViewHolder_Team();
+	    teamInfo.setId(teamId);
+	    teamInfo.setName(teamName);
+	    teamInfo.setP1Name(teamP1);
+	    teamInfo.setP2Name(teamP2);
+	    teamList.add(teamInfo);
+		statusInfo.setTeamList(teamList);
 	}
 }

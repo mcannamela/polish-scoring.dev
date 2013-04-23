@@ -70,6 +70,11 @@
 			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >
 		</activity>
 		<activity
+			android:name="com.ultimatepolish.polishscorebook.NewTeam"
+			android:label="@string/title_activity_new_team"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Teams" >
+		</activity>
+		<activity
 			android:name="com.ultimatepolish.polishscorebook.NewSession"
 			android:label="@string/title_activity_new_session"
 			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Sessions" >
@@ -113,6 +118,11 @@
 			android:name="com.ultimatepolish.polishscorebook.Detail_Player"
 			android:label="@string/title_activity_detail_player"
 			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >
+		</activity>
+		<activity
+			android:name="com.ultimatepolish.polishscorebook.Detail_Team"
+			android:label="@string/title_activity_detail_team"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Teams" >
 		</activity>
 		<activity
 			android:name="com.ultimatepolish.polishscorebook.Detail_Session"

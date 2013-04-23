@@ -62,8 +62,8 @@ public class Detail_Player extends MenuContainerActivity {
 		TextView pName = (TextView) findViewById(R.id.pDet_name);
 		pName.setText(p.getFirstName() + ' ' + p.getLastName() + " (" + p.getNickName() + ")");
 		
-		TextView pId = (TextView) findViewById(R.id.pDet_id);
-		pId.setText(String.valueOf(p.getId()));
+		TextView playerId = (TextView) findViewById(R.id.pDet_id);
+		playerId.setText(String.valueOf(p.getId()));
 		
 		TextView pHeight = (TextView) findViewById(R.id.pDet_height);
 		pHeight.setText("Height: " + String.valueOf(p.getHeight_cm()) + " cm");
