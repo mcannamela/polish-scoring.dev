@@ -123,9 +123,9 @@ public class NewPlayer extends MenuContainerActivity {
     		p.setHeight_cm(height_cm);
     		p.setLeftHanded(throwsLeftHanded);
     		p.setRightHanded(throwsRightHanded);
-    		Toast.makeText(context, "Player modified.", Toast.LENGTH_SHORT).show();
     		try {
 				pDao.update(p);
+				Toast.makeText(context, "Player modified.", Toast.LENGTH_SHORT).show();
 				finish();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -141,19 +141,19 @@ public class NewPlayer extends MenuContainerActivity {
 	    	try{
 	    		Dao<Player, Long> dao = getHelper().getPlayerDao();
 		   		dao.create(newPlayer);
-		   		Toast.makeText(context, "player created!", Toast.LENGTH_SHORT).show();
+		   		Toast.makeText(context, "Player created!", Toast.LENGTH_SHORT).show();
 		   		finish();
 			   	}
 			 catch (SQLException e){
-				 Log.e(PolishScorebook.class.getName(), "Could not create player", e);
+				 Log.e(PolishScorebook.class.getName(), "Could not create player.", e);
 				 boolean player_exists = false;
 				 try{
 					 player_exists = newPlayer.exists(context);
 					 if (player_exists){
-					 		Toast.makeText(context, "player already exists", Toast.LENGTH_SHORT).show();
+					 		Toast.makeText(context, "Player already exists.", Toast.LENGTH_SHORT).show();
 					 	}
 					 else{
-						 Toast.makeText(context, "could not create player", Toast.LENGTH_SHORT).show();
+						 Toast.makeText(context, "Could not create player.", Toast.LENGTH_SHORT).show();
 					 }
 				 }
 				 catch (SQLException ee){

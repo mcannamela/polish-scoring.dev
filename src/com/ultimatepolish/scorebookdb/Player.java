@@ -187,17 +187,9 @@ public class Player{
 	public void setWeight_kg(int weight_kg) {
 		this.weight_kg = weight_kg;
 	}
-	
-	public boolean getRightHanded() {
-		return throwsRightHanded;
-	}
 
 	public void setRightHanded(boolean rightHanded) {
 		this.throwsRightHanded = rightHanded;
-	}
-
-	public boolean getLeftHanded() {
-		return throwsLeftHanded;
 	}
 
 	public void setLeftHanded(boolean leftHanded) {
