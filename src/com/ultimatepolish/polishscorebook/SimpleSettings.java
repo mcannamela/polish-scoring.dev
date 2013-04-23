@@ -101,7 +101,7 @@ public class SimpleSettings extends MenuContainerActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		menu.findItem(R.id.addButton).setVisible(false);
-		menu.findItem(R.id.action_settings).setVisible(false);
+		menu.findItem(R.id.settings).setVisible(false);
 		return true;
 	}
 	@Override
