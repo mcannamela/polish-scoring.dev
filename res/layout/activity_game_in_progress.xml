@@ -308,7 +308,14 @@
 		</TableRow>
 	</TableLayout>
 	
-	<ScrollView
+    <android.support.v4.view.ViewPager
+	    android:layout_toRightOf="@+id/button_high"
+		android:layout_below="@+id/scoreTable_header"
+		android:layout_above="@+id/textView_pageIndex"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content" 
+	    android:id="@+id/viewPager_throwsTables"/>
+	<!--  <ScrollView
 		android:id="@+id/gip_scrollView"
 		android:layout_toRightOf="@+id/button_high"
 		android:layout_below="@+id/scoreTable_header"
@@ -322,6 +329,18 @@
 	        android:layout_height="wrap_content"
         	class="com.ultimatepolish.polishscorebook.ThrowTableFragment" ></fragment>
 	    
-	</ScrollView>
+	</ScrollView>-->
+
+    <TextView
+        android:id="@+id/textView_pageIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="false"
+        android:layout_marginRight="150dp"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 </RelativeLayout>
