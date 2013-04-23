@@ -2,32 +2,33 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Player;
 
 public class View_Players extends MenuContainerActivity {
-	private LinearLayout ll;
-	private ListView lv;
+	private LinkedHashMap<String, ViewHolderHeader_Player> sHash = new LinkedHashMap<String, ViewHolderHeader_Player>();
+	private ArrayList<ViewHolderHeader_Player> statusList = new ArrayList<ViewHolderHeader_Player>();
+	private ListAdapter_Player playerAdapter;
+	private ExpandableListView elv;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_list);
+        setContentView(R.layout.activity_view_listing);
         
         // Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -35,14 +36,14 @@ public class View_Players extends MenuContainerActivity {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        ll = (LinearLayout) findViewById (R.id.db_viewListings);
-    	lv = new ListView(this);
-    	ll.addView(lv);
-        lv.setOnItemClickListener(mPlayerClickedHandler); 
-    }
-    @Override
-    protected void onStop() {
-    	super.onStop();
+        elv = (ExpandableListView) findViewById(R.id.dbListing);
+        playerAdapter = new ListAdapter_Player(View_Players.this, statusList);
+        elv.setAdapter(playerAdapter);
+        expandAll();
+        elv.setOnChildClickListener(elvItemClicked);
+        elv.setOnGroupClickListener(elvGroupClicked);
+        
+        refreshPlayersListing();
     }
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,58 +57,109 @@ public class View_Players extends MenuContainerActivity {
     	Intent intent = new Intent(this, NewPlayer.class);
     	startActivity(intent);
     }
-    private OnItemClickListener mPlayerClickedHandler = new OnItemClickListener() {
-        public void onItemClick(AdapterView parent, View v, int position, long id) {
-        	String msg;
-        	
-        	ViewHolder_Player h = (ViewHolder_Player) v.getTag();
-        	msg = h.getName() +" was clicked";
-        	Context context = getApplicationContext();
-    		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    		
-    		Long pId  = Long.valueOf(h.getId());
-    		Intent intent = new Intent(getApplicationContext(), Detail_Player.class);
-            intent.putExtra("PID", pId);
-            startActivity(intent);
-        }
-    };
     @Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshPlayerList();
+    	refreshPlayersListing();
     }
     @Override
     protected void onResume(){
     	super.onResume();
-    	refreshPlayerList();
+    	refreshPlayersListing();
+    }    
+    @Override
+    protected void onStop() {
+    	super.onStop();
     }
-    protected void refreshPlayerList(){
-    	ArrayList<Player> players = new ArrayList<Player>();
-        Dao<Player, Long> playerDao=null;
-    	
-    	try{
-    		 playerDao = getHelper().getPlayerDao();
-    		 for(Player p: playerDao){
-    			 players.add(p);
-    			}
+    private void expandAll() {
+    	//method to expand all groups
+    	int count = playerAdapter.getGroupCount();
+    	for (int i = 0; i < count; i++){
+		elv.expandGroup(i);
     	}
-    	catch (SQLException e){
+    }
+    private void collapseAll() {
+    	//method to collapse all groups
+    	int count = playerAdapter.getGroupCount();
+    	for (int i = 0; i < count; i++){
+    	elv.collapseGroup(i);
+    	}
+    }
+    protected void refreshPlayersListing(){
+    	sHash.clear();
+    	statusList.clear();
+    	
+    	// add all the statii to the headers
+        addStatus("Active");
+        addStatus("Retired");
+        
+        // add all the players
+    	Dao<Player, Long> playerDao = null;
+        try{
+        	playerDao = getHelper().getPlayerDao();
+        	for (Player p: playerDao) {
+        		addPlayer("Active", 
+        				String.valueOf(p.getId()), 
+        				p.getFirstName() + " " + p.getLastName(), 
+        				"(" + p.getNickName() + ")"
+        				);
+        	}
+    	}
+        catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Players.class.getName(), "Retrieval of players failed", e);
-    	}
-    	
-    	ViewAdapter_Player adapter = new ViewAdapter_Player(this, 
-                R.id.layout_player_list_item, 
-                R.id.textView_name, 
-                players);
-        lv.setAdapter(adapter);
+    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+        }
+        
+    	expandAll();
+    }
+    private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
+    	public boolean onChildClick(ExpandableListView parent, View v,
+    	int groupPosition, int childPosition, long id) {
 
+	    //get the group header
+	    ViewHolderHeader_Player statusInfo = statusList.get(groupPosition);
+	    //get the child info
+   		ViewHolder_Player playerInfo =  statusInfo.getPlayerList().get(childPosition);
+   		//display it or do something with it
+   		Toast.makeText(getBaseContext(), "Selected " + playerInfo.getName(), Toast.LENGTH_SHORT).show();
+    	
+   		// load the game in progress screen
+   		Long pId  = Long.valueOf(playerInfo.getId());
+		Intent intent = new Intent(getApplicationContext(), Detail_Player.class);
+        intent.putExtra("PID", pId);
+        startActivity(intent);
+    	return false;
+    	}
+    };
+    private OnGroupClickListener elvGroupClicked =  new OnGroupClickListener() {
+    	public boolean onGroupClick(ExpandableListView parent, View v,
+    	int groupPosition, long id) {
+    	    
+    	//get the group header
+    	ViewHolderHeader_Player statusInfo = statusList.get(groupPosition);
+    	//display it or do something with it
+    	Toast.makeText(getBaseContext(), "Tapped " + statusInfo.getName(), Toast.LENGTH_SHORT).show();
+    	return false;
+    	}
+    };
+    private void addStatus(String statusName){
+    	ViewHolderHeader_Player vhh_Player = new ViewHolderHeader_Player();
+    	vhh_Player.setName(statusName);
+    	statusList.add(vhh_Player);
+    	sHash.put(statusName, vhh_Player);
     }
-    public void startNewPlayerDialog(View view) {
-    	Intent intent = new Intent(this, NewPlayer.class);
-    	startActivity(intent);
-    }
-    public void editPlayerDialog(View view){    	
-    }
+    private void addPlayer(String sort, String playerId, String playerName, String playerNick){
+    	//find the index of the session header
+    	ViewHolderHeader_Player statusInfo = sHash.get(sort);
+	    ArrayList<ViewHolder_Player> playerList = statusInfo.getPlayerList();
+	    
+	    //create a new child and add that to the group
+	    ViewHolder_Player playerInfo = new ViewHolder_Player();
+	    playerInfo.setId(playerId);
+	    playerInfo.setName(playerName);
+	    playerInfo.setNickName(playerNick);
+	    playerList.add(playerInfo);
+		statusInfo.setPlayerList(playerList);
+	}
 }
