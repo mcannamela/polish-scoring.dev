@@ -2,32 +2,33 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Session;
 
 public class View_Sessions extends MenuContainerActivity {
-	private LinearLayout ll;
-	private ListView lv;
+	private LinkedHashMap<String, ViewHolderHeader_Session> sHash = new LinkedHashMap<String, ViewHolderHeader_Session>();
+	private ArrayList<ViewHolderHeader_Session> statusList = new ArrayList<ViewHolderHeader_Session>();
+	private ListAdapter_Session sessionAdapter;
+	private ExpandableListView elv;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_view_list);
+		setContentView(R.layout.activity_view_listing);
 		
 		// Make sure we're running on Honeycomb or higher to use ActionBar APIs
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -35,10 +36,13 @@ public class View_Sessions extends MenuContainerActivity {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        ll = (LinearLayout) findViewById (R.id.db_viewListings);
-    	lv = new ListView(this);
-    	ll.addView(lv);
-        lv.setOnItemClickListener(mSessionClickedHandler);
+        elv = (ExpandableListView) findViewById(R.id.dbListing);
+        sessionAdapter = new ListAdapter_Session(View_Sessions.this, statusList);
+        elv.setAdapter(sessionAdapter);
+        expandAll();
+        elv.setOnChildClickListener(elvItemClicked);
+        elv.setOnGroupClickListener(elvGroupClicked);
+        
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -55,52 +59,104 @@ public class View_Sessions extends MenuContainerActivity {
 	@Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshSessionsListing();
+    	refreshSessionListing();
     }
     @Override
     protected void onResume(){
     	super.onResume();
-    	refreshSessionsListing();
+    	refreshSessionListing();
     }
     @Override
     protected void onStop() {
     	super.onStop();
     }
-    private OnItemClickListener mSessionClickedHandler = new OnItemClickListener() {
-        public void onItemClick(AdapterView parent, View v, int position, long id) {
-        	String msg;
-        	
-        	ViewHolder_Session h = (ViewHolder_Session) v.getTag();
-        	Long gid  = Long.valueOf(h.getSessionId());
-        	msg = h.getSessionId() +" was clicked";
-        	Context context = getApplicationContext();
-    		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    		
-//    		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
-//			intent.putExtra("GID", gid);
-//	    	startActivity(intent);
-        }
-    };
-    protected void refreshSessionsListing(){
-    	ArrayList<Session> sessionsArray = new ArrayList<Session>();
-        Dao<Session, Long> sessionDao=null;
-    	
-    	try{
-    		 sessionDao = getHelper().getSessionDao();
-    		 for(Session s: sessionDao){
-    			 sessionsArray.add(s);
-    			}
+    private void expandAll() {
+    	//method to expand all groups
+    	int count = sessionAdapter.getGroupCount();
+    	for (int i = 0; i < count; i++){
+		elv.expandGroup(i);
     	}
-    	catch (SQLException e){
+    }
+    private void collapseAll() {
+    	//method to collapse all groups
+    	int count = sessionAdapter.getGroupCount();
+    	for (int i = 0; i < count; i++){
+    	elv.collapseGroup(i);
+    	}
+    }
+    protected void refreshSessionListing(){
+    	sHash.clear();
+    	statusList.clear();
+    	
+    	// add all the statii to the headers
+        addStatus("Active");
+        addStatus("Inactive");
+        
+        // add all the sessions
+    	Dao<Session, Long> sessionDao = null;
+        try{
+        	sessionDao = getHelper().getSessionDao();
+        	for (Session s: sessionDao) {
+        		addSession("Active", 
+        				String.valueOf(s.getId()), 
+        				s.getSessionName()
+        				);
+        	}
+    	}
+        catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
     		Log.e(View_Sessions.class.getName(), "Retrieval of sessions failed", e);
-    	}
+        }
         
-    	
-    	ViewAdapter_Session adapter = new ViewAdapter_Session(this, 
-                R.id.layout_session_list_item, 
-                sessionsArray);
-        lv.setAdapter(adapter);
+    	expandAll();
     }
+    private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
+    	public boolean onChildClick(ExpandableListView parent, View v,
+    	int groupPosition, int childPosition, long id) {
+
+	    //get the group header
+	    ViewHolderHeader_Session statusInfo = statusList.get(groupPosition);
+	    //get the child info
+   		ViewHolder_Session sessionInfo =  statusInfo.getSessionList().get(childPosition);
+   		//display it or do something with it
+   		Toast.makeText(getBaseContext(), "Selected " + sessionInfo.getName(), Toast.LENGTH_SHORT).show();
+    	
+   		// load the game in progress screen
+   		Long sId  = Long.valueOf(sessionInfo.getId());
+		Intent intent = new Intent(getApplicationContext(), Detail_Session.class);
+        intent.putExtra("SID", sId);
+        startActivity(intent);
+    	return false;
+    	}
+    };
+    private OnGroupClickListener elvGroupClicked =  new OnGroupClickListener() {
+    	public boolean onGroupClick(ExpandableListView parent, View v,
+    	int groupPosition, long id) {
+    	    
+    	//get the group header
+    	ViewHolderHeader_Session statusInfo = statusList.get(groupPosition);
+    	//display it or do something with it
+    	Toast.makeText(getBaseContext(), "Tapped " + statusInfo.getName(), Toast.LENGTH_SHORT).show();
+    	return false;
+    	}
+    };
+    private void addStatus(String statusName){
+    	ViewHolderHeader_Session vhh_Session = new ViewHolderHeader_Session();
+    	vhh_Session.setName(statusName);
+    	statusList.add(vhh_Session);
+    	sHash.put(statusName, vhh_Session);
+    }
+    private void addSession(String sortBy, String sessionId, String sessionName){
+    	//find the index of the session header
+    	ViewHolderHeader_Session statusInfo = sHash.get(sortBy);
+	    ArrayList<ViewHolder_Session> sessionList = statusInfo.getSessionList();
+	    
+	    //create a new child and add that to the group
+	    ViewHolder_Session sessionInfo = new ViewHolder_Session();
+	    sessionInfo.setId(sessionId);
+	    sessionInfo.setName(sessionName);
+	    sessionList.add(sessionInfo);
+		statusInfo.setSessionList(sessionList);
+	}
 }

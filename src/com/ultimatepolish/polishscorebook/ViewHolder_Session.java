@@ -1,16 +1,20 @@
 package com.ultimatepolish.polishscorebook;
 
-import android.widget.TextView;
-
 public class ViewHolder_Session {
-	public TextView sessionId;
-    public TextView sessionName;
+	public String id;
+    public String name;
     
-    public String getSessionId(){
-    	return sessionId.getText().toString();
+    public String getId(){
+    	return id;
     }
-    public String getSessionName(){
-    	return sessionName.getText().toString();
+    public String getName(){
+    	return name;
     }
     
+    public void setId(String sessionId){
+    	this.id = sessionId;
+    }
+    public void setName(String sessionName){
+    	this.name = sessionName;
+    }
 }

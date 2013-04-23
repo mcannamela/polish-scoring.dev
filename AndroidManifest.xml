@@ -110,6 +110,16 @@
 			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >
 		</activity>
 		<activity
+			android:name="com.ultimatepolish.polishscorebook.Detail_Session"
+			android:label="@string/title_activity_detail_session"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Sessions" >
+		</activity>
+		<activity
+			android:name="com.ultimatepolish.polishscorebook.Detail_Venue"
+			android:label="@string/title_activity_detail_venue"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Venues" >
+		</activity>
+		<activity
 			android:name="com.ultimatepolish.polishscorebook.AboutPage"
 			android:label="@string/title_activity_about_page"
 			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >

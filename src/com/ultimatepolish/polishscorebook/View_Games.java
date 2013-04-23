@@ -44,7 +44,6 @@ public class View_Games extends MenuContainerActivity {
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
         
-        refreshGamesListing();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -136,10 +135,10 @@ public class View_Games extends MenuContainerActivity {
    		ViewHolder_Game gameInfo =  sessionInfo.getGameList().get(childPosition);
    		//display it or do something with it
    		Toast.makeText(getBaseContext(), "Selected " + sessionInfo.getName() 
-   				+ "/" + String.valueOf(gameInfo.getGameId()), Toast.LENGTH_SHORT).show();
+   				+ "/" + String.valueOf(gameInfo.getId()), Toast.LENGTH_SHORT).show();
     	
    		// load the game in progress screen
-        Long gid  = Long.valueOf(gameInfo.getGameId());
+        Long gid  = Long.valueOf(gameInfo.getId());
 		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
         intent.putExtra("GID", gid);
         startActivity(intent);
@@ -170,7 +169,7 @@ public class View_Games extends MenuContainerActivity {
 	    
 	    //create a new child and add that to the group
 	    ViewHolder_Game gameInfo = new ViewHolder_Game();
-			gameInfo.setGameId(gameId);
+			gameInfo.setId(gameId);
 			gameInfo.setPlayerOne(p1);
 			gameInfo.setPlayerTwo(p2);
 			gameInfo.setScore(score);
