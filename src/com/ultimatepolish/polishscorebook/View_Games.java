@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,7 +71,6 @@ public class View_Games extends MenuContainerActivity {
     @Override
     protected void onStop() {
     	super.onStop();
-//    	finish();
     }
 
     private void expandAll() {
@@ -103,7 +101,7 @@ public class View_Games extends MenuContainerActivity {
         catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+    		Log.e(View_Games.class.getName(), "Retrieval of sessions failed", e);
     	}
         
         // add all the games
@@ -123,11 +121,10 @@ public class View_Games extends MenuContainerActivity {
         catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+    		Log.e(View_Games.class.getName(), "Retrieval of games failed", e);
         }
         
     	expandAll();
-    	 
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,
@@ -166,9 +163,9 @@ public class View_Games extends MenuContainerActivity {
     	sessionList.add(vhh_Game);
     	sHash.put(sessionName, vhh_Game);
     }
-    private void addGame(String s, String gameId, String p1, String p2, String score){
+    private void addGame(String sort, String gameId, String p1, String p2, String score){
     	//find the index of the session header
-    	ViewHolderHeader_Game sessionInfo = sHash.get(s);
+    	ViewHolderHeader_Game sessionInfo = sHash.get(sort);
 	    ArrayList<ViewHolder_Game> gameList = sessionInfo.getGameList();
 	    
 	    //create a new child and add that to the group

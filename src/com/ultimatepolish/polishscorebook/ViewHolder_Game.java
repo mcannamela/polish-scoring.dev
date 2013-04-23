@@ -1,7 +1,5 @@
 package com.ultimatepolish.polishscorebook;
 
-import android.widget.TextView;
-
 public class ViewHolder_Game {
 	public String gameId;
     public String playerOne;
