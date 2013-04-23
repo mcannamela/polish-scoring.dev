@@ -64,6 +64,8 @@
 	<string name="gip_drinkhit_check">drinkHit</string>
 	<string name="gip_drinkdrop_check">drinkDrop</string>
 	<string name="title_activity_detail_player">Player Details</string>
+	<string name="title_activity_detail_session">Session Details</string>
+	<string name="title_activity_detail_venue">Venue Details</string>
 	<string name="title_activity_about_page">About</string>
 
 </resources>

@@ -43,7 +43,6 @@ public class View_Players extends MenuContainerActivity {
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
         
-        refreshPlayersListing();
     }
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -108,7 +107,7 @@ public class View_Players extends MenuContainerActivity {
         catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+    		Log.e(View_Players.class.getName(), "Retrieval of players failed", e);
         }
         
     	expandAll();
