@@ -26,10 +26,4 @@ public class PolishScorebook extends  MenuContainerActivity {
     	Intent intent = new Intent(this, NewGame.class);
     	startActivity(intent);
     }
-    
-    public void openAboutPage(View view){
-    	Intent intent = new Intent(this, AboutPage.class);
-    	startActivity(intent);
-    }   
-    
 }

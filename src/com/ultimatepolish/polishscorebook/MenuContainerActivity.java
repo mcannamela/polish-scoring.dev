@@ -33,14 +33,20 @@ public class MenuContainerActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	        case R.id.players:
 	            openPlayersActivity();
 	            return true;
+	        case R.id.teams:
+	            openTeamsActivity();
+	            return true;
 	        case R.id.venues:
 	            openVenuesActivity();
 	            return true;
 	        case R.id.sessions:
 	            openSessionsActivity();
 	            return true;
-	        case R.id.action_settings:
+	        case R.id.settings:
 	            openSettingsActivity();
+	            return true;
+	        case R.id.about:
+	            openAboutActivity();
 	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
@@ -49,12 +55,16 @@ public class MenuContainerActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	public void openAddActivity() {
     	// this wont do anything unless overridden in the file that extends this class
     }
-	public void openPlayersActivity() {
+    public void openGamesActivity() {
+    	Intent intent = new Intent(this, View_Games.class);
+    	startActivity(intent);
+    }
+    public void openPlayersActivity() {
     	Intent intent = new Intent(this, View_Players.class);
     	startActivity(intent);
     }
-    public void openGamesActivity() {
-    	Intent intent = new Intent(this, View_Games.class);
+    public void openTeamsActivity() {
+    	Intent intent = new Intent(this, View_Teams.class);
     	startActivity(intent);
     }
     public void openVenuesActivity(){
@@ -69,5 +79,8 @@ public class MenuContainerActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     	Intent intent = new Intent(this, SimpleSettings.class);
     	startActivity(intent);
     }
-
+    public void openAboutActivity() {
+    	Intent intent = new Intent(this, AboutPage.class);
+    	startActivity(intent);
+    }
 }

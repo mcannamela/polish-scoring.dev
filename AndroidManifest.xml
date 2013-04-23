@@ -90,6 +90,11 @@
 			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
 		</activity>
 		<activity
+			android:name="com.ultimatepolish.polishscorebook.View_Teams"
+			android:label="@string/title_activity_teams"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+		</activity>
+		<activity
 			android:name="com.ultimatepolish.polishscorebook.View_Sessions"
 			android:label="@string/title_activity_sessions"
 			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
