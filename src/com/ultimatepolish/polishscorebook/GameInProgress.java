@@ -12,22 +12,18 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.ScrollView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,9 +36,9 @@ import com.ultimatepolish.scorebookdb.ThrowResult;
 import com.ultimatepolish.scorebookdb.ThrowType;
 import com.ultimatepolish.scorebookdb.Venue;
 
-public class GameInProgress extends MenuContainerActivity {
-	public static int highlightedColor = Color.GRAY;
-	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
+public class GameInProgress extends MenuContainerActivity 
+								implements ThrowTableFragment.OnTableRowClickedListener{
+	
 	private static int N_PAGES = 10;
 	
 	private FragmentArrayAdapter vpAdapter;
@@ -72,11 +68,12 @@ public class GameInProgress extends MenuContainerActivity {
 	
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	//:::::::::::::::listeners:::::::::::::::::::::::::::::::::::::::::
-	private OnCheckedChangeListener throwResultChangedListener = new OnCheckedChangeListener() {
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-        	updateThrow(); 
-        }
-    };
+	private OnCheckedChangeListener checkboxChangedListener = new OnCheckedChangeListener(){
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+			updateThrow();
+		}
+		
+	};
     
     private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
 		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
@@ -84,29 +81,12 @@ public class GameInProgress extends MenuContainerActivity {
 		}
 	};
     
-    private OnClickListener throwClickedListener = new OnClickListener(){
-    	public void onClick(View v){
-    		int row, col, newThrowNr;
-    		ViewGroup p = (ViewGroup) v.getParent();
-    		ViewGroup gp = (ViewGroup) p.getParent();
-    		   		
-    		col = p.indexOfChild(v);
-    		row = gp.indexOfChild(p);
-    		
-    		newThrowNr = tableRowColToThrowNr(row, col);
-    		
-    		if (col>3){
-    			return;
-    		}
-    		else{
-    			changeCurrentThrow(newThrowNr);
-    		}
-    		
-    	}
-    };
-    
-    
-    
+	public void onThrowClicked(int local_throw_nr){
+		int global_throw_nr = ThrowTableFragment.localThrowNrToGlobal(page_idx, local_throw_nr);
+		changeCurrentThrow(global_throw_nr);
+		
+	}
+
     private class FragmentArrayAdapter extends FragmentPagerAdapter{
 
     	public FragmentArrayAdapter(FragmentManager fm) {
@@ -115,7 +95,7 @@ public class GameInProgress extends MenuContainerActivity {
     	
 		@Override
 		public int getCount() {
-			return N_PAGES;
+			return fragArray.size();
 		}
 		
 	    @Override
@@ -162,14 +142,17 @@ public class GameInProgress extends MenuContainerActivity {
 		
 		Intent intent = getIntent();
 		Long gid = intent.getLongExtra("GID", -1);
+		
 		initGame(gid);
+		initThrows();
 		
 		initMetadata();
 		initNumPickers();
+		initListeners();
 		initTableHeaders();
+		
+		Log.i("GIP", "onCreate() - about to create fragments");
 		initTableFragments();
-		initThrows();
-			
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -178,20 +161,49 @@ public class GameInProgress extends MenuContainerActivity {
 		menu.findItem(R.id.addButton).setVisible(false);
 		return true;
 	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+	}
 	@Override
 	protected void onResume(){
 		super.onResume();
-//		initThrows();
+		initThrows();
+		
+		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
+		vp.setCurrentItem(0);
+		assert page_idx==0;
+		Log.i("GIP", "onResume() - vp's adapter has  "+ad.getCount() +" items");
+		
+		int initThrowNr = 0;
+		if (throwArray.size()>0){
+			initThrowNr = throwArray.size()-1;
+		}
+		Log.i("GIP", "onResume() - about to change current throw to "+initThrowNr);
+		changeCurrentThrow(initThrowNr);
+		
 	}
 	@Override
 	protected void onRestart(){
 		super.onRestart();
 //		initThrows();
 	}	
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		saveAllThrows();
+		saveGame();
+		updateThrowScoresFrom(0);
+	}
 	@Override
     protected void onStop() {
     	super.onStop();
     }
+	
 	private void initGame(long gid){
 		Context context = getApplicationContext();
 		if (gid!=-1){
@@ -239,7 +251,7 @@ public class GameInProgress extends MenuContainerActivity {
 		fragArray.clear();
 		ThrowTableFragment frag = null;
         for (int i=0;i<N_PAGES;i++){
-        	frag = ThrowTableFragment.newInstance(i);
+        	frag = ThrowTableFragment.newInstance();
         	fragArray.add(frag);
         }
         
@@ -250,6 +262,7 @@ public class GameInProgress extends MenuContainerActivity {
         vp.setOnPageChangeListener(new MyPageChangeListener());
         
         vp.setCurrentItem(0);
+        Log.i("GIP", "initTableFragments() - fragments created, adapter has "+vpAdapter.getCount() +"items");
 	}
 	private void initThrows(){
 
@@ -283,13 +296,6 @@ public class GameInProgress extends MenuContainerActivity {
 		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 		tv.setText("nThrows: "+throwArray.size());
 	
-		int initThrowNr = 0;
-		if (throwArray.size()>0){
-			initThrowNr = throwArray.size()-1;
-		}
-		
-		changeCurrentThrow(initThrowNr);
-		
 	}
 	private void initTableHeaders(){
 		TextView tv;
@@ -341,6 +347,40 @@ public class GameInProgress extends MenuContainerActivity {
 		goaltendNumPicker = p;
 		p.setOnValueChangedListener(numberPickerChangeListener);
 		
+	}
+	private void initListeners(){
+		CheckBox cb;
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_broken);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_drinkDrop);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_error);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_firedOn);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_onFire);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_short);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		cb = (CheckBox) findViewById(R.id.checkBox_trap);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+	
 	}
 	
     //=================================================================
@@ -449,52 +489,24 @@ public class GameInProgress extends MenuContainerActivity {
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
-	private void renderThrows(){
-		for (int i=0;i<N_PAGES;i++){
-			renderPage(i);
-		}
-	}
+
+	//	private void renderThrows(){
+//		for (int i=0;i<N_PAGES;i++){
+//			renderPage(i);
+//		}
+//	}
 
 	private void renderPage(int pidx){
-		Throw t,pt;
-		int nThrows = throwArray.size();
-		
-		ThrowTableFragment frag = fragArray.get(pidx);
+		ThrowTableFragment frag =fragArray.get(pidx); 
 		int[] range = ThrowTableFragment.throwNrRange(pidx);
+		frag.renderAsPage(pidx, throwArray);
+		frag.clearHighlighted();
 		
-//		Toast.makeText(getApplicationContext(), 
-//				"range for page "+pidx+" is "+range[0] +" to "+range[1], 
-//				Toast.LENGTH_SHORT).show();
-		
-		if (nThrows<range[0]){
-			return;
-		}
-		
-		for (int i=range[0]; i<range[1];i++){
-			if (i>=nThrows){
-				break;
-			}
-			t = getThrow(i);
-			pt = getPreviousThrow(i);
-			t.setInitialScores(pt);
-			renderThrow(t);
+		if (throwNr>=range[0] && throwNr<range[1]){
+			frag.highlightThrow(throwNr);
 		}
 	}
 	
-	private void renderThrow(Throw t){
-		ThrowTableRow tr = getThrowTableRow(t);
-		tr.updateText(t);
-	}
-	private void renderScore(Throw t){
-		ThrowTableRow tr = getThrowTableRow(t);
-		int[] score = t.getFinalScores();
-		if (isP1Throw(t.getThrowNumber())){
-			tr.updateScoreText(score[0], score[1]);
-		}
-		else{
-			tr.updateScoreText(score[1], score[0]);
-		}
-	}
 	private void updateCurrentScore(){
 		int lastThrowNumber = throwArray.size()-1;
 		Throw lastThrow = getThrow(lastThrowNumber);
@@ -510,33 +522,6 @@ public class GameInProgress extends MenuContainerActivity {
 		
 	}
 	
-	private void setThrowHighlighted(int throwNr, boolean highlight) {
-		if (throwNr<0){
-			return;
-		}
-		ThrowTableRow tr = getThrowTableRow(getThrow(throwNr));
-		
-		TextView tv;
-		int start, stop;
-		if (isP1Throw()){
-			start = 0;
-			stop = 2;
-		}
-		else{
-			start = 2;
-			stop = 4;
-		}
-		for (int i=start;i<stop;i++){
-			tv = (TextView) tr.getChildAt(i);
-			if (highlight){
-				tv.setBackgroundColor(highlightedColor);
-			}
-			else{
-				tv.setBackgroundColor(unhighlightedColor);
-			}
-		}
-	}
-	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
 	
@@ -545,7 +530,7 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 		
 	void changeCurrentThrow(int newThrowNr){
-//		setThrowHighlighted(throwNr, false);
+		
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -558,36 +543,58 @@ public class GameInProgress extends MenuContainerActivity {
 				Toast.LENGTH_LONG).show();
 			}
 		}
+		updateThrowScoresFrom(0);
 		
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
+		Log.i("GIP", "changeCurrentThrow() - changed throwNr from "+oldThrowNr +" to "+newThrowNr);
 		
 		Throw t = getThrow(throwNr);
-		Throw u = getPreviousThrow(throwNr);
-		t.setInitialScores(u);
+		
 		applyCurrentThrowToUIState(t);
-		try{
-			saveThrow(getThrow(throwNr));
-		}
-		catch (SQLException e){
-			Toast.makeText(getApplicationContext(), 
-			"could not save throw "+throwNr+", "+e.getMessage(), 
-			Toast.LENGTH_LONG).show();
-		}
+		
 		
 		int new_page_idx = ThrowTableFragment.throwNrToPageIdx(newThrowNr);
 		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
-		vp.setCurrentItem(new_page_idx);
-		assert page_idx==new_page_idx;
-//		renderPage(page_idx);
-		
-//		setThrowHighlighted(newThrowNr, true);
+		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
+		Log.i("GIP", "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
+		try{
+			vp.setCurrentItem(new_page_idx);
+			assert page_idx==new_page_idx;
+			
+			renderPage(page_idx);
+		}
+		catch (NullPointerException e){
+			Log.e("GIP", "changeCurrentThrow() - failed to change page");
+		}
 		
 		updateCurrentScore();
 		saveGame();
 		
 	}
-	
+	private void updateThrowScoreFrom(Throw t){
+		updateThrowScoresFrom(t.getThrowNumber());
+	}
+	private void updateThrowScoresFrom(int throwNr){
+		Throw t,u;
+		for (int i=throwNr; i<throwArray.size(); i++){
+			t = getThrow(throwNr);
+			u = getPreviousThrow(throwNr);
+			t.setInitialScores(u);
+		}
+	}
+	void saveAllThrows(){
+		for(Throw t: throwArray){
+			try{
+				saveThrow(t);
+			}
+			catch(SQLException e){
+				Toast.makeText(getApplicationContext(), 
+						"could not save throw "+t.getThrowNumber()+", "+e.getMessage(), 
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
 	void saveThrow(Throw t) throws SQLException{
 		
 		HashMap<String,Object> m = new HashMap<String,Object>();
@@ -616,9 +623,6 @@ public class GameInProgress extends MenuContainerActivity {
 	}
 	
 	
-	public void checkboxClicked(View view){
-		updateThrow();
-	}
 	public void buttonPressed(View view){
 		String buttonText = (String) ((Button) view).getText();
 		
@@ -654,30 +658,17 @@ public class GameInProgress extends MenuContainerActivity {
 	private void updateThrow(){
 		Throw t = getThrow(throwNr);
 		applyUIStateToCurrentThrow(t);
-		renderThrows();
+		updateThrowScoresFrom(0);
+		renderPage(page_idx);
 	}
 	
-		
 	boolean isP1Throw(){
 		return isP1Throw(throwNr);
 	}
 	boolean isP1Throw(int throwNr){
 		return (throwNr%2)==0;
 	}
-	int throwNumberToTableRow(){
-		return throwNumberToTableRow(throwNr);
-	}
-	int throwNumberToTableRow(int throwNr){
-		return throwNr/2;
-	}
-	int tableRowColToThrowNr(int row, int col){
-		int throwNr = 2*row;
-		if (col>=2){
-			throwNr++;
-		}
-		return throwNr;
-	}
-	
+		
 	Throw getThrow(int throwNr){
 		if (throwNr<throwArray.size() && throwNr>=0){
 			return throwArray.get(throwNr);

@@ -392,6 +392,16 @@ public class Throw implements Comparable<Throw>{
 			return 1;
 		}
 	}
+
+	public static boolean isP1Throw(int throwNr) {
+		return throwNr%2==0;
+	}
+	public static boolean isP1Throw(Throw t){
+		return isP1Throw(t.getThrowNumber());
+	}
+	public boolean isP1Throw(){
+		return isP1Throw(throwNumber);
+	}
 	
 
 	
