@@ -8,9 +8,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -129,6 +133,22 @@ public class GameInProgress extends MenuContainerActivity
 			renderPage(page_idx);
 		}
     	
+    }
+    
+    public static class GentlemensDialogFragment extends DialogFragment{
+    	@Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Time out, Gentlemen!")
+                   .setPositiveButton("resume", new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                           // FIRE ZE MISSILES!
+                       }
+                   	});
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
     }
     
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -565,9 +585,20 @@ public class GameInProgress extends MenuContainerActivity
 
 	
 	public void confirmThrow(){
+		int nextThrowNr = throwNr+1;
+		int[] range = ThrowTableFragment.throwNrRange(page_idx);
+		if (nextThrowNr==range[1]){
+			respectGentlemens();
+		}
 		changeCurrentThrow(throwNr+1);
+		
+	}
+	private void respectGentlemens(){
+		GentlemensDialogFragment frag = new GentlemensDialogFragment();
+		frag.show(getFragmentManager(), "gentlemens");
 	}
 		
+	
 	void changeCurrentThrow(int newThrowNr){
 		Log.i("GIP", "changeCurrentThrow() - current throw nr is "+throwNr +", will change it to "+newThrowNr);
 		Throw t = getThrow(throwNr);
