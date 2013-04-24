@@ -64,6 +64,10 @@ public class Venue {
 		this.name = name;
 	}
 
+	public void setScoreFromTop(Boolean sfTop) {
+		this.scoreKeptFromTop = sfTop;
+	}
+
 	public boolean exists(Context context) {
 		// TODO Auto-generated method stub
 		return false;

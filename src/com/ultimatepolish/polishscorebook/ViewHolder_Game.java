@@ -1,15 +1,13 @@
 package com.ultimatepolish.polishscorebook;
 
-import android.widget.TextView;
-
 public class ViewHolder_Game {
-	public String gameId;
+	public String id;
     public String playerOne;
     public String playerTwo;
     public String score;
     
-    public String getGameId(){
-    	return gameId;
+    public String getId(){
+    	return id;
     }
     public String getPlayerOne(){
     	return playerOne;
@@ -21,16 +19,16 @@ public class ViewHolder_Game {
     	return score;
     }
     
-    public void setGameId(String gameId){
-    	this.gameId = gameId;
+    public void setId(String gameId){
+    	this.id = gameId;
     }
-    public void setPlayerOne(String playerOne){
-    	this.playerOne = playerOne;
+    public void setPlayerOne(String gamePlayerOne){
+    	this.playerOne = gamePlayerOne;
     }
-    public void setPlayerTwo(String playerTwo){
-    	this.playerTwo = playerTwo;
+    public void setPlayerTwo(String gamePlayerTwo){
+    	this.playerTwo = gamePlayerTwo;
     }
-    public void setScore(String score){
-    	this.score = score;
+    public void setScore(String gameScore){
+    	this.score = gameScore;
     }
 }
