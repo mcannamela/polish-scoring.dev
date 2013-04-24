@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -204,6 +205,7 @@ public class ThrowTableFragment extends Fragment {
 	public ThrowTableRow getTableRow(int throwNr){
 		TableLayout layout = getTableLayout();
 		int ridx = ThrowTableFragment.throwNrToRowIdx(throwNr);
+//		Log.i("GIP", "Fragment/getTableRow() - getting row for throw nr " +throwNr+", it's "+ ridx);
 		ThrowTableRow tr;
 		try{
 			tr = (ThrowTableRow) layout.getChildAt(ridx);

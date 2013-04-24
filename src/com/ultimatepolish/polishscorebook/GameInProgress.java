@@ -289,8 +289,47 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		
 		throwArray.clear();
+		//determine max throw number
+		int maxThrowNr = 0;
 		for (Throw t: tList){
-			throwArray.add(t);
+			if (t.getThrowNumber()>maxThrowNr){
+				maxThrowNr = t.getThrowNumber();
+			}
+		}
+		//fill array with nulls
+		for(int i = 0; i<(maxThrowNr+1);i++){
+			throwArray.add(null);
+		}
+		//insert all valid throws into the 
+		int idx;
+		for (Throw t: tList){
+			idx = t.getThrowNumber();
+			if (idx>0){
+				throwArray.set(idx, t);
+			}
+			else{
+				try{
+					tDao.delete(t);
+					Log.i("GIP", "initThrows() - deleted a throw with a negative throw number");
+				}
+				catch (SQLException e){
+					Log.e("GIP", "initThrows() - failed to delete a throw with a negative throw number");
+				}
+			}
+		}
+		
+		//fill any nulls with a caught strike
+		Throw t;
+		for (int i=0; i<throwArray.size();i++){
+			t = throwArray.get(i);
+			if (t==null){
+				Log.i("GIP", "initThrows() - missing throw number "+i+", will be inserted");
+				t = g.makeNewThrow(throwNr);
+				t.setThrowType(ThrowType.STRIKE);
+				t.setThrowResult(ThrowResult.CATCH);
+				t.setThrowNumber(i);
+				throwArray.set(i,t);
+			}
 		}
 		
 		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
@@ -388,6 +427,7 @@ public class GameInProgress extends MenuContainerActivity
 	/////////////////////////////////////////////////////////
     /////////////// apply the state of the ui to a throw/////
     private void applyUIStateToCurrentThrow(Throw t){
+    	Log.i("GIP", "applyUIStateToCurrentThrow() - applying state to throw "+t.getThrowNumber());
     	applyCurrentThrowType(t);
     	applyCurrentThrowResult(t);
     	applySpecialMarks(t);
@@ -508,10 +548,9 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void updateCurrentScore(){
-		int lastThrowNumber = throwArray.size()-1;
-		Throw lastThrow = getThrow(lastThrowNumber);
+		Throw lastThrow = getThrow(throwArray.size()-1);
 		int[] scores = lastThrow.getFinalScores();
-		if (isP1Throw(lastThrowNumber)){
+		if (lastThrow.isP1Throw()){
 			g.setFirstPlayerScore(scores[0]);
 			g.setSecondPlayerScore(scores[1]);
 		}
@@ -530,7 +569,9 @@ public class GameInProgress extends MenuContainerActivity
 	}
 		
 	void changeCurrentThrow(int newThrowNr){
-		
+		Log.i("GIP", "changeCurrentThrow() - current throw nr is "+throwNr +", will change it to "+newThrowNr);
+		Throw t = getThrow(throwNr);
+		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -547,9 +588,10 @@ public class GameInProgress extends MenuContainerActivity
 		
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
-		Log.i("GIP", "changeCurrentThrow() - changed throwNr from "+oldThrowNr +" to "+newThrowNr);
+		Log.i("GIP", "changeCurrentThrow() - throwNr is now "+throwNr);
 		
-		Throw t = getThrow(throwNr);
+		t = getThrow(throwNr);
+		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
 		
 		applyCurrentThrowToUIState(t);
 		
@@ -557,7 +599,7 @@ public class GameInProgress extends MenuContainerActivity
 		int new_page_idx = ThrowTableFragment.throwNrToPageIdx(newThrowNr);
 		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
-		Log.i("GIP", "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
+//		Log.i("GIP", "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
 		try{
 			vp.setCurrentItem(new_page_idx);
 			assert page_idx==new_page_idx;
@@ -578,9 +620,10 @@ public class GameInProgress extends MenuContainerActivity
 	private void updateThrowScoresFrom(int throwNr){
 		Throw t,u;
 		for (int i=throwNr; i<throwArray.size(); i++){
-			t = getThrow(throwNr);
-			u = getPreviousThrow(throwNr);
+			t = getThrow(i);
+			u = getPreviousThrow(i);
 			t.setInitialScores(u);
+			Log.i("GIP", "Setting initial scores of throw "+t.getThrowNumber()+" to final scores of throw "+u.getThrowNumber());
 		}
 	}
 	void saveAllThrows(){
@@ -662,12 +705,7 @@ public class GameInProgress extends MenuContainerActivity
 		renderPage(page_idx);
 	}
 	
-	boolean isP1Throw(){
-		return isP1Throw(throwNr);
-	}
-	boolean isP1Throw(int throwNr){
-		return (throwNr%2)==0;
-	}
+	
 		
 	Throw getThrow(int throwNr){
 		if (throwNr<throwArray.size() && throwNr>=0){
