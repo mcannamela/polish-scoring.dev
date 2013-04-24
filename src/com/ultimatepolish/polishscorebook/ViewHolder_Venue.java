@@ -1,16 +1,21 @@
 package com.ultimatepolish.polishscorebook;
 
-import android.widget.TextView;
-
 public class ViewHolder_Venue {
-	public TextView venueId;
-    public TextView venueName;
+	public String id;
+    public String name;
     
-    public String getVenueId(){
-    	return venueId.getText().toString();
+    public String getId(){
+    	return id;
     }
-    public String getVenueName(){
-    	return venueName.getText().toString();
+    public String getName(){
+    	return name;
+    }
+    
+    public void setId(String venueId){
+    	this.id = venueId;
+    }
+    public void setName(String venueName){
+    	this.name = venueName;
     }
     
 }

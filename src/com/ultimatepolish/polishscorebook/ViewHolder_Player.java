@@ -1,21 +1,27 @@
 package com.ultimatepolish.polishscorebook;
 
-import android.widget.TextView;
-
 public class ViewHolder_Player {
-	public TextView name;
-    public TextView nickName;
-    public TextView id;
+	public String name;
+    public String nickName;
+    public String id;
     
+    public String getId(){
+    	return id;
+    }
     public String getName(){
-    	return name.getText().toString();
+    	return name;
     }
     public String getNickName(){
-    	return nickName.getText().toString();
+    	return nickName;
     }
-    public Long getId(){
-    	return Long.valueOf(id.getText().toString());
-    }
-    	
     
+    public void setId(String playerId){
+    	this.id = playerId;
+    }
+    public void setName(String playerName){
+    	this.name = playerName;
+    }
+    public void setNickName(String playerNickName){
+    	this.nickName = playerNickName;
+    }
 }

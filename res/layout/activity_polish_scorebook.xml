@@ -9,8 +9,7 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/button_newGame"
-	    android:onClick="openNewGameActivity" />
+	    android:onClick="openNewGameActivity"
+	    android:layout_margin="30dp" />
 	
-
-
 </LinearLayout>

@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,7 +44,6 @@ public class View_Games extends MenuContainerActivity {
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
         
-        refreshGamesListing();
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,7 +70,6 @@ public class View_Games extends MenuContainerActivity {
     @Override
     protected void onStop() {
     	super.onStop();
-//    	finish();
     }
 
     private void expandAll() {
@@ -103,7 +100,7 @@ public class View_Games extends MenuContainerActivity {
         catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+    		Log.e(View_Games.class.getName(), "Retrieval of sessions failed", e);
     	}
         
         // add all the games
@@ -123,11 +120,10 @@ public class View_Games extends MenuContainerActivity {
         catch (SQLException e){
     		Context context = getApplicationContext();
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of players failed", e);
+    		Log.e(View_Games.class.getName(), "Retrieval of games failed", e);
         }
         
     	expandAll();
-    	 
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,
@@ -139,10 +135,10 @@ public class View_Games extends MenuContainerActivity {
    		ViewHolder_Game gameInfo =  sessionInfo.getGameList().get(childPosition);
    		//display it or do something with it
    		Toast.makeText(getBaseContext(), "Selected " + sessionInfo.getName() 
-   				+ "/" + String.valueOf(gameInfo.getGameId()), Toast.LENGTH_SHORT).show();
+   				+ "/" + String.valueOf(gameInfo.getId()), Toast.LENGTH_SHORT).show();
     	
    		// load the game in progress screen
-        Long gid  = Long.valueOf(gameInfo.getGameId());
+        Long gid  = Long.valueOf(gameInfo.getId());
 		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
         intent.putExtra("GID", gid);
         startActivity(intent);
@@ -166,14 +162,14 @@ public class View_Games extends MenuContainerActivity {
     	sessionList.add(vhh_Game);
     	sHash.put(sessionName, vhh_Game);
     }
-    private void addGame(String s, String gameId, String p1, String p2, String score){
+    private void addGame(String sort, String gameId, String p1, String p2, String score){
     	//find the index of the session header
-    	ViewHolderHeader_Game sessionInfo = sHash.get(s);
+    	ViewHolderHeader_Game sessionInfo = sHash.get(sort);
 	    ArrayList<ViewHolder_Game> gameList = sessionInfo.getGameList();
 	    
 	    //create a new child and add that to the group
 	    ViewHolder_Game gameInfo = new ViewHolder_Game();
-			gameInfo.setGameId(gameId);
+			gameInfo.setId(gameId);
 			gameInfo.setPlayerOne(p1);
 			gameInfo.setPlayerTwo(p2);
 			gameInfo.setScore(score);
