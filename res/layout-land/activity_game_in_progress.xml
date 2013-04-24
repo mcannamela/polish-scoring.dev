@@ -275,7 +275,7 @@
 		android:id="@+id/scoreTable_header"
 		android:layout_toRightOf="@+id/button_high"
 		android:layout_toLeftOf="@+id/numPicker_errorScore"
-		android:layout_below="@+id/textView_datePlayed"
+		android:layout_below="@+id/textView_players"
 		android:layout_width="fill_parent"
         android:layout_height="wrap_content"
 		android:layout_marginRight="10dp"
@@ -310,23 +310,57 @@
 		</TableRow>
 	</TableLayout>
 	
-	<ScrollView
-		android:id="@+id/gip_scrollView"
-		android:layout_toRightOf="@+id/button_high"
-		android:layout_toLeftOf="@+id/numPicker_errorScore"
+    <android.support.v4.view.ViewPager
+    	android:id="@+id/viewPager_throwsTables"
+	    android:layout_toRightOf="@+id/button_high"
+	    android:layout_toLeftOf="@+id/numPicker_errorScore"
 		android:layout_below="@+id/scoreTable_header"
+		android:layout_above="@+id/textView_pageIndex"
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_height="wrap_content" 
 	    android:layout_marginLeft="10dp"
-	    android:layout_marginRight="10dp"
-	    android:fillViewport="false" >
+ 	    android:layout_marginRight="10dp"
+	    />
+
+<!-- 	<ScrollView -->
+<!-- 		android:id="@+id/gip_scrollView" -->
+<!-- 		android:layout_toRightOf="@+id/button_high" -->
+<!-- 		android:layout_toLeftOf="@+id/numPicker_errorScore" -->
+<!-- 		android:layout_below="@+id/scoreTable_header" -->
+<!-- 	    android:layout_width="fill_parent" -->
+<!-- 	    android:layout_height="fill_parent" -->
+<!-- 	    android:layout_marginLeft="10dp" -->
+<!-- 	    android:layout_marginRight="10dp" -->
+<!-- 	    android:fillViewport="false" > -->
 		
-	    <fragment
-	        android:id="@+id/fragment_throwTable"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-        	class="com.ultimatepolish.polishscorebook.ThrowTableFragment" ></fragment>
+<!-- 	    <fragment -->
+<!-- 	        android:id="@+id/fragment_throwTable" -->
+<!-- 	        android:layout_width="fill_parent" -->
+<!-- 	        android:layout_height="wrap_content" -->
+<!--         	class="com.ultimatepolish.polishscorebook.ThrowTableFragment" ></fragment> -->
 	    
-	</ScrollView>
+<!-- 	</ScrollView> -->
 	
+	<TextView
+        android:id="@+id/textView_pageIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="false"
+        android:layout_marginRight="150dp"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView_throwCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/textView_pageIndex"
+        android:layout_marginRight="30dp"
+        android:layout_toLeftOf="@id/textView_pageIndex"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
 </RelativeLayout>
