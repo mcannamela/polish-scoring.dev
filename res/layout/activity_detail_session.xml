@@ -21,16 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     
-    <Button
-    	android:id="@+id/sDet_modify"
-    	android:layout_toLeftOf="@+id/sDet_id"
-    	android:layout_alignParentTop="true"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_marginRight="20dp"
-    	android:text="Edit Session"
-    	android:onClick="modifySession" />
-    
     <TextView
         android:id="@+id/sDet_startDate"
         android:layout_alignParentLeft="true"

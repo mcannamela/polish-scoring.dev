@@ -21,16 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     
-    <Button
-    	android:id="@+id/vDet_modify"
-    	android:layout_toLeftOf="@+id/vDet_id"
-    	android:layout_alignParentTop="true"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_marginRight="20dp"
-    	android:text="Edit Venue"
-    	android:onClick="modifyVenue" />
-    
     <TextView
         android:id="@+id/vDet_fromTop"
         android:layout_alignParentLeft="true"

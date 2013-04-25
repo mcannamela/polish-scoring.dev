@@ -30,10 +30,15 @@ public class Detail_Venue extends MenuContainerActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
-		
+		menu.findItem(R.id.modifyButton).setVisible(true);
 		return true;
 	}
+	@Override
+	public void openModifyActivity() {
+		Intent intent = new Intent(getApplicationContext(), NewVenue.class);
+        intent.putExtra("VID", vId);
+        startActivity(intent);
+    }
 	@Override
     protected void onRestart(){
     	super.onRestart();
@@ -70,10 +75,5 @@ public class Detail_Venue extends MenuContainerActivity {
 		} else {
 			pFromTop.setText("Score kept from bottom");
 		}
-	}
-	public void modifyVenue(View view){
-		Intent intent = new Intent(getApplicationContext(), NewVenue.class);
-        intent.putExtra("VID", vId);
-        startActivity(intent);
 	}
 }

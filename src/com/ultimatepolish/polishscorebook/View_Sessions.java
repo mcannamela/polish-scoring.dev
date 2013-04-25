@@ -49,6 +49,7 @@ public class View_Sessions extends MenuContainerActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		menu.findItem(R.id.sessions).setEnabled(false);
+		menu.findItem(R.id.addButton).setVisible(true);
 		return true;
 	}	
 	@Override
