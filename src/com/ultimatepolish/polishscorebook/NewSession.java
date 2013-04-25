@@ -54,7 +54,6 @@ public class NewSession extends MenuContainerActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
 		return true;
 	}
 	public void createNewSession(View view) {

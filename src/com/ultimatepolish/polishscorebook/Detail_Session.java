@@ -31,10 +31,15 @@ public class Detail_Session extends MenuContainerActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
-		
+		menu.findItem(R.id.modifyButton).setVisible(true);
 		return true;
 	}
+	@Override
+	public void openModifyActivity() {
+		Intent intent = new Intent(getApplicationContext(), NewSession.class);
+        intent.putExtra("SID", sId);
+        startActivity(intent);
+    }
 	@Override
     protected void onRestart(){
     	super.onRestart();
@@ -69,10 +74,4 @@ public class Detail_Session extends MenuContainerActivity {
 		sStartDate.setText("Start date: " + String.valueOf(s.getStartDate()));
 		
 	}
-	public void modifySession(View view){
-		Intent intent = new Intent(getApplicationContext(), NewSession.class);
-        intent.putExtra("SID", sId);
-        startActivity(intent);
-	}
-
 }

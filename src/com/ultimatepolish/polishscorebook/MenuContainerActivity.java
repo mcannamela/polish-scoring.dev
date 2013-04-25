@@ -42,6 +42,9 @@ public class MenuContainerActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	        case R.id.sessions:
 	            openSessionsActivity();
 	            return true;
+	        case R.id.modifyButton:
+	            openModifyActivity();
+	            return true;
 	        case R.id.settings:
 	            openSettingsActivity();
 	            return true;
@@ -53,6 +56,9 @@ public class MenuContainerActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	    }
 	}
 	public void openAddActivity() {
+    	// this wont do anything unless overridden in the file that extends this class
+    }
+	public void openModifyActivity() {
     	// this wont do anything unless overridden in the file that extends this class
     }
     public void openGamesActivity() {

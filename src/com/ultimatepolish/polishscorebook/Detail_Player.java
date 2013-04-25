@@ -3,9 +3,9 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,11 +30,16 @@ public class Detail_Player extends MenuContainerActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
-		
+		getMenuInflater().inflate(R.menu.main, menu);		
+		menu.findItem(R.id.modifyButton).setVisible(true);
 		return true;
 	}
+	@Override
+	public void openModifyActivity() {
+		Intent intent = new Intent(getApplicationContext(), NewPlayer.class);
+        intent.putExtra("PID", pId);
+        startActivity(intent);
+    }
 	@Override
     protected void onRestart(){
     	super.onRestart();
@@ -85,10 +90,4 @@ public class Detail_Player extends MenuContainerActivity {
 		else {pHanded.setText("R");
 		}
 	}
-	public void modifyPlayer(View view){
-		Intent intent = new Intent(getApplicationContext(), NewPlayer.class);
-        intent.putExtra("PID", pId);
-        startActivity(intent);
-	}
-
 }

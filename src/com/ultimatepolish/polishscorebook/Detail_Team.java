@@ -31,10 +31,15 @@ public class Detail_Team extends MenuContainerActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-		menu.findItem(R.id.addButton).setVisible(false);
-		
+		menu.findItem(R.id.modifyButton).setVisible(true);
 		return true;
 	}
+	@Override
+	public void openModifyActivity() {
+		Intent intent = new Intent(getApplicationContext(), NewTeam.class);
+        intent.putExtra("TID", tId);
+        startActivity(intent);
+    }
 	@Override
     protected void onRestart(){
     	super.onRestart();
@@ -74,10 +79,4 @@ public class Detail_Team extends MenuContainerActivity {
 		TextView tWinRatio = (TextView) findViewById(R.id.tDet_winRatio);
 //		tWinRatio.setText(String.valueOf(t.getnWins()) + "/" + String.valueOf(t.getnLosses()));
 	}
-	public void modifyTeam(View view){
-		Intent intent = new Intent(getApplicationContext(), NewTeam.class);
-        intent.putExtra("TID", tId);
-        startActivity(intent);
-	}
-
 }
