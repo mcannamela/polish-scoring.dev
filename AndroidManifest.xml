@@ -115,6 +115,11 @@
 			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
 		</activity>
 		<activity
+			android:name="com.ultimatepolish.polishscorebook.Detail_Game"
+			android:label="@string/title_activity_detail_game"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Games" >
+		</activity>
+		<activity
 			android:name="com.ultimatepolish.polishscorebook.Detail_Player"
 			android:label="@string/title_activity_detail_player"
 			android:parentActivityName="com.ultimatepolish.polishscorebook.View_Players" >

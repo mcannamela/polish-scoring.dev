@@ -140,7 +140,7 @@ public class View_Games extends MenuContainerActivity {
     	
    		// load the game in progress screen
         Long gid  = Long.valueOf(gameInfo.getId());
-		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
+		Intent intent = new Intent(getApplicationContext(), Detail_Game.class);
         intent.putExtra("GID", gid);
         startActivity(intent);
     	return false;

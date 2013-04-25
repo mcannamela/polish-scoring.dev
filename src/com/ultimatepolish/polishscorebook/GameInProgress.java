@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -243,7 +244,7 @@ public class GameInProgress extends MenuContainerActivity
 		}
 	}
 	private void initMetadata(){
-		DateFormat df = new SimpleDateFormat("EEE MMM dd, yyyy @HH:mm");
+		DateFormat df = new SimpleDateFormat("EEE MMM dd, yyyy @HH:mm", Locale.US);
 		TextView tv;
 		
 		tv = (TextView) findViewById(R.id.textView_players);

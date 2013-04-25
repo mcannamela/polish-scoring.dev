@@ -17,6 +17,7 @@
 	<string name="title_activity_new_session">New Session</string>
 	<string name="title_activity_new_venue">New Venue</string>
 	<string name="title_activity_game_in_progress">Game In-Progress</string>
+	<string name="title_activity_detail_game">Game Summary</string>
 	<string name="title_activity_detail_player">Player Details</string>
 	<string name="title_activity_detail_team">Team Details</string>
 	<string name="title_activity_detail_session">Session Details</string>
