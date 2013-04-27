@@ -555,11 +555,13 @@ public class GameInProgress extends MenuContainerActivity
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
 	public void confirmThrow(){
-		if (pageIdx(throwIdx) < pageIdx(throwIdx+1)) {
+		if ((throwIdx + 7) % 70 == 0) {
+			Toast.makeText(getApplicationContext(), 
+					"GTO in 3 innings", Toast.LENGTH_LONG).show();
+		} else if ((throwIdx+1) % 70 == 0) {
 			respectGentlemens();
 		}
 		gotoThrowIdx(throwIdx+1);
-		
 	}
 	private void respectGentlemens(){
 		GentlemensDialogFragment frag = new GentlemensDialogFragment();
@@ -631,14 +633,14 @@ public class GameInProgress extends MenuContainerActivity
 		Throw t,u;
 		Log.i("GIP", "updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
 		if (throwIdx <= 0 && throwsList.size() != 0) {
-			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
+//			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
 			t = getThrow(0);
 			t.setInitialScores();
 //			Log.i("GIP", "Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
 			throwIdx = 1;
 		}
 		for (int i = throwIdx; i < throwsList.size(); i++){
-			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + i);
+//			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + i);
 			t = getThrow(i);
 			u = getPreviousThrow(i);
 			t.setInitialScores(u);
@@ -731,13 +733,13 @@ public class GameInProgress extends MenuContainerActivity
 	Throw getThrow(int throwIdx){
 		if (throwIdx >= 0 && throwIdx < throwsList.size()){
 			// throwNr is a prior throw
-			Log.i("GIP", "getThrow(): Getting prior throw at idx " + throwIdx);
+//			Log.i("GIP", "getThrow(): Getting prior throw at idx " + throwIdx);
 			return throwsList.get(throwIdx);
 		}
 		else if(throwIdx == throwsList.size()){
 			// throw number is the next throw
 			// TODO: start as a new type "NOTTHROWN"
-			Log.i("GIP", "getThrow(): Making a new throw at idx " + throwIdx);
+//			Log.i("GIP", "getThrow(): Making a new throw at idx " + throwIdx);
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.STRIKE);
 			t.setThrowResult(ThrowResult.CATCH);
