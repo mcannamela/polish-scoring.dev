@@ -31,7 +31,7 @@
         android:textIsSelectable="false" />
     
     <TextView
-        android:id="@+id/textView_gid"
+        android:id="@+id/textView_gId"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/textView_players"
         android:layout_width="wrap_content"
