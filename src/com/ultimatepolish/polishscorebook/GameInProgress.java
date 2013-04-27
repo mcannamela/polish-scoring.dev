@@ -46,6 +46,7 @@ public class GameInProgress extends MenuContainerActivity
 
 	private FragmentArrayAdapter vpAdapter;
 	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
+	private ViewPager vp;
 	
 	Game g;
 	Player[] p = new Player[2]; 
@@ -73,7 +74,7 @@ public class GameInProgress extends MenuContainerActivity
 	};
 
 	public void onThrowClicked(int local_throw_nr){
-		int global_throw_nr = ThrowTableFragment.localThrowIdxToGlobal(pageIdx(throwIdx), local_throw_nr);
+		int global_throw_nr = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_nr);
 		if (global_throw_nr > throwsList.size()) {
 			global_throw_nr = throwsList.size() - 1;
 		}
@@ -167,8 +168,7 @@ public class GameInProgress extends MenuContainerActivity
 	protected void onResume(){
 		super.onResume();
 		getThrowsFromDB();
-		
-		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+
 		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
 		vp.setCurrentItem(0);
 		Log.i("GIP", "onResume() - vp's adapter has " + ad.getCount() + " items");
@@ -215,6 +215,8 @@ public class GameInProgress extends MenuContainerActivity
 						e.getMessage(), 
 						Toast.LENGTH_LONG).show();
 			}
+			
+			vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		}
 	}
 	private void initMetadata(){
