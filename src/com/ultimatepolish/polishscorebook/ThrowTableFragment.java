@@ -198,8 +198,8 @@ public class ThrowTableFragment extends Fragment {
 	public ThrowTableRow getTableRow(int throwIdx){
 		TableLayout layout = getTableLayout();
 		int ridx = ThrowTableFragment.throwIdxToRowIdx(throwIdx);
-		Log.i("ThrowTableFragment", "getTableRow() - Getting row for throw idx "
-				+ throwIdx + ", it's " + ridx);
+//		Log.i("ThrowTableFragment", "getTableRow() - Getting row for throw idx "
+//				+ throwIdx + ", it's " + ridx);
 		ThrowTableRow tr;
 		try{
 			tr = (ThrowTableRow) layout.getChildAt(ridx);
