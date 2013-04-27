@@ -73,12 +73,12 @@ public class GameInProgress extends MenuContainerActivity
 		}
 	};
 
-	public void onThrowClicked(int local_throw_nr){
-		int global_throw_nr = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_nr);
-		if (global_throw_nr > throwsList.size()) {
-			global_throw_nr = throwsList.size() - 1;
+	public void onThrowClicked(int local_throw_idx){
+		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
+		if (global_throw_idx > throwsList.size() - 1) {
+			global_throw_idx = throwsList.size() - 1;
 		}
-		gotoThrowIdx(global_throw_nr);
+		gotoThrowIdx(global_throw_idx);
 	}
 	
     private class FragmentArrayAdapter extends FragmentPagerAdapter{
