@@ -99,6 +99,10 @@ public class Throw implements Comparable<Throw>{
 		setInitialDefensivePlayerScore(scores[0]);
 		setInitialOffensivePlayerScore(scores[1]);
 	}
+	public void setInitialScores(){
+		setInitialDefensivePlayerScore(0);
+		setInitialOffensivePlayerScore(0);
+	}
 	public int[] getFinalScores(){
 		int[] inc = getScoreIncrements();
 		int[] finalScores = {initialOffensivePlayerScore, 
@@ -293,11 +297,11 @@ public class Throw implements Comparable<Throw>{
 		this.id = id;
 	}
 
-	public int getThrowNumber() {
+	public int getThrowIdx() {
 		return throwNumber;
 	}
 
-	public void setThrowNumber(int throwNumber) {
+	public void setThrowIdx(int throwNumber) {
 		this.throwNumber = throwNumber;
 	}
 
@@ -397,7 +401,7 @@ public class Throw implements Comparable<Throw>{
 		return throwNr%2==0;
 	}
 	public static boolean isP1Throw(Throw t){
-		return isP1Throw(t.getThrowNumber());
+		return isP1Throw(t.getThrowIdx());
 	}
 	public boolean isP1Throw(){
 		return isP1Throw(throwNumber);

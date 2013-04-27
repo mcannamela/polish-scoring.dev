@@ -104,7 +104,7 @@ public class ThrowTableRow extends TableRow {
 	
 	protected void updateText(Throw t){
 		//p1 throw
-		if (t.getThrowNumber()%2==0){
+		if ((t.getThrowIdx()) % 2 == 0){
 			updateP1Text(t);
 		}
 		//p2 throw
