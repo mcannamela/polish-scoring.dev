@@ -1,6 +1,6 @@
 package com.ultimatepolish.polishscorebook;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -23,7 +23,6 @@ public class ThrowTableFragment extends Fragment {
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	
-	
 	OnTableRowClickedListener mListener;
 	
 	static ThrowTableFragment newInstance() {	
@@ -31,23 +30,23 @@ public class ThrowTableFragment extends Fragment {
         return f;
     }
 	
-	public static int throwNrToPageIdx(int throwNr){
-		assert throwNr>=0;
-		int global_ridx = throwNr/2;
+	public static int throwIdxToPageIdx(int throwIdx){
+		assert throwIdx >= 0;
+		int global_ridx = (throwIdx)/2;
 		int pidx = global_ridx/N_ROWS;
 		return pidx;
 	}
-	public static int throwNrToRowIdx(int throwNr) throws ArrayIndexOutOfBoundsException{
-		return(throwNr/2)%N_ROWS;
+	public static int throwIdxToRowIdx(int throwIdx) throws ArrayIndexOutOfBoundsException{
+		return((throwIdx)/2) % N_ROWS;
 	}
-	public static int[] throwNrRange(int page_idx){
+	public static int[] throwIdxRange(int page_idx){
 		int[] range = new int[2];
 		range[0] = (2*N_ROWS)*page_idx;
-		range[1] = range[0]+2*N_ROWS;
+		range[1] = range[0] + 2*N_ROWS - 1;
 		return range;
 	}
-	public static int localThrowNrToGlobal(int page_idx, int local_throw_nr){
-		return 2*N_ROWS*page_idx+local_throw_nr;
+	public static int localThrowIdxToGlobal(int page_idx, int local_throw_idx){
+		return 2*N_ROWS*page_idx + local_throw_idx;
 	}
 	
 	public interface OnTableRowClickedListener {
@@ -55,28 +54,26 @@ public class ThrowTableFragment extends Fragment {
 	}
 	private OnClickListener throwClickedListener = new OnClickListener(){
     	public void onClick(View v){
-    		int row, col, local_throw_nr;
+    		int row, col, local_throw_idx;
     		ViewGroup p = (ViewGroup) v.getParent();
     		ViewGroup gp = (ViewGroup) p.getParent();
     		   		
     		col = p.indexOfChild(v);
     		row = gp.indexOfChild(p);
     		
-    		  		
-    		if (col>3){
+    		if (col > 3){
     			return;
     		}
     		else{
-    			local_throw_nr = 2*row;
-    			if (col>=2){
-    				local_throw_nr++;
+    			local_throw_idx = 2*row;
+    			if (col >= 2){
+    				local_throw_idx++;
     			}
-    			mListener.onThrowClicked(local_throw_nr);
+    			mListener.onThrowClicked(local_throw_idx);
     		}
     		
     	}
     };
-	
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -94,8 +91,6 @@ public class ThrowTableFragment extends Fragment {
 		
 	}
 	
-
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -104,12 +99,11 @@ public class ThrowTableFragment extends Fragment {
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
 		ThrowTableRow tr = null;
-		for (int i=0; i<N_ROWS;i++){
+		for (int i = 0; i < N_ROWS; i++){
 			tr = ThrowTableRow.buildBlankRow(container.getContext());
-			for (int j=0;j<tr.getChildCount();j++){
+			for (int j = 0; j < tr.getChildCount(); j++){
 				tr.getChildAt(j).setOnClickListener(throwClickedListener);	
 			}
-			
 			layout.addView(tr);
 		}
 		return  layout;
@@ -121,43 +115,43 @@ public class ThrowTableFragment extends Fragment {
 		super.onPause();
 	}
 	
-	public void renderAsPage(int page_idx, ArrayList<Throw> throwArray){
+	public void renderAsPage(int page_idx, List<Throw> throwsList){
 		Throw t;
-		int nThrows = throwArray.size();
-		int[] range = ThrowTableFragment.throwNrRange(page_idx);
+		int nThrows = throwsList.size();
+		Log.i("ThrowTableFragment", "nThrows = " + nThrows);
+		int[] range = ThrowTableFragment.throwIdxRange(page_idx);
 		
-//		Toast.makeText(getApplicationContext(), 
-//				"range for page "+pidx+" is "+range[0] +" to "+range[1], 
-//				Toast.LENGTH_SHORT).show();
+		Log.i("ThrowTableFragment", "Page's idx range: " + range[0] + "-" + range[1]);
 		
-		if (nThrows<range[0]){
+		if (nThrows - 1 < range[0]){
+			Log.i("ThrowTableFragment", "Highest throw idx is below lower range.");
 			return;
 		}
 		
-		for (int i=range[0]; i<range[1];i++){
-			if (i>=nThrows){
+		for (int i = range[0]; i <= range[1]; i++){
+//			Log.i("ThrowTableFragment", "Trying to render throw at idx " + i);
+			if (i > nThrows - 1){
 				break;
 			}
-			t = throwArray.get(i);
+			t = throwsList.get(i);
+//			Log.i("ThrowTableFragment", "Retrieved throw " + throwsList.get(i).getThrowNumber());
 			renderThrow(t);
 		}
 	}
 	private void renderThrow(Throw t){
 		try{
-			ThrowTableRow tr = getTableRow(t.getThrowNumber());
+			ThrowTableRow tr = getTableRow(t.getThrowIdx());
 			tr.updateText(t);
+			Log.i("ThrowTableFragment", "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 		}
 		catch (IndexOutOfBoundsException e){
-			Toast.makeText(getActivity().getApplicationContext(), 
-			"throw "+t.getThrowNumber()+" has no view on this page", 
-			Toast.LENGTH_SHORT).show();
+			Log.e("ThrowTableFragment", "renderThrow(): Throw idx " + t.getThrowIdx() + " has no view on this page");
 			return;
 		}
-		
 	}
 	
-	public void highlightThrow(int throwNr){
-		setThrowHighlighted(throwNr, true);
+	public void highlightThrow(int throwIdx){
+		setThrowHighlighted(throwIdx, true);
 	}
 	public void clearHighlighted(){
 		for (int i = 0;i<2*N_ROWS; i++){
@@ -165,22 +159,21 @@ public class ThrowTableFragment extends Fragment {
 		}
 	}
 	
-	private void setThrowHighlighted(int throwNr, boolean highlight) {
-		if (throwNr<0){
+	private void setThrowHighlighted(int throwIdx, boolean highlight) {
+		if (throwIdx < 0){
 			return;
 		}
 		ThrowTableRow tr;
 		try{
-			tr = getTableRow(throwNr);
+			tr = getTableRow(throwIdx);
 		}
 		catch (IndexOutOfBoundsException e){
 			return;
 		}
 		
-		
 		TextView tv;
 		int start, stop;
-		if (Throw.isP1Throw(throwNr)){
+		if (Throw.isP1Throw(throwIdx)){
 			start = 0;
 			stop = 2;
 		}
@@ -188,7 +181,7 @@ public class ThrowTableFragment extends Fragment {
 			start = 2;
 			stop = 4;
 		}
-		for (int i=start;i<stop;i++){
+		for (int i = start; i < stop; i++){
 			tv = (TextView) tr.getChildAt(i);
 			if (highlight){
 				tv.setBackgroundColor(highlightedColor);
@@ -199,19 +192,20 @@ public class ThrowTableFragment extends Fragment {
 		}
 	}
 	public ThrowTableRow getTableRow(Throw t){
-		return getTableRow(t.getThrowNumber());
+		return getTableRow(t.getThrowIdx());
 	}
 	
-	public ThrowTableRow getTableRow(int throwNr){
+	public ThrowTableRow getTableRow(int throwIdx){
 		TableLayout layout = getTableLayout();
-		int ridx = ThrowTableFragment.throwNrToRowIdx(throwNr);
-//		Log.i("GIP", "Fragment/getTableRow() - getting row for throw nr " +throwNr+", it's "+ ridx);
+		int ridx = ThrowTableFragment.throwIdxToRowIdx(throwIdx);
+		Log.i("ThrowTableFragment", "getTableRow() - Getting row for throw idx "
+				+ throwIdx + ", it's " + ridx);
 		ThrowTableRow tr;
 		try{
 			tr = (ThrowTableRow) layout.getChildAt(ridx);
 		}
 		catch (NullPointerException e){
-			throw new IndexOutOfBoundsException("Child for throw nr "+throwNr +" dne at row "+ridx);
+			throw new IndexOutOfBoundsException("Child for throw nr " + throwIdx + " dne at row " + ridx);
 		}
 
 		return tr;
@@ -219,8 +213,4 @@ public class ThrowTableFragment extends Fragment {
 	TableLayout getTableLayout(){
 		return (TableLayout) getView();
 	}
-
-	
-	
-	
 }

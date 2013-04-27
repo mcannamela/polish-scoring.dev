@@ -43,12 +43,9 @@ import com.ultimatepolish.scorebookdb.Venue;
 
 public class GameInProgress extends MenuContainerActivity 
 								implements ThrowTableFragment.OnTableRowClickedListener{
-	
-	private static int N_PAGES = 10;
-	
+
 	private FragmentArrayAdapter vpAdapter;
-	private ArrayList<ThrowTableFragment> fragArray = new ArrayList<ThrowTableFragment>(N_PAGES);
-	int page_idx = 0;
+	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	
 	Game g;
 	Player[] p = new Player[2]; 
@@ -57,41 +54,32 @@ public class GameInProgress extends MenuContainerActivity
 	
 	Dao<Game, Long> gDao;
 	Dao<Throw, Long>tDao; 
-	ArrayList<Throw> throwArray = new ArrayList<Throw>(100);
+	List<Throw> throwsList; // = new ArrayList<Throw>(0);
 
-	int throwNr = -1;
-	int currentThrowType = ThrowType.STRIKE;
+	int throwIdx = 0;
+	int currentThrowType = ThrowType.NOT_THROWN;
 	
-	
-	ArrayList<Integer> errorScores = new ArrayList<Integer>();
-	ArrayList<Integer> ownGoalScores = new ArrayList<Integer>();
-	ArrayList<Integer> goaltendScores = new ArrayList<Integer>();
-	
-	NumberPicker errorNumPicker;
-	NumberPicker ownGoalNumPicker;
-	NumberPicker goaltendNumPicker;
-	
-	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	//:::::::::::::::listeners:::::::::::::::::::::::::::::::::::::::::
+	// LISTENERS ==================================================
 	private OnCheckedChangeListener checkboxChangedListener = new OnCheckedChangeListener(){
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
 			updateThrow();
 		}
-		
 	};
-    
+
     private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
 		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
 			updateThrow();
 		}
 	};
-    
-	public void onThrowClicked(int local_throw_nr){
-		int global_throw_nr = ThrowTableFragment.localThrowNrToGlobal(page_idx, local_throw_nr);
-		changeCurrentThrow(global_throw_nr);
-		
-	}
 
+	public void onThrowClicked(int local_throw_nr){
+		int global_throw_nr = ThrowTableFragment.localThrowIdxToGlobal(pageIdx(throwIdx), local_throw_nr);
+		if (global_throw_nr > throwsList.size()) {
+			global_throw_nr = throwsList.size() - 1;
+		}
+		gotoThrowIdx(global_throw_nr);
+	}
+	
     private class FragmentArrayAdapter extends FragmentPagerAdapter{
 
     	public FragmentArrayAdapter(FragmentManager fm) {
@@ -100,42 +88,37 @@ public class GameInProgress extends MenuContainerActivity
     	
 		@Override
 		public int getCount() {
-			return fragArray.size();
+			return fragmentArray.size();
 		}
 		
 	    @Override
 		public Fragment getItem(int position) {
-	    	return fragArray.get(position);
+	    	return fragmentArray.get(position);
 		}
 
     }
     
     private class MyPageChangeListener extends ViewPager.SimpleOnPageChangeListener{
-
 		@Override
 		public void onPageScrollStateChanged(int state) {
 			// TODO Auto-generated method stub
 			super.onPageScrollStateChanged(state);
 		}
-
 		@Override
 		public void onPageScrolled(int position, float positionOffset,
 				int positionOffsetPixels) {
 			// TODO Auto-generated method stub
 			super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 		}
-
 		@Override
 		public void onPageSelected(int position) {
 			super.onPageSelected(position);
 			TextView tv = (TextView) findViewById(R.id.textView_pageIndex);
-			tv.setText("page: "+position);
-			page_idx = position;
-			renderPage(page_idx);
+			tv.setText("Page: " + String.valueOf(position+1));
+			renderPage(pageIdx());
 		}
-    	
     }
-    
+
     public static class GentlemensDialogFragment extends DialogFragment{
     	@Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -152,25 +135,19 @@ public class GameInProgress extends MenuContainerActivity
         }
     }
     
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	
-    
-    //========================= initialization =======================
+    // INITIALIZATION =============================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game_in_progress);
 		
 		Intent intent = getIntent();
-		Long gid = intent.getLongExtra("GID", -1);
+		Long gId = intent.getLongExtra("GID", -1);
 		
-		initGame(gid);
-		initThrows();
-		
+		initGame(gId);
 		initMetadata();
 		initNumPickers();
 		initListeners();
-		initTableHeaders();
 		
 		Log.i("GIP", "onCreate() - about to create fragments");
 		initTableFragments();
@@ -180,8 +157,7 @@ public class GameInProgress extends MenuContainerActivity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-	
+	}	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -190,48 +166,46 @@ public class GameInProgress extends MenuContainerActivity
 	@Override
 	protected void onResume(){
 		super.onResume();
-		initThrows();
+		getThrowsFromDB();
 		
 		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
 		vp.setCurrentItem(0);
-		assert page_idx==0;
-		Log.i("GIP", "onResume() - vp's adapter has  "+ad.getCount() +" items");
+		Log.i("GIP", "onResume() - vp's adapter has " + ad.getCount() + " items");
 		
-		int initThrowNr = 0;
-		if (throwArray.size()>0){
-			initThrowNr = throwArray.size()-1;
+		// change throw to the last throw
+		int initThrowIdx = 0;
+		if (throwsList.size() > 0){
+			initThrowIdx = throwsList.size() - 1;
 		}
-		Log.i("GIP", "onResume() - about to change current throw to "+initThrowNr);
-		changeCurrentThrow(initThrowNr);
-		
+		Log.i("GIP", "onResume() - About to change current throw idx to " + initThrowIdx);
+		gotoThrowIdx(initThrowIdx, false);
 	}
 	@Override
 	protected void onRestart(){
 		super.onRestart();
-//		initThrows();
+		getThrowsFromDB();
 	}	
-	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		saveAllThrows();
 		saveGame();
-		updateThrowScoresFrom(0);
+		updateScoresFromThrowIdx(0);
 	}
 	@Override
     protected void onStop() {
     	super.onStop();
     }
 	
-	private void initGame(long gid){
+	private void initGame(long gId){
 		Context context = getApplicationContext();
-		if (gid!=-1){
+		if (gId!=-1){
 			try{
 				gDao = Game.getDao(context);
 				tDao = Throw.getDao(context);
 				
-				g = gDao.queryForId(gid);
+				g = gDao.queryForId(gId);
 				p = g.getPlayers(context);
 				s = g.getSession(context);
 				v = g.getVenue(context);
@@ -247,118 +221,27 @@ public class GameInProgress extends MenuContainerActivity
 		DateFormat df = new SimpleDateFormat("EEE MMM dd, yyyy @HH:mm", Locale.US);
 		TextView tv;
 		
+		// player names
 		tv = (TextView) findViewById(R.id.textView_players);
 		tv.setText(p[0].getDisplayName() + " " + getString(R.string.gip_vs_text) + " " + p[1].getDisplayName());
 		
+		// session
 		tv = (TextView) findViewById(R.id.textView_session);
 		tv.setText(getString(R.string.gip_session_text) + " " + s.getSessionName());
 		
+		// venue
 		tv = (TextView) findViewById(R.id.textView_venue);
-		if (v!=null){
-			tv.setText(getString(R.string.gip_venue_text) + " " + v.getName());
-		}
-		else{
-			tv.setText(getString(R.string.gip_venue_text) + " " + "vIsNull");
-		}
+		tv.setText(getString(R.string.gip_venue_text) + " " + v.getName());
 		
+		// date
 		tv = (TextView) findViewById(R.id.textView_datePlayed);
 		tv.setText(df.format(g.getDatePlayed()));
 		
-		tv = (TextView) findViewById(R.id.textView_gid);
+		// game ID
+		tv = (TextView) findViewById(R.id.textView_gId);
 		tv.setText(getString(R.string.gip_gamenum_text) + String.valueOf(g.getId()));
-	}
-	private void initTableFragments(){
-		fragArray.clear();
-		ThrowTableFragment frag = null;
-        for (int i=0;i<N_PAGES;i++){
-        	frag = ThrowTableFragment.newInstance();
-        	fragArray.add(frag);
-        }
-        
-        FragmentManager fragMan = getFragmentManager();
-        vpAdapter = new FragmentArrayAdapter(fragMan);
-        ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
-        vp.setAdapter(vpAdapter);
-        vp.setOnPageChangeListener(new MyPageChangeListener());
-        
-        vp.setCurrentItem(0);
-        Log.i("GIP", "initTableFragments() - fragments created, adapter has "+vpAdapter.getCount() +"items");
-	}
-	private void initThrows(){
-
-		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put("gameId", g.getId());
-		List<Throw> tList = null;
-		try{
-			 tList = tDao.queryForFieldValuesArgs(m);
-		}
-		catch (SQLException e){
-			Toast.makeText(getApplicationContext(), 
-			"error querying throw dao", 
-			Toast.LENGTH_SHORT).show();
-		}
 		
-		if (tList.isEmpty()) {
-			Toast.makeText(getApplicationContext(), 
-			"throw list is empty", 
-			Toast.LENGTH_SHORT).show();
-		}
-		else {
-			Collections.sort(tList);
-			tList.get(0).setInitialScores(g.makeNewThrow(-1));
-		}
-		
-		throwArray.clear();
-		//determine max throw number
-		int maxThrowNr = 0;
-		for (Throw t: tList){
-			if (t.getThrowNumber()>maxThrowNr){
-				maxThrowNr = t.getThrowNumber();
-			}
-		}
-		//fill array with nulls
-		for(int i = 0; i<(maxThrowNr+1);i++){
-			throwArray.add(null);
-		}
-		//insert all valid throws into the 
-		int idx;
-		for (Throw t: tList){
-			idx = t.getThrowNumber();
-			if (idx>0){
-				throwArray.set(idx, t);
-			}
-			else{
-				try{
-					tDao.delete(t);
-					Log.i("GIP", "initThrows() - deleted a throw with a negative throw number");
-				}
-				catch (SQLException e){
-					Log.e("GIP", "initThrows() - failed to delete a throw with a negative throw number");
-				}
-			}
-		}
-		
-		//fill any nulls with a caught strike
-		Throw t;
-		for (int i=0; i<throwArray.size();i++){
-			t = throwArray.get(i);
-			if (t==null){
-				Log.i("GIP", "initThrows() - missing throw number "+i+", will be inserted");
-				t = g.makeNewThrow(throwNr);
-				t.setThrowType(ThrowType.STRIKE);
-				t.setThrowResult(ThrowResult.CATCH);
-				t.setThrowNumber(i);
-				throwArray.set(i,t);
-			}
-		}
-		
-		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-		tv.setText("nThrows: "+throwArray.size());
-	
-	}
-	private void initTableHeaders(){
-		TextView tv;
-		
+		// table header
 		tv = (TextView) findViewById(R.id.header_p1);
 		tv.setText(p[0].getNickName() );
 		tv.setTextColor(ThrowTableRow.tableTextColor);
@@ -368,10 +251,13 @@ public class GameInProgress extends MenuContainerActivity
 		tv.setText(p[1].getNickName() );
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
-		
 	}
 	private void initNumPickers(){
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
+		// set ranges and text for the number pickers
+		NumberPicker np;
+		
+		// catch type numberpicker
+		np = (NumberPicker) findViewById(R.id.numPicker_catch);
 		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		String[] catchText = new String[3];
 		catchText[0] = getString(R.string.gip_drop);
@@ -381,31 +267,28 @@ public class GameInProgress extends MenuContainerActivity
 		np.setMaxValue(2);
 		np.setValue(1);
 		np.setDisplayedValues(catchText);
+		np.setOnValueChangedListener(numberPickerChangeListener); 
+		
+		// error numberpicker
+		np = (NumberPicker) findViewById(R.id.numPicker_errorScore);
+		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np.setMinValue(0);
+		np.setMaxValue(3);
 		np.setOnValueChangedListener(numberPickerChangeListener);
 		
-		NumberPicker p; 
+		// own goal numberpicker
+		np = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
+		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np.setMinValue(2); 
+		np.setMaxValue(3);
+		np.setOnValueChangedListener(numberPickerChangeListener);
 		
-		p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
-		p.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		p.setMinValue(0);
-		p.setMaxValue(3);
-		errorNumPicker = p;
-		p.setOnValueChangedListener(numberPickerChangeListener);
-		
-		p = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
-		p.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		p.setMinValue(2); 
-		p.setMaxValue(3);
-		ownGoalNumPicker = p;
-		p.setOnValueChangedListener(numberPickerChangeListener);
-		
-		p = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
-		p.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		p.setMinValue(2);
-		p.setMaxValue(3);
-		goaltendNumPicker = p;
-		p.setOnValueChangedListener(numberPickerChangeListener);
-		
+		// goaltend numberpicker
+		np = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
+		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np.setMinValue(2);
+		np.setMaxValue(3);
+		np.setOnValueChangedListener(numberPickerChangeListener);	
 	}
 	private void initListeners(){
 		CheckBox cb;
@@ -438,8 +321,78 @@ public class GameInProgress extends MenuContainerActivity
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		cb = (CheckBox) findViewById(R.id.checkBox_trap);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		cb.setOnCheckedChangeListener(checkboxChangedListener);	
+	}
+	private void getThrowsFromDB(){
+		// get all the throws for this game from db
+		HashMap<String,Object> m = new HashMap<String,Object>();
+		m.put("gameId", g.getId());
+		List<Throw> tList = null;
+		try{
+			 tList = tDao.queryForFieldValuesArgs(m);
+		}
+		catch (SQLException e){
+			Toast.makeText(getApplicationContext(), 
+			"error querying throw dao", 
+			Toast.LENGTH_SHORT).show();
+		}
+		
+		// sort the list by throw number if it isnt empty
+		int maxThrowIdx = -1;
+		Log.i("GIP", "initThrows() - tList has " + tList.size() + " elements.");
+		if (!tList.isEmpty()) {
+			Collections.sort(tList);
+			// TODO: remove the following if-statement once negative throw numbers are deleted from all games in db
+//			if (tList.get(0).getThrowIdx() < 0) {
+//				tList.remove(0);
+//			}
+			tList.get(0).setInitialScores(); // make sure scores start at 0-0
+			maxThrowIdx = tList.get(tList.size()-1).getThrowIdx();
+			
+			// verify that tList isnt corrupt by checking:
+				// the first throw idx is 0
+				if (tList.get(0).getThrowIdx() != 0) {
+					Log.e("GIP", "getThrowsFromDB() - tList starts with throw "
+							+ tList.get(0).getThrowIdx()+ " instead of 1");
+				}
+				// all throws have unique throw numbers
+				for(int i = 0; i < (maxThrowIdx); i++){
+					if (tList.get(i).getThrowIdx() == tList.get(i+1).getThrowIdx()) {
+						Log.e("GIP", "getThrowsFromDB() - tList has duplicated throw idx (" 
+								+ tList.get(i).getThrowIdx() + ")");
+					}
+				}
+				// max throw number matches the size of tList
+				if (maxThrowIdx != tList.size()-1) {
+					Log.e("GIP", "getThrowsFromDB() - tList size doesnt match number of throws ");
+				}
+		}
 	
+		// push tList to global
+		throwsList = tList;
+		Log.i("GIP", "initThrows() - tList size doesnt match number of throws ");
+		// update the view
+		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
+		
+		tv.setText("nThrows: "+ throwsList.size());
+	}
+	private void initTableFragments(){
+		fragmentArray.clear();
+		ThrowTableFragment frag = ThrowTableFragment.newInstance();
+        fragmentArray.add(frag);
+        
+        FragmentManager fragMan = getFragmentManager();
+        vpAdapter = new FragmentArrayAdapter(fragMan);
+        ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+        vp.setAdapter(vpAdapter);
+        vp.setOnPageChangeListener(new MyPageChangeListener());
+        
+        vp.setCurrentItem(0);
+        
+        Log.i("GIP", "initTableFragments() - fragments created, adapter has " + vpAdapter.getCount() + " items");
+        
+        TextView tv = (TextView) findViewById(R.id.textView_pageIndex);
+		tv.setText("Page: 1");
 	}
 	
     //=================================================================
@@ -447,7 +400,7 @@ public class GameInProgress extends MenuContainerActivity
 	/////////////////////////////////////////////////////////
     /////////////// apply the state of the ui to a throw/////
     private void applyUIStateToCurrentThrow(Throw t){
-    	Log.i("GIP", "applyUIStateToCurrentThrow() - applying state to throw "+t.getThrowNumber());
+    	Log.i("GIP", "applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
     	applyCurrentThrowType(t);
     	applyCurrentThrowResult(t);
     	applySpecialMarks(t);
@@ -498,7 +451,11 @@ public class GameInProgress extends MenuContainerActivity
 		t.isFiredOn=isFiredOn();
 	}
 	private void applyPreviousScores(Throw t) {
-		t.setInitialScores(getPreviousThrow(t.getThrowNumber()));
+		if (t.getThrowIdx() == 0) {
+			t.setInitialScores();
+		} else {
+			t.setInitialScores(getPreviousThrow(t.getThrowIdx()));
+		}	
 	}
 	//////////////////////////////////////////////////////////
 	
@@ -557,18 +514,29 @@ public class GameInProgress extends MenuContainerActivity
 //	}
 
 	private void renderPage(int pidx){
-		ThrowTableFragment frag =fragArray.get(pidx); 
-		int[] range = ThrowTableFragment.throwNrRange(pidx);
-		frag.renderAsPage(pidx, throwArray);
-		frag.clearHighlighted();
+		ThrowTableFragment frag;
+		if (pidx >= fragmentArray.size()) {
+			frag = ThrowTableFragment.newInstance();
+        	fragmentArray.add(frag);
+		}
 		
-		if (throwNr>=range[0] && throwNr<range[1]){
-			frag.highlightThrow(throwNr);
+		frag = fragmentArray.get(pidx);
+		Log.i("GIP", "renderPage(pidx) - made fragment");
+		int[] range = ThrowTableFragment.throwIdxRange(pidx);
+		Log.i("GIP", "renderPage(pidx) - got throw range");
+		frag.renderAsPage(pidx, throwsList);
+		Log.i("GIP", "renderPage(pidx) - rendered as page");
+		frag.clearHighlighted();
+		Log.i("GIP", "renderPage(pidx) - cleared highlighted");
+		
+		if (throwIdx >= range[0] && throwIdx <= range[1]){
+			frag.highlightThrow(throwIdx);
 		}
 	}
 	
 	private void updateCurrentScore(){
-		Throw lastThrow = getThrow(throwArray.size()-1);
+		Log.i("GIP", "updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-1));
+		Throw lastThrow = getThrow(throwsList.size()-1);
 		int[] scores = lastThrow.getFinalScores();
 		if (lastThrow.isP1Throw()){
 			g.setFirstPlayerScore(scores[0]);
@@ -583,14 +551,11 @@ public class GameInProgress extends MenuContainerActivity
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
-	
 	public void confirmThrow(){
-		int nextThrowNr = throwNr+1;
-		int[] range = ThrowTableFragment.throwNrRange(page_idx);
-		if (nextThrowNr==range[1]){
+		if (pageIdx(throwIdx) < pageIdx(throwIdx+1)) {
 			respectGentlemens();
 		}
-		changeCurrentThrow(throwNr+1);
+		gotoThrowIdx(throwIdx+1);
 		
 	}
 	private void respectGentlemens(){
@@ -599,88 +564,110 @@ public class GameInProgress extends MenuContainerActivity
 	}
 		
 	
-	void changeCurrentThrow(int newThrowNr){
-		Log.i("GIP", "changeCurrentThrow() - current throw nr is "+throwNr +", will change it to "+newThrowNr);
-		Throw t = getThrow(throwNr);
-		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
-		applyUIStateToCurrentThrow(getThrow(throwNr));
-		
-		if (throwNr>=0){
+	void gotoThrowIdx(int newThrowIdx){
+		gotoThrowIdx(newThrowIdx, true);
+	}
+	void gotoThrowIdx(int newThrowIdx, boolean saveCurrent){
+		Log.i("GIP", "gotoThrow() - Going from throw idx " + throwIdx + " to throw idx " + newThrowIdx + ".");
+
+		Throw t;
+		if (saveCurrent == true) {
+			// Save the current throw based on UI
+			Log.i("GIP", "gotoThrowIdx(): About to get throw idx " + throwIdx);
+			t = getThrow(throwIdx);
+			Log.i("GIP", "gotoThrow() - Retrieved throw " + t.getThrowIdx() + " from list.");
+			
+			applyUIStateToCurrentThrow(t);
+			
 			try{
-				saveThrow(getThrow(throwNr));
+				saveThrow(t);
 			}
 			catch (SQLException e){
-				Toast.makeText(getApplicationContext(), 
-				"could not save throw "+throwNr+", "+e.getMessage(), 
-				Toast.LENGTH_LONG).show();
+//				Toast.makeText(getApplicationContext(), 
+//				"Could not save throw at idx " + throwIdx + ", " + e.getMessage(), 
+//				Toast.LENGTH_LONG).show();
+				Log.e("GIP", "gotoThrow() - " + e.getMessage());
 			}
 		}
-		updateThrowScoresFrom(0);
 		
-		int oldThrowNr = throwNr;
-		throwNr = newThrowNr;
-		Log.i("GIP", "changeCurrentThrow() - throwNr is now "+throwNr);
 		
-		t = getThrow(throwNr);
-		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
+		// Update the scores
+		updateScoresFromThrowIdx(0);
+		
+		// Go to throw newThrowNr
+		throwIdx = newThrowIdx;
+//		Log.i("GIP", "gotoThrow() - throwIdx is now " + throwIdx);
+		
+		Log.i("GIP", "gotoThrowIdx(): About to get throw idx " + throwIdx);
+		t = getThrow(throwIdx);
+//		Log.i("GIP", "gotoThrow() - Retrieved throw " + t.getThrowNumber() + " from list.");
 		
 		applyCurrentThrowToUIState(t);
 		
-		
-		int new_page_idx = ThrowTableFragment.throwNrToPageIdx(newThrowNr);
 		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
-		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
-//		Log.i("GIP", "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
+		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter();
+		
+		Log.i("GIP", "gotoThrow() - vp's adapter has  " + ad.getCount() + " items");
 		try{
-			vp.setCurrentItem(new_page_idx);
-			assert page_idx==new_page_idx;
-			
-			renderPage(page_idx);
+			vp.setCurrentItem(pageIdx(throwIdx));			
+			renderPage(pageIdx(throwIdx));
+			Log.i("GIP", "gotoThrow() - Changed to page " + pageIdx(throwIdx) + ".");
 		}
 		catch (NullPointerException e){
-			Log.e("GIP", "changeCurrentThrow() - failed to change page");
+			Log.e("GIP", "gotoThrow() - Failed to change to page " + pageIdx(throwIdx) + ".");
 		}
 		
 		updateCurrentScore();
 		saveGame();
 		
 	}
-	private void updateThrowScoreFrom(Throw t){
-		updateThrowScoresFrom(t.getThrowNumber());
+	private void updateScoresFromThrow(Throw t){
+		updateScoresFromThrowIdx(t.getThrowIdx());
 	}
-	private void updateThrowScoresFrom(int throwNr){
+	private void updateScoresFromThrowIdx(int throwIdx){
 		Throw t,u;
-		for (int i=throwNr; i<throwArray.size(); i++){
+		Log.i("GIP", "updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
+		if (throwIdx <= 0 && throwsList.size() != 0) {
+			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
+			t = getThrow(0);
+			t.setInitialScores();
+//			Log.i("GIP", "Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
+			throwIdx = 1;
+		}
+		for (int i = throwIdx; i < throwsList.size(); i++){
+			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + i);
 			t = getThrow(i);
 			u = getPreviousThrow(i);
 			t.setInitialScores(u);
-			Log.i("GIP", "Setting initial scores of throw "+t.getThrowNumber()+" to final scores of throw "+u.getThrowNumber());
+//			Log.i("GIP", "Setting initial scores of throw " + t.getThrowNumber()
+//					+ " to final scores of throw " + u.getThrowNumber());
 		}
 	}
 	void saveAllThrows(){
-		for(Throw t: throwArray){
+		for(Throw t: throwsList){
 			try{
 				saveThrow(t);
 			}
 			catch(SQLException e){
 				Toast.makeText(getApplicationContext(), 
-						"could not save throw "+t.getThrowNumber()+", "+e.getMessage(), 
+						"could not save throw "+t.getThrowIdx()+", "+e.getMessage(), 
 						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
 	void saveThrow(Throw t) throws SQLException{
-		
 		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put(Throw.THROW_NUMBER, t.getThrowNumber());
+		m.put(Throw.THROW_NUMBER, t.getThrowIdx());
 		m.put(Throw.GAME_ID, t.getGameId());
 		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
 		if (tList.isEmpty()){
 			tDao.create(t);
+			Log.i("GIP", "saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
 		}
 		else{
 			t.setId(tList.get(0).getId());
 			tDao.update(t);
+			Log.i("GIP", "saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
 		}
 	}
 	
@@ -693,110 +680,122 @@ public class GameInProgress extends MenuContainerActivity
 					"could not save game, "+e.getMessage(), 
 					Toast.LENGTH_LONG).show();
 		}
-		
 	}
-	
+		
 	
 	public void buttonPressed(View view){
-		String buttonText = (String) ((Button) view).getText();
+		int buttonId = ((Button) view).getId();
+		switch (buttonId) {
+			case R.id.gip_button_high:
+				currentThrowType = ThrowType.BALL_HIGH;
+				break;
+			case R.id.gip_button_low:
+				currentThrowType = ThrowType.BALL_LOW;
+				break;
+			case R.id.gip_button_left:
+				currentThrowType = ThrowType.BALL_LEFT;
+				break;
+			case R.id.gip_button_right:
+				currentThrowType = ThrowType.BALL_RIGHT;
+				break;
+			case R.id.gip_button_strike:
+				currentThrowType = ThrowType.STRIKE;
+				break;
+			case R.id.gip_button_bottle:
+				currentThrowType = ThrowType.BOTTLE;
+				break;
+			case R.id.gip_button_pole:
+				currentThrowType = ThrowType.POLE;
+				break;
+			case R.id.gip_button_cup:
+				currentThrowType = ThrowType.CUP;
+				break;
+		}
 		
-		if (buttonText.equals(getString(R.string.gip_ballHigh_button))){		
-			currentThrowType = ThrowType.BALL_HIGH;
-		}
-		if (buttonText.equals(getString(R.string.gip_ballLow_button))){
-			currentThrowType = ThrowType.BALL_LOW;
-		}
-		if (buttonText.equals(getString(R.string.gip_ballLeft_button))){
-			currentThrowType = ThrowType.BALL_LEFT;
-		}
-		if (buttonText.equals(getString(R.string.gip_ballRight_button))){
-			currentThrowType = ThrowType.BALL_RIGHT;
-		}
-		if (buttonText.equals(getString(R.string.gip_strike_button))){
-			currentThrowType = ThrowType.STRIKE;
-		}
-		if (buttonText.equals(getString(R.string.gip_bottle_button))){
-			currentThrowType = ThrowType.BOTTLE;
-		}
-		if (buttonText.equals(getString(R.string.gip_pole_button))){
-			currentThrowType = ThrowType.POLE;
-		}
-		if (buttonText.equals(getString(R.string.gip_cup_button))){
-			currentThrowType = ThrowType.CUP;
-		}
-		
+//		Log.i("GIP", "buttonPressed(view): " + currentThrowType);
 		updateThrow();
 		confirmThrow();
 	}
 	
 	private void updateThrow(){
-		Throw t = getThrow(throwNr);
+		Log.i("GIP", "updateThrow(): Updating throw at idx " + throwIdx);
+		Throw t = getThrow(throwIdx);
 		applyUIStateToCurrentThrow(t);
-		updateThrowScoresFrom(0);
-		renderPage(page_idx);
+		updateScoresFromThrowIdx(0);
+		renderPage(pageIdx(throwIdx));
 	}
 	
-	
-		
-	Throw getThrow(int throwNr){
-		if (throwNr<throwArray.size() && throwNr>=0){
-			return throwArray.get(throwNr);
+	Throw getThrow(int throwIdx){
+		if (throwIdx >= 0 && throwIdx < throwsList.size()){
+			// throwNr is a prior throw
+			Log.i("GIP", "getThrow(): Getting prior throw at idx " + throwIdx);
+			return throwsList.get(throwIdx);
 		}
-		else if(throwNr==throwArray.size() ){
-			Throw t = g.makeNewThrow(throwNr);
+		else if(throwIdx == throwsList.size()){
+			// throw number is the next throw
+			// TODO: start as a new type "NOTTHROWN"
+			Log.i("GIP", "getThrow(): Making a new throw at idx " + throwIdx);
+			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.STRIKE);
 			t.setThrowResult(ThrowResult.CATCH);
-			throwArray.add(t);
+			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-			tv.setText("nThrows: "+throwArray.size());
-			return t;
-		}
-		else if (throwNr==-1){
-			Throw t = g.makeNewThrow(throwNr);
-			t.setThrowType(ThrowType.STRIKE);
-			t.setThrowResult(ThrowResult.CATCH);
+			tv.setText("nThrows: " + throwsList.size());
 			return t;
 		}
 		else{
-			throw new RuntimeException("tried to get a throw from the "+
-						"future, throwNr "+throwNr +" of "+throwArray.size());
+			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
+					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
 		}
 	}
-	
-	Throw getPreviousThrow(int throwNr){
+	Throw getPreviousThrow(int throwIdx){
 		Throw t;
-		if (throwNr>0){
-			t =  throwArray.get(throwNr-1);
+		if (throwIdx > 0){
+			t =  throwsList.get(throwIdx-1);
 		}
 		else{
-			t = g.makeNewThrow(-1);
-			t.setThrowResult(ThrowResult.CATCH);
-			t.setThrowType(ThrowType.STRIKE);
+			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
+					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
 		}
 		return t;
 	}
 	Throw getPreviousThrow(){
-		return getPreviousThrow(throwNr);
+		return getPreviousThrow(throwIdx);
 	}
+	Throw getNextThrow(int throwIdx){
+		return getThrow(throwIdx+1);
+	}
+//	ThrowTableFragment getCurrentFragment(){
+//		return fragArray.get(page_idx);
+//	}
+//	ThrowTableRow getThrowTableRow(Throw t){
+//		int pidx = ThrowTableFragment.throwNrToPageIdx(t.getThrowNumber());
+//		try{
+//			return fragArray.get(pidx).getTableRow(t.getThrowNumber());
+//		}
+//		catch (ArrayIndexOutOfBoundsException e){
+//			throw new RuntimeException("wrong page idx for throw nr "+
+//					t.getThrowNumber()+", pidx = "+pidx+": "+e.getMessage());
+//		}
+//		
+//	}
 	
-	Throw getNextThrow(int throwNr){
-		return getThrow(throwNr+1);
+	int pageIdxMax() {
+		// TODO: 40 here should be 2x number of rows
+		return throwsList.size() / 40;
+	}	
+	int pageIdx(int throwIdx) {
+		if (throwIdx > throwsList.size()) {
+			throwIdx = throwsList.size();
+		}	
+		int pidx = (throwIdx) / 40;
+		if (pidx < 0) {pidx = 0;}
+		Log.i("GIP", "pageIdx(int) - Index is " + pidx + ".");
+		return pidx;
 	}
-	ThrowTableFragment getCurrentFragment(){
-		return fragArray.get(page_idx);
+	int pageIdx() {
+		return pageIdx(throwsList.size());
 	}
-	ThrowTableRow getThrowTableRow(Throw t){
-		int pidx = ThrowTableFragment.throwNrToPageIdx(t.getThrowNumber());
-		try{
-			return fragArray.get(pidx).getTableRow(t.getThrowNumber());
-		}
-		catch (ArrayIndexOutOfBoundsException e){
-			throw new RuntimeException("wrong page idx for throw nr "+
-					t.getThrowNumber()+", pidx = "+pidx+": "+e.getMessage());
-		}
-		
-	}
-	
 	
 	boolean isError(){
 		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_error);
@@ -811,16 +810,16 @@ public class GameInProgress extends MenuContainerActivity
 		return cb.isChecked();
 	}
 	int getErrorScore(){
-		int val = errorNumPicker.getValue();
-		return val;
+		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_errorScore);
+		return np.getValue();
 	}
 	int getOwnGoalScore(){
-		int val = ownGoalNumPicker.getValue();
-		return val;
+		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
+		return np.getValue();
 	}
 	int getGoaltendScore(){
-		int val = goaltendNumPicker.getValue();
-		return val;
+		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
+		return np.getValue();
 	}
 	boolean isShort(){
 		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_short);

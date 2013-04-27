@@ -73,7 +73,7 @@ public class Game {
 	}
 	public Throw makeNewThrow(int throwNumber){
 		long playerId;
-		if (throwNumber%2==0){
+		if ((throwNumber-1) % 2 == 0){
 			playerId=getFirstPlayerId();
 		}
 		else{
