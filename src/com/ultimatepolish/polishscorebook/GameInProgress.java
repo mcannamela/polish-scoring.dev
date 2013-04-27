@@ -381,6 +381,7 @@ public class GameInProgress extends MenuContainerActivity
 	private void initTableFragments(){
 		fragmentArray.clear();
 		ThrowTableFragment frag = ThrowTableFragment.newInstance();
+//		ThrowTableFragment.N_ROWS = 10;
         fragmentArray.add(frag);
         
         FragmentManager fragMan = getFragmentManager();
@@ -517,7 +518,7 @@ public class GameInProgress extends MenuContainerActivity
 
 	private void renderPage(int pidx){
 		ThrowTableFragment frag;
-		if (pidx >= fragmentArray.size()) {
+		while (pidx >= fragmentArray.size()) {
 			frag = ThrowTableFragment.newInstance();
         	fragmentArray.add(frag);
 		}
@@ -783,14 +784,13 @@ public class GameInProgress extends MenuContainerActivity
 //	}
 	
 	int pageIdxMax() {
-		// TODO: 40 here should be 2x number of rows
-		return throwsList.size() / 40;
+		return throwsList.size() / (2*ThrowTableFragment.N_ROWS);
 	}	
 	int pageIdx(int throwIdx) {
 		if (throwIdx > throwsList.size()) {
 			throwIdx = throwsList.size();
 		}	
-		int pidx = (throwIdx) / 40;
+		int pidx = (throwIdx) / (2*ThrowTableFragment.N_ROWS);
 		if (pidx < 0) {pidx = 0;}
 		Log.i("GIP", "pageIdx(int) - Index is " + pidx + ".");
 		return pidx;

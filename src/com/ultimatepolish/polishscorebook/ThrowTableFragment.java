@@ -19,7 +19,7 @@ import com.ultimatepolish.scorebookdb.Throw;
 
 public class ThrowTableFragment extends Fragment {
 	public static final String PAGE_IDX_KEY = "page_idx";
-	public static final int N_ROWS = 20;
+	public static int N_ROWS = 20;
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	
