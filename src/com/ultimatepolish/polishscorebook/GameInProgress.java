@@ -567,8 +567,7 @@ public class GameInProgress extends MenuContainerActivity
 		GentlemensDialogFragment frag = new GentlemensDialogFragment();
 		frag.show(getFragmentManager(), "gentlemens");
 	}
-		
-	
+
 	void gotoThrowIdx(int newThrowIdx){
 		gotoThrowIdx(newThrowIdx, true);
 	}
@@ -667,12 +666,12 @@ public class GameInProgress extends MenuContainerActivity
 		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
 		if (tList.isEmpty()){
 			tDao.create(t);
-			Log.i("GIP", "saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
+//			Log.i("GIP", "saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
 		}
 		else{
 			t.setId(tList.get(0).getId());
 			tDao.update(t);
-			Log.i("GIP", "saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
+//			Log.i("GIP", "saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
 		}
 	}
 	
@@ -741,7 +740,7 @@ public class GameInProgress extends MenuContainerActivity
 			// TODO: start as a new type "NOTTHROWN"
 //			Log.i("GIP", "getThrow(): Making a new throw at idx " + throwIdx);
 			Throw t = g.makeNewThrow(throwIdx);
-			t.setThrowType(ThrowType.STRIKE);
+			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
 			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
