@@ -96,6 +96,14 @@ public class GameInProgress extends MenuContainerActivity
 		public Fragment getItem(int position) {
 	    	return fragmentArray.get(position);
 		}
+	    
+	    @Override
+		public CharSequence getPageTitle(int position) {
+//	    	tv.setText("nThrows: "+ throwsList.size());
+	    	
+	    	String title = "Page " + String.valueOf(position+1);
+			return title;
+		}
 
     }
     
@@ -114,9 +122,7 @@ public class GameInProgress extends MenuContainerActivity
 		@Override
 		public void onPageSelected(int position) {
 			super.onPageSelected(position);
-			TextView tv = (TextView) findViewById(R.id.textView_pageIndex);
-			tv.setText("Page: " + String.valueOf(position+1));
-			renderPage(pageIdx());
+			renderPage(pageIdx(), false);
 		}
     }
 
@@ -169,9 +175,9 @@ public class GameInProgress extends MenuContainerActivity
 		super.onResume();
 		getThrowsFromDB();
 
-		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
-		vp.setCurrentItem(0);
-		Log.i("GIP", "onResume() - vp's adapter has " + ad.getCount() + " items");
+//		vpAdapter = (FragmentArrayAdapter) vp.getAdapter(); 
+//		vp.setCurrentItem(0);
+		Log.i("GIP", "onResume() - vp's adapter has " + vpAdapter.getCount() + " items");
 		
 		// change throw to the last throw
 		int initThrowIdx = 0;
@@ -216,7 +222,7 @@ public class GameInProgress extends MenuContainerActivity
 						Toast.LENGTH_LONG).show();
 			}
 			
-			vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+//			vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		}
 	}
 	private void initMetadata(){
@@ -341,7 +347,7 @@ public class GameInProgress extends MenuContainerActivity
 		
 		// sort the list by throw number if it isnt empty
 		int maxThrowIdx = -1;
-		Log.i("GIP", "initThrows() - tList has " + tList.size() + " elements.");
+		Log.i("GIP", "getThrowsFromDB() - tList has " + tList.size() + " elements.");
 		if (!tList.isEmpty()) {
 			Collections.sort(tList);
 			// TODO: remove the following if-statement once negative throw numbers are deleted from all games in db
@@ -366,13 +372,12 @@ public class GameInProgress extends MenuContainerActivity
 				}
 				// max throw number matches the size of tList
 				if (maxThrowIdx != tList.size()-1) {
-					Log.e("GIP", "getThrowsFromDB() - tList size doesnt match number of throws ");
+					Log.e("GIP", "getThrowsFromDB() - tList size doesnt match number of throws");
 				}
 		}
 	
 		// push tList to global
 		throwsList = tList;
-		Log.i("GIP", "initThrows() - tList size doesnt match number of throws ");
 		// update the view
 		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 		
@@ -384,18 +389,15 @@ public class GameInProgress extends MenuContainerActivity
 //		ThrowTableFragment.N_ROWS = 10;
         fragmentArray.add(frag);
         
-        FragmentManager fragMan = getFragmentManager();
-        vpAdapter = new FragmentArrayAdapter(fragMan);
-        ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
+        vpAdapter = new FragmentArrayAdapter(getFragmentManager());
+        vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
         vp.setAdapter(vpAdapter);
         vp.setOnPageChangeListener(new MyPageChangeListener());
+//        vp.setPageTransformer(true, new ZoomOutPageTransformer());
         
-        vp.setCurrentItem(0);
-        
-        Log.i("GIP", "initTableFragments() - fragments created, adapter has " + vpAdapter.getCount() + " items");
-        
-        TextView tv = (TextView) findViewById(R.id.textView_pageIndex);
-		tv.setText("Page: 1");
+//        vp.setCurrentItem(0);
+//        Log.i("GIP", "initTableFragments() - Viewpager has limit of " + vp.getOffscreenPageLimit());
+//        Log.i("GIP", "initTableFragments() - fragments created, adapter has " + vpAdapter.getCount() + " items");
 	}
 	
     //=================================================================
@@ -517,11 +519,20 @@ public class GameInProgress extends MenuContainerActivity
 //	}
 
 	private void renderPage(int pidx){
+		renderPage(pidx, true);
+	}
+	private void renderPage(int pidx, boolean setVpItem){
 		ThrowTableFragment frag;
 		while (pidx >= fragmentArray.size()) {
 			frag = ThrowTableFragment.newInstance();
         	fragmentArray.add(frag);
 		}
+		if (setVpItem){
+			
+			vp.setCurrentItem(pidx);
+		}
+		Log.i("GIP", "renderPage(): vp currentitem is " + vp.getCurrentItem());
+		Log.i("GIP", "renderPage(): vp has " + vp.getChildCount() + " children");
 		
 		frag = fragmentArray.get(pidx);
 		Log.i("GIP", "renderPage(pidx) - made fragment");
@@ -608,12 +619,10 @@ public class GameInProgress extends MenuContainerActivity
 		
 		applyCurrentThrowToUIState(t);
 		
-		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
-		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter();
+//		vpAdapter = (FragmentArrayAdapter) vp.getAdapter();
 		
-		Log.i("GIP", "gotoThrow() - vp's adapter has  " + ad.getCount() + " items");
-		try{
-			vp.setCurrentItem(pageIdx(throwIdx));			
+		Log.i("GIP", "gotoThrow() - vp's adapter has  " + vpAdapter.getCount() + " items");
+		try{			
 			renderPage(pageIdx(throwIdx));
 			Log.i("GIP", "gotoThrow() - Changed to page " + pageIdx(throwIdx) + ".");
 		}
@@ -895,6 +904,45 @@ public class GameInProgress extends MenuContainerActivity
 	private void setErrorScore(int score) {
 		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
 		p.setValue(score);
+	}
+	
+	public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
+	    private float MIN_SCALE = 0.85f;
+	    private float MIN_ALPHA = 0.5f;
+
+	    public void transformPage(View view, float position) {
+	        int pageWidth = view.getWidth();
+	        int pageHeight = view.getHeight();
+
+	        if (position < -1) { // [-Infinity,-1)
+	            // This page is way off-screen to the left.
+	            view.setAlpha(0);
+
+	        } else if (position <= 1) { // [-1,1]
+	            // Modify the default slide transition to shrink the page as well
+	            float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
+	            float vertMargin = pageHeight * (1 - scaleFactor) / 2;
+	            float horzMargin = pageWidth * (1 - scaleFactor) / 2;
+	            if (position < 0) {
+	                view.setTranslationX(horzMargin - vertMargin / 2);
+	            } else {
+	                view.setTranslationX(-horzMargin + vertMargin / 2);
+	            }
+
+	            // Scale the page down (between MIN_SCALE and 1)
+	            view.setScaleX(scaleFactor);
+	            view.setScaleY(scaleFactor);
+
+	            // Fade the page relative to its size.
+	            view.setAlpha(MIN_ALPHA +
+	                    (scaleFactor - MIN_SCALE) /
+	                    (1 - MIN_SCALE) * (1 - MIN_ALPHA));
+
+	        } else { // (1,+Infinity]
+	            // This page is way off-screen to the right.
+	            view.setAlpha(0);
+	        }
+	    }
 	}
 	
 }

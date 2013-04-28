@@ -14,7 +14,7 @@ public class ThrowTableRow extends TableRow {
 	public static int tableTextSize = 20;
 	public static int tableTextColor = Color.BLACK;
 	public static int tableBackgroundColor = Color.WHITE;
-	public static int columnWidth = 60;
+	public static int columnWidth = 100;
 	
 	public ThrowTableRow(Context context) {
 		super(context);
@@ -90,7 +90,7 @@ public class ThrowTableRow extends TableRow {
 		TextView[] views = {new TextView(this.getContext()), 
 							new TextView(this.getContext())};
 		for (TextView tv: views){
-			tv.setText("-");
+			tv.setText("--");
 			ThrowTableRow.formatTextView(tv);
 			this.addView(tv);
 		}
@@ -150,11 +150,5 @@ public class ThrowTableRow extends TableRow {
 	protected TextView getP2ScoreView(){
 		return (TextView) getChildAt(5);
 	}
-	
-	
-	
-	
-	
-
 	
 }
