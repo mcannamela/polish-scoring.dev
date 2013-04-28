@@ -42,7 +42,7 @@ import com.ultimatepolish.scorebookdb.Venue;
 
 public class GameInProgress extends MenuContainerActivity 
 								implements ThrowTableFragment.OnTableRowClickedListener{
-	
+	public static String LOGTAG = "GIP";
 	private static int N_PAGES = 10;
 	
 	private FragmentArrayAdapter vpAdapter;
@@ -157,6 +157,7 @@ public class GameInProgress extends MenuContainerActivity
     //========================= initialization =======================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		log("onCreate - creating GIP");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game_in_progress);
 		
@@ -171,7 +172,7 @@ public class GameInProgress extends MenuContainerActivity
 		initListeners();
 		initTableHeaders();
 		
-		Log.i("GIP", "onCreate() - about to create fragments");
+		log( "onCreate() - about to create fragments");
 		initTableFragments();
 	}
 	@Override
@@ -195,13 +196,13 @@ public class GameInProgress extends MenuContainerActivity
 		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
 		vp.setCurrentItem(0);
 		assert page_idx==0;
-		Log.i("GIP", "onResume() - vp's adapter has  "+ad.getCount() +" items");
+		log( "onResume() - vp's adapter has  "+ad.getCount() +" items");
 		
 		int initThrowNr = 0;
 		if (throwArray.size()>0){
 			initThrowNr = throwArray.size()-1;
 		}
-		Log.i("GIP", "onResume() - about to change current throw to "+initThrowNr);
+		log( "onResume() - about to change current throw to "+initThrowNr);
 		changeCurrentThrow(initThrowNr);
 		
 	}
@@ -214,9 +215,10 @@ public class GameInProgress extends MenuContainerActivity
 	@Override
 	protected void onPause() {
 		super.onPause();
+		updateThrowScoresFrom(0);
 		saveAllThrows();
 		saveGame();
-		updateThrowScoresFrom(0);
+		
 	}
 	@Override
     protected void onStop() {
@@ -281,7 +283,7 @@ public class GameInProgress extends MenuContainerActivity
         vp.setOnPageChangeListener(new MyPageChangeListener());
         
         vp.setCurrentItem(0);
-        Log.i("GIP", "initTableFragments() - fragments created, adapter has "+vpAdapter.getCount() +"items");
+        log( "initTableFragments() - fragments created, adapter has "+vpAdapter.getCount() +"items");
 	}
 	private void initThrows(){
 
@@ -329,10 +331,10 @@ public class GameInProgress extends MenuContainerActivity
 			else{
 				try{
 					tDao.delete(t);
-					Log.i("GIP", "initThrows() - deleted a throw with a negative throw number");
+					log( "initThrows() - deleted a throw with a negative throw number");
 				}
 				catch (SQLException e){
-					Log.e("GIP", "initThrows() - failed to delete a throw with a negative throw number");
+					Log.e(LOGTAG, "initThrows() - failed to delete a throw with a negative throw number");
 				}
 			}
 		}
@@ -342,7 +344,7 @@ public class GameInProgress extends MenuContainerActivity
 		for (int i=0; i<throwArray.size();i++){
 			t = throwArray.get(i);
 			if (t==null){
-				Log.i("GIP", "initThrows() - missing throw number "+i+", will be inserted");
+				log( "initThrows() - missing throw number "+i+", will be inserted");
 				t = g.makeNewThrow(throwNr);
 				t.setThrowType(ThrowType.STRIKE);
 				t.setThrowResult(ThrowResult.CATCH);
@@ -446,7 +448,7 @@ public class GameInProgress extends MenuContainerActivity
 	/////////////////////////////////////////////////////////
     /////////////// apply the state of the ui to a throw/////
     private void applyUIStateToCurrentThrow(Throw t){
-    	Log.i("GIP", "applyUIStateToCurrentThrow() - applying state to throw "+t.getThrowNumber());
+    	log( "applyUIStateToCurrentThrow() - applying state to throw "+t.getThrowNumber());
     	applyCurrentThrowType(t);
     	applyCurrentThrowResult(t);
     	applySpecialMarks(t);
@@ -549,12 +551,6 @@ public class GameInProgress extends MenuContainerActivity
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
 
-	//	private void renderThrows(){
-//		for (int i=0;i<N_PAGES;i++){
-//			renderPage(i);
-//		}
-//	}
-
 	private void renderPage(int pidx){
 		ThrowTableFragment frag =fragArray.get(pidx); 
 		int[] range = ThrowTableFragment.throwNrRange(pidx);
@@ -567,6 +563,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void updateCurrentScore(){
+		
 		Throw lastThrow = getThrow(throwArray.size()-1);
 		int[] scores = lastThrow.getFinalScores();
 		if (lastThrow.isP1Throw()){
@@ -599,9 +596,9 @@ public class GameInProgress extends MenuContainerActivity
 		
 	
 	void changeCurrentThrow(int newThrowNr){
-		Log.i("GIP", "changeCurrentThrow() - current throw nr is "+throwNr +", will change it to "+newThrowNr);
+		logd( "changeCurrentThrow() - current throw nr is "+throwNr +", will change it to "+newThrowNr);
 		Throw t = getThrow(throwNr);
-		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
+		logd( "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
 		applyUIStateToCurrentThrow(getThrow(throwNr));
 		
 		if (throwNr>=0){
@@ -618,10 +615,10 @@ public class GameInProgress extends MenuContainerActivity
 		
 		int oldThrowNr = throwNr;
 		throwNr = newThrowNr;
-		Log.i("GIP", "changeCurrentThrow() - throwNr is now "+throwNr);
+		logd( "changeCurrentThrow() - throwNr is now "+throwNr);
 		
 		t = getThrow(throwNr);
-		Log.i("GIP", "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
+		logd( "changeCurrentThrow() - retrieved throw "+t.getThrowNumber()+" from array");
 		
 		applyCurrentThrowToUIState(t);
 		
@@ -629,7 +626,7 @@ public class GameInProgress extends MenuContainerActivity
 		int new_page_idx = ThrowTableFragment.throwNrToPageIdx(newThrowNr);
 		ViewPager vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		FragmentArrayAdapter ad = (FragmentArrayAdapter) vp.getAdapter(); 
-//		Log.i("GIP", "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
+		logd( "changeCurrentThrow() - vp's adapter has  "+ad.getCount() +" items");
 		try{
 			vp.setCurrentItem(new_page_idx);
 			assert page_idx==new_page_idx;
@@ -637,7 +634,7 @@ public class GameInProgress extends MenuContainerActivity
 			renderPage(page_idx);
 		}
 		catch (NullPointerException e){
-			Log.e("GIP", "changeCurrentThrow() - failed to change page");
+			Log.e(LOGTAG, "changeCurrentThrow() - failed to change page");
 		}
 		
 		updateCurrentScore();
@@ -653,26 +650,30 @@ public class GameInProgress extends MenuContainerActivity
 			t = getThrow(i);
 			u = getPreviousThrow(i);
 			t.setInitialScores(u);
-			Log.i("GIP", "Setting initial scores of throw "+t.getThrowNumber()+" to final scores of throw "+u.getThrowNumber());
+//			logd( "Setting initial scores of throw "+t.getThrowNumber()+" to final scores of throw "+u.getThrowNumber());
 		}
+		updateCurrentScore();
 	}
 	void saveAllThrows(){
+		log("saveAllThrows - saving "+throwArray.size() +"throws");
 		for(Throw t: throwArray){
 			try{
 				saveThrow(t);
 			}
 			catch(SQLException e){
+				String msg = "could not save throw "+t.getThrowNumber();
+				loge(msg, e);
 				Toast.makeText(getApplicationContext(), 
-						"could not save throw "+t.getThrowNumber()+", "+e.getMessage(), 
+						msg+": "+e.getMessage(), 
 						Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
 	void saveThrow(Throw t) throws SQLException{
-		
 		HashMap<String,Object> m = new HashMap<String,Object>();
 		m.put(Throw.THROW_NUMBER, t.getThrowNumber());
 		m.put(Throw.GAME_ID, t.getGameId());
+		
 		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
 		if (tList.isEmpty()){
 			tDao.create(t);
@@ -688,9 +689,12 @@ public class GameInProgress extends MenuContainerActivity
 			gDao.update(g);
 		}
 		catch (SQLException e){
+			
+			String msg = "could not save game: ";
+			loge(msg, e);
 			Toast.makeText(getApplicationContext(), 
-					"could not save game, "+e.getMessage(), 
-					Toast.LENGTH_LONG).show();
+					msg+": "+e.getMessage(), 
+					Toast.LENGTH_SHORT).show();
 		}
 		
 	}
@@ -733,6 +737,16 @@ public class GameInProgress extends MenuContainerActivity
 		applyUIStateToCurrentThrow(t);
 		updateThrowScoresFrom(0);
 		renderPage(page_idx);
+	}
+	
+	public void log(String msg){
+		Log.i(LOGTAG, msg);
+	}
+	public void logd(String msg){
+		Log.d(LOGTAG, msg);
+	}
+	public void loge(String msg, Exception e){
+		Log.e(LOGTAG, msg+":"+e.getMessage());
 	}
 	
 	

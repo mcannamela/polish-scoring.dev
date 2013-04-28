@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.ultimatepolish.scorebookdb.Throw;
 
 public class ThrowTableFragment extends Fragment {
+	public static final String LOG_PREFIX = "TTFrag.";
 	public static final String PAGE_IDX_KEY = "page_idx";
 	public static final int N_ROWS = 20;
 	public static int highlightedColor = Color.GRAY;
@@ -49,6 +50,10 @@ public class ThrowTableFragment extends Fragment {
 	public static int localThrowNrToGlobal(int page_idx, int local_throw_nr){
 		return 2*N_ROWS*page_idx+local_throw_nr;
 	}
+	public void log(String msg){
+		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+msg);
+	}
+		
 	
 	public interface OnTableRowClickedListener {
 		public void onThrowClicked(int local_throw_nr);
@@ -80,6 +85,7 @@ public class ThrowTableFragment extends Fragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
+		log("onAttach - attaching activity");
 		super.onAttach(activity);
 		try {
             mListener = (OnTableRowClickedListener) activity;
@@ -90,16 +96,25 @@ public class ThrowTableFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		log("onCreate - creating fragment");
 		super.onCreate(savedInstanceState);
 		
 	}
 	
+	
+	
 
+
+	@Override
+	public void onResume() {
+		log("onResume - resuming fragment");
+		super.onResume();
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
+		log("onCreate - creating view");
 		TableLayout layout;
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
