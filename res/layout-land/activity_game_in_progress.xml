@@ -276,19 +276,20 @@
 		android:layout_toRightOf="@+id/gip_button_high"
 		android:layout_toLeftOf="@+id/numPicker_errorScore"
 		android:layout_below="@+id/textView_players"
-		android:layout_width="fill_parent"
+		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-		android:layout_marginRight="10dp"
-		android:layout_marginLeft="10dp"
-		android:paddingLeft="10dp"
-		android:paddingRight="5dp"
+		android:layout_marginRight="5dp"
+		android:layout_marginLeft="5dp"
 		android:background="#013567" >
 	  	<TableRow>
 			<TextView
-				android:layout_margin="1dp"
-				android:layout_gravity="center_horizontal"
+				android:layout_width="50sp"
+				android:layout_height="fill_parent"
+				android:paddingLeft="1dp"
+				android:paddingRight="1dp"
+				android:gravity="center"
 				android:background="#fff"
-				android:layout_width="20dp" />
+				android:text="inning" />
 
 			<TextView
 			    android:id="@+id/header_p1"
@@ -316,11 +317,21 @@
 	    android:layout_toLeftOf="@+id/numPicker_errorScore"
 		android:layout_below="@+id/scoreTable_header"
 		android:layout_above="@+id/textView_pageIndex"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content" 
-	    android:layout_marginLeft="10dp"
- 	    android:layout_marginRight="10dp"
-	    />
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:gravity="top" >
+	  	
+    	<android.support.v4.view.PagerTitleStrip
+			android:id="@+id/pager_title_strip"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom"
+			android:background="#33b5e5"
+			android:paddingBottom="4dp"
+			android:paddingTop="4dp"
+			android:textColor="#fff" />
+    	
+    	</android.support.v4.view.ViewPager>
 
 <!-- 	<ScrollView -->
 <!-- 		android:id="@+id/gip_scrollView" -->
@@ -340,26 +351,14 @@
 <!--         	class="com.ultimatepolish.polishscorebook.ThrowTableFragment" ></fragment> -->
 	    
 <!-- 	</ScrollView> -->
-	
-	<TextView
-        android:id="@+id/textView_pageIndex"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="false"
-        android:layout_marginRight="150dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/textView_throwCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/textView_pageIndex"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:layout_marginRight="30dp"
-        android:layout_toLeftOf="@id/textView_pageIndex"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     

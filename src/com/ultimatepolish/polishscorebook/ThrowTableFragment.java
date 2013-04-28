@@ -62,12 +62,15 @@ public class ThrowTableFragment extends Fragment {
     		col = p.indexOfChild(v);
     		row = gp.indexOfChild(p);
     		
-    		if (col > 3){
+    		if (col == 0) {
+    			// clicked on the inningNr column
     			return;
-    		}
-    		else{
+    		} else if (col > 4){
+    			// clicked on a score column
+    			return;
+    		} else{
     			local_throw_idx = 2*row;
-    			if (col >= 2){
+    			if (col >= 3){
     				local_throw_idx++;
     			}
     			mListener.onThrowClicked(local_throw_idx);
@@ -176,12 +179,12 @@ public class ThrowTableFragment extends Fragment {
 		TextView tv;
 		int start, stop;
 		if (Throw.isP1Throw(throwIdx)){
-			start = 0;
-			stop = 2;
+			start = 1;
+			stop = 3;
 		}
 		else{
-			start = 2;
-			stop = 4;
+			start = 3;
+			stop = 5;
 		}
 		for (int i = start; i < stop; i++){
 			tv = (TextView) tr.getChildAt(i);
