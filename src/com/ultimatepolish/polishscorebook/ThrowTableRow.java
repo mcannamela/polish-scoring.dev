@@ -1,5 +1,8 @@
 package com.ultimatepolish.polishscorebook;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -42,6 +45,17 @@ public class ThrowTableRow extends TableRow {
 	
 	public static ThrowTableRow buildBlankRow(Context context){
 		ThrowTableRow tr = new ThrowTableRow(context);
+		TextView tv = new TextView(context);
+
+		ThrowTableRow.formatTextView(tv);
+		tv.setText("000");
+		tv.setWidth(100);
+		tv.setGravity(Gravity.RIGHT);
+		tv.setPadding(0, 0, 15, 0);
+		
+//		tv.setBackgroundColor(Color.LTGRAY);
+		tr.addView(tv);
+		
 		tr.appendBlank();
 		tr.appendBlank();
 		tr.appendBlank();
@@ -79,6 +93,7 @@ public class ThrowTableRow extends TableRow {
 		v.setBackgroundColor(tableBackgroundColor);
 		v.setGravity(Gravity.CENTER);
 		v.setWidth(columnWidth);
+		v.setPadding(1, 0, 1, 0);
 	}
 	public void appendThrow(Throw t){
 		TextView[] views = buildThrowViews(t, this.getContext());
@@ -103,6 +118,8 @@ public class ThrowTableRow extends TableRow {
 	}
 	
 	protected void updateText(Throw t){
+		//inning
+		updateInning(t);
 		//p1 throw
 		if ((t.getThrowIdx()) % 2 == 0){
 			updateP1Text(t);
@@ -112,7 +129,12 @@ public class ThrowTableRow extends TableRow {
 			updateP2Text(t);
 		}
 	}
-	
+	protected void updateInning(Throw t){
+		NumberFormat formatter = new DecimalFormat("   ");
+//		String inning = formatter.format(t.getThrowIdx()/2 + 1);
+		String inning = String.valueOf(t.getThrowIdx()/2 + 1);
+		getInningView().setText(inning);
+	}
 	protected void updateP1Text(Throw t){		
 		getP1ThrowView().setText(t.getThrowString());
 		getP1SpecialView().setText(t.getSpecialString());
@@ -132,23 +154,26 @@ public class ThrowTableRow extends TableRow {
 		getP2ScoreView().setText(String.valueOf(p2Score));
 	}
 	
-	protected TextView getP1ThrowView(){
+	protected TextView getInningView(){
 		return (TextView) getChildAt(0);
 	}
-	protected TextView getP1SpecialView(){
+	protected TextView getP1ThrowView(){
 		return (TextView) getChildAt(1);
 	}
-	protected TextView getP1ScoreView(){
-		return (TextView) getChildAt(4);
-	}
-	protected TextView getP2ThrowView(){
+	protected TextView getP1SpecialView(){
 		return (TextView) getChildAt(2);
 	}
-	protected TextView getP2SpecialView(){
+	protected TextView getP1ScoreView(){
+		return (TextView) getChildAt(5);
+	}
+	protected TextView getP2ThrowView(){
 		return (TextView) getChildAt(3);
 	}
+	protected TextView getP2SpecialView(){
+		return (TextView) getChildAt(4);
+	}
 	protected TextView getP2ScoreView(){
-		return (TextView) getChildAt(5);
+		return (TextView) getChildAt(6);
 	}
 	
 }
