@@ -44,6 +44,7 @@ import com.ultimatepolish.scorebookdb.Venue;
 public class GameInProgress extends MenuContainerActivity 
 								implements ThrowTableFragment.OnTableRowClickedListener{
 
+	public static String LOGTAG = "GIP";
 	private FragmentArrayAdapter vpAdapter;
 	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
@@ -145,6 +146,7 @@ public class GameInProgress extends MenuContainerActivity
     // INITIALIZATION =============================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		log("onCreate(): creating GIP");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game_in_progress);
 		
@@ -156,7 +158,7 @@ public class GameInProgress extends MenuContainerActivity
 		initNumPickers();
 		initListeners();
 		
-		Log.i("GIP", "onCreate() - about to create fragments");
+		log("onCreate(): about to create fragments");
 		initTableFragments();
 	}
 	@Override
@@ -177,14 +179,14 @@ public class GameInProgress extends MenuContainerActivity
 
 //		vpAdapter = (FragmentArrayAdapter) vp.getAdapter(); 
 //		vp.setCurrentItem(0);
-		Log.i("GIP", "onResume() - vp's adapter has " + vpAdapter.getCount() + " items");
+		log("onResume(): vp's adapter has " + vpAdapter.getCount() + " items");
 		
 		// change throw to the last throw
 		int initThrowIdx = 0;
 		if (throwsList.size() > 0){
 			initThrowIdx = throwsList.size() - 1;
 		}
-		Log.i("GIP", "onResume() - About to change current throw idx to " + initThrowIdx);
+		log("onResume() - About to change current throw idx to " + initThrowIdx);
 		gotoThrowIdx(initThrowIdx, false);
 	}
 	@Override
@@ -195,9 +197,10 @@ public class GameInProgress extends MenuContainerActivity
 	@Override
 	protected void onPause() {
 		super.onPause();
+		updateScoresFromThrowIdx(0);
 		saveAllThrows();
 		saveGame();
-		updateScoresFromThrowIdx(0);
+		
 	}
 	@Override
     protected void onStop() {
@@ -347,7 +350,7 @@ public class GameInProgress extends MenuContainerActivity
 		
 		// sort the list by throw number if it isnt empty
 		int maxThrowIdx = -1;
-		Log.i("GIP", "getThrowsFromDB() - tList has " + tList.size() + " elements.");
+		log("getThrowsFromDB() - tList has " + tList.size() + " elements.");
 		if (!tList.isEmpty()) {
 			Collections.sort(tList);
 			// TODO: remove the following if-statement once negative throw numbers are deleted from all games in db
@@ -360,19 +363,19 @@ public class GameInProgress extends MenuContainerActivity
 			// verify that tList isnt corrupt by checking:
 				// the first throw idx is 0
 				if (tList.get(0).getThrowIdx() != 0) {
-					Log.e("GIP", "getThrowsFromDB() - tList starts with throw "
+					log("getThrowsFromDB() - tList starts with throw "
 							+ tList.get(0).getThrowIdx()+ " instead of 1");
 				}
 				// all throws have unique throw numbers
 				for(int i = 0; i < (maxThrowIdx); i++){
 					if (tList.get(i).getThrowIdx() == tList.get(i+1).getThrowIdx()) {
-						Log.e("GIP", "getThrowsFromDB() - tList has duplicated throw idx (" 
+						log("getThrowsFromDB() - tList has duplicated throw idx (" 
 								+ tList.get(i).getThrowIdx() + ")");
 					}
 				}
 				// max throw number matches the size of tList
 				if (maxThrowIdx != tList.size()-1) {
-					Log.e("GIP", "getThrowsFromDB() - tList size doesnt match number of throws");
+					log("getThrowsFromDB() - tList size doesnt match number of throws");
 				}
 		}
 	
@@ -396,8 +399,8 @@ public class GameInProgress extends MenuContainerActivity
 //        vp.setPageTransformer(true, new ZoomOutPageTransformer());
         
 //        vp.setCurrentItem(0);
-//        Log.i("GIP", "initTableFragments() - Viewpager has limit of " + vp.getOffscreenPageLimit());
-//        Log.i("GIP", "initTableFragments() - fragments created, adapter has " + vpAdapter.getCount() + " items");
+//        log("initTableFragments() - Viewpager has limit of " + vp.getOffscreenPageLimit());
+//        log("initTableFragments() - fragments created, adapter has " + vpAdapter.getCount() + " items");
 	}
 	
     //=================================================================
@@ -405,7 +408,7 @@ public class GameInProgress extends MenuContainerActivity
 	/////////////////////////////////////////////////////////
     /////////////// apply the state of the ui to a throw/////
     private void applyUIStateToCurrentThrow(Throw t){
-    	Log.i("GIP", "applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
+    	log("applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
     	applyCurrentThrowType(t);
     	applyCurrentThrowResult(t);
     	applySpecialMarks(t);
@@ -512,12 +515,6 @@ public class GameInProgress extends MenuContainerActivity
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
 
-	//	private void renderThrows(){
-//		for (int i=0;i<N_PAGES;i++){
-//			renderPage(i);
-//		}
-//	}
-
 	private void renderPage(int pidx){
 		renderPage(pidx, true);
 	}
@@ -531,17 +528,17 @@ public class GameInProgress extends MenuContainerActivity
 			
 			vp.setCurrentItem(pidx);
 		}
-		Log.i("GIP", "renderPage(): vp currentitem is " + vp.getCurrentItem());
-		Log.i("GIP", "renderPage(): vp has " + vp.getChildCount() + " children");
+		log("renderPage(): vp currentitem is " + vp.getCurrentItem());
+		log("renderPage(): vp has " + vp.getChildCount() + " children");
 		
 		frag = fragmentArray.get(pidx);
-		Log.i("GIP", "renderPage(pidx) - made fragment");
+		log("renderPage(pidx) - made fragment");
 		int[] range = ThrowTableFragment.throwIdxRange(pidx);
-		Log.i("GIP", "renderPage(pidx) - got throw range");
+		log("renderPage(pidx) - got throw range");
 		frag.renderAsPage(pidx, throwsList);
-		Log.i("GIP", "renderPage(pidx) - rendered as page");
+		log("renderPage(pidx) - rendered as page");
 		frag.clearHighlighted();
-		Log.i("GIP", "renderPage(pidx) - cleared highlighted");
+		log("renderPage(pidx) - cleared highlighted");
 		
 		if (throwIdx >= range[0] && throwIdx <= range[1]){
 			frag.highlightThrow(throwIdx);
@@ -549,8 +546,8 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void updateCurrentScore(){
-		Log.i("GIP", "updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-1));
-		Throw lastThrow = getThrow(throwsList.size()-1);
+		log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
+		Throw lastThrow = getThrow(throwsList.size()-2);
 		int[] scores = lastThrow.getFinalScores();
 		if (lastThrow.isP1Throw()){
 			g.setFirstPlayerScore(scores[0]);
@@ -583,14 +580,14 @@ public class GameInProgress extends MenuContainerActivity
 		gotoThrowIdx(newThrowIdx, true);
 	}
 	void gotoThrowIdx(int newThrowIdx, boolean saveCurrent){
-		Log.i("GIP", "gotoThrow() - Going from throw idx " + throwIdx + " to throw idx " + newThrowIdx + ".");
+		log("gotoThrow() - Going from throw idx " + throwIdx + " to throw idx " + newThrowIdx + ".");
 
 		Throw t;
 		if (saveCurrent == true) {
 			// Save the current throw based on UI
-			Log.i("GIP", "gotoThrowIdx(): About to get throw idx " + throwIdx);
+			log("gotoThrowIdx(): About to get throw idx " + throwIdx);
 			t = getThrow(throwIdx);
-			Log.i("GIP", "gotoThrow() - Retrieved throw " + t.getThrowIdx() + " from list.");
+			log("gotoThrow() - Retrieved throw " + t.getThrowIdx() + " from list.");
 			
 			applyUIStateToCurrentThrow(t);
 			
@@ -601,7 +598,7 @@ public class GameInProgress extends MenuContainerActivity
 //				Toast.makeText(getApplicationContext(), 
 //				"Could not save throw at idx " + throwIdx + ", " + e.getMessage(), 
 //				Toast.LENGTH_LONG).show();
-				Log.e("GIP", "gotoThrow() - " + e.getMessage());
+				loge("gotoThrow(): ", e);
 			}
 		}
 		
@@ -611,23 +608,23 @@ public class GameInProgress extends MenuContainerActivity
 		
 		// Go to throw newThrowNr
 		throwIdx = newThrowIdx;
-//		Log.i("GIP", "gotoThrow() - throwIdx is now " + throwIdx);
+//		log("gotoThrow() - throwIdx is now " + throwIdx);
 		
-		Log.i("GIP", "gotoThrowIdx(): About to get throw idx " + throwIdx);
+		log("gotoThrowIdx(): About to get throw idx " + throwIdx);
 		t = getThrow(throwIdx);
-//		Log.i("GIP", "gotoThrow() - Retrieved throw " + t.getThrowNumber() + " from list.");
+//		log("gotoThrow() - Retrieved throw " + t.getThrowNumber() + " from list.");
 		
 		applyCurrentThrowToUIState(t);
 		
 //		vpAdapter = (FragmentArrayAdapter) vp.getAdapter();
 		
-		Log.i("GIP", "gotoThrow() - vp's adapter has  " + vpAdapter.getCount() + " items");
+		log("gotoThrow() - vp's adapter has  " + vpAdapter.getCount() + " items");
 		try{			
 			renderPage(pageIdx(throwIdx));
-			Log.i("GIP", "gotoThrow() - Changed to page " + pageIdx(throwIdx) + ".");
+			log("gotoThrow() - Changed to page " + pageIdx(throwIdx) + ".");
 		}
 		catch (NullPointerException e){
-			Log.e("GIP", "gotoThrow() - Failed to change to page " + pageIdx(throwIdx) + ".");
+			loge("gotoThrow() - Failed to change to page " + pageIdx(throwIdx) + ".", e);
 		}
 		
 		updateCurrentScore();
@@ -639,31 +636,35 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void updateScoresFromThrowIdx(int throwIdx){
 		Throw t,u;
-		Log.i("GIP", "updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
+		log("updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
 		if (throwIdx <= 0 && throwsList.size() != 0) {
-//			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
+//			log("updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
 			t = getThrow(0);
 			t.setInitialScores();
-//			Log.i("GIP", "Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
+//			log("Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
 			throwIdx = 1;
 		}
 		for (int i = throwIdx; i < throwsList.size(); i++){
-//			Log.i("GIP", "updateScoresFromThrowIdx(): About to get throw idx " + i);
+//			log("updateScoresFromThrowIdx(): About to get throw idx " + i);
 			t = getThrow(i);
 			u = getPreviousThrow(i);
 			t.setInitialScores(u);
-//			Log.i("GIP", "Setting initial scores of throw " + t.getThrowNumber()
+//			log("Setting initial scores of throw " + t.getThrowNumber()
 //					+ " to final scores of throw " + u.getThrowNumber());
 		}
+		updateCurrentScore();
 	}
 	void saveAllThrows(){
+		log("saveAllThrows - saving "+throwsList.size() +"throws");
 		for(Throw t: throwsList){
 			try{
 				saveThrow(t);
 			}
 			catch(SQLException e){
+				String msg = "could not save throw "+t.getThrowIdx();
+				loge(msg, e);
 				Toast.makeText(getApplicationContext(), 
-						"could not save throw "+t.getThrowIdx()+", "+e.getMessage(), 
+						msg + ": " + e.getMessage(), 
 						Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -675,12 +676,12 @@ public class GameInProgress extends MenuContainerActivity
 		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
 		if (tList.isEmpty()){
 			tDao.create(t);
-//			Log.i("GIP", "saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
+//			log("saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
 		}
 		else{
 			t.setId(tList.get(0).getId());
 			tDao.update(t);
-//			Log.i("GIP", "saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
+//			log("saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
 		}
 	}
 	
@@ -689,9 +690,11 @@ public class GameInProgress extends MenuContainerActivity
 			gDao.update(g);
 		}
 		catch (SQLException e){
+			String msg = "could not save game: ";
+			loge(msg, e);
 			Toast.makeText(getApplicationContext(), 
-					"could not save game, "+e.getMessage(), 
-					Toast.LENGTH_LONG).show();
+					msg+": "+e.getMessage(), 
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 		
@@ -725,29 +728,39 @@ public class GameInProgress extends MenuContainerActivity
 				break;
 		}
 		
-//		Log.i("GIP", "buttonPressed(view): " + currentThrowType);
+//		log("buttonPressed(view): " + currentThrowType);
 		updateThrow();
 		confirmThrow();
 	}
 	
 	private void updateThrow(){
-		Log.i("GIP", "updateThrow(): Updating throw at idx " + throwIdx);
+		log("updateThrow(): Updating throw at idx " + throwIdx);
 		Throw t = getThrow(throwIdx);
 		applyUIStateToCurrentThrow(t);
 		updateScoresFromThrowIdx(0);
 		renderPage(pageIdx(throwIdx));
 	}
 	
+	public void log(String msg){
+		Log.i(LOGTAG, msg);
+	}
+	public void logd(String msg){
+		Log.d(LOGTAG, msg);
+	}
+	public void loge(String msg, Exception e){
+		Log.e(LOGTAG, msg+":"+e.getMessage());
+	}
+
 	Throw getThrow(int throwIdx){
 		if (throwIdx >= 0 && throwIdx < throwsList.size()){
 			// throwNr is a prior throw
-//			Log.i("GIP", "getThrow(): Getting prior throw at idx " + throwIdx);
+//			log("getThrow(): Getting prior throw at idx " + throwIdx);
 			return throwsList.get(throwIdx);
 		}
 		else if(throwIdx == throwsList.size()){
 			// throw number is the next throw
 			// TODO: start as a new type "NOTTHROWN"
-//			Log.i("GIP", "getThrow(): Making a new throw at idx " + throwIdx);
+//			log("getThrow(): Making a new throw at idx " + throwIdx);
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
@@ -802,7 +815,7 @@ public class GameInProgress extends MenuContainerActivity
 		}	
 		int pidx = (throwIdx) / (2*ThrowTableFragment.N_ROWS);
 		if (pidx < 0) {pidx = 0;}
-		Log.i("GIP", "pageIdx(int) - Index is " + pidx + ".");
+		log("pageIdx(int) - Index is " + pidx + ".");
 		return pidx;
 	}
 	int pageIdx() {

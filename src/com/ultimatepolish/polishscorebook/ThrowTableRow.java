@@ -48,7 +48,7 @@ public class ThrowTableRow extends TableRow {
 		TextView tv = new TextView(context);
 
 		ThrowTableRow.formatTextView(tv);
-		tv.setText("000");
+		tv.setText("");
 		tv.setWidth(100);
 		tv.setGravity(Gravity.RIGHT);
 		tv.setPadding(0, 0, 15, 0);
