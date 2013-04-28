@@ -22,6 +22,7 @@ public class ThrowTableFragment extends Fragment {
 	public static int N_ROWS = 20;
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
+	public TableLayout layout;
 	
 	OnTableRowClickedListener mListener;
 	
@@ -88,17 +89,16 @@ public class ThrowTableFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		Log.i("ThrowTableFragment", "onCreate(): hello!");
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		TableLayout layout;
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
-		ThrowTableRow tr = null;
+		ThrowTableRow tr;
 		for (int i = 0; i < N_ROWS; i++){
 			tr = ThrowTableRow.buildBlankRow(container.getContext());
 			for (int j = 0; j < tr.getChildCount(); j++){
@@ -106,7 +106,8 @@ public class ThrowTableFragment extends Fragment {
 			}
 			layout.addView(tr);
 		}
-		return  layout;
+		Log.i("ThrowTableFragment", "onCreateView(): layout has " + layout.getChildCount() + " children");
+		return layout;
 	}
 
 	@Override
@@ -140,7 +141,8 @@ public class ThrowTableFragment extends Fragment {
 	}
 	private void renderThrow(Throw t){
 		try{
-			ThrowTableRow tr = getTableRow(t.getThrowIdx());
+//			Log.i("ThrowTableFragment", "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
+			ThrowTableRow tr = getTableRow(t);
 			tr.updateText(t);
 			Log.i("ThrowTableFragment", "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 		}
@@ -196,11 +198,12 @@ public class ThrowTableFragment extends Fragment {
 	}
 	
 	public ThrowTableRow getTableRow(int throwIdx){
-		TableLayout layout = getTableLayout();
+//		layout = (TableLayout) getView();
 		int ridx = ThrowTableFragment.throwIdxToRowIdx(throwIdx);
 //		Log.i("ThrowTableFragment", "getTableRow() - Getting row for throw idx "
 //				+ throwIdx + ", it's " + ridx);
 		ThrowTableRow tr;
+		
 		try{
 			tr = (ThrowTableRow) layout.getChildAt(ridx);
 		}
