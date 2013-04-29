@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ultimatepolish.scorebookdb.Throw;
+import com.ultimatepolish.scorebookdb.ThrowResult;
 
 public class ThrowTableFragment extends Fragment {
 	public static final String LOG_PREFIX = "TTFrag.";
@@ -24,11 +26,23 @@ public class ThrowTableFragment extends Fragment {
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	
+	private int page_idx = -1;
+	private ArrayList<ThrowTableRow> tableRows = new ArrayList<ThrowTableRow>(N_ROWS); 
 	
 	OnTableRowClickedListener mListener;
 	
-	static ThrowTableFragment newInstance() {	
+	static ThrowTableFragment newInstance(int page_idx, Context context) {	
 		ThrowTableFragment f = new ThrowTableFragment();
+		f.page_idx = page_idx;
+		ThrowTableRow tr = null;
+		for (int i=0; i<N_ROWS;i++){
+			tr = ThrowTableRow.buildBlankRow(context);
+			for (int j=0;j<tr.getChildCount();j++){
+				tr.getChildAt(j).setOnClickListener(f.throwClickedListener);
+			}
+			
+			f.tableRows.add(tr);
+		}
         return f;
     }
 	
@@ -51,7 +65,7 @@ public class ThrowTableFragment extends Fragment {
 		return 2*N_ROWS*page_idx+local_throw_nr;
 	}
 	public void log(String msg){
-		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+msg);
+		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg);
 	}
 		
 	
@@ -85,7 +99,7 @@ public class ThrowTableFragment extends Fragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
-		log("onAttach - attaching activity");
+		log("onAttach() - attaching activity");
 		super.onAttach(activity);
 		try {
             mListener = (OnTableRowClickedListener) activity;
@@ -96,36 +110,32 @@ public class ThrowTableFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		log("onCreate - creating fragment");
+		log("onCreate() - creating fragment");
 		super.onCreate(savedInstanceState);
 		
 	}
 	
-	
-	
-
-
 	@Override
 	public void onResume() {
-		log("onResume - resuming fragment");
+		log("onResume() - resuming fragment");
 		super.onResume();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		log("onCreate - creating view");
+		log("onCreateView() - creating view");
 		TableLayout layout;
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
 		ThrowTableRow tr = null;
 		for (int i=0; i<N_ROWS;i++){
-			tr = ThrowTableRow.buildBlankRow(container.getContext());
-			for (int j=0;j<tr.getChildCount();j++){
-				tr.getChildAt(j).setOnClickListener(throwClickedListener);	
-			}
+//			tr = ThrowTableRow.buildBlankRow(container.getContext());
+//			for (int j=0;j<tr.getChildCount();j++){
+//				tr.getChildAt(j).setOnClickListener(throwClickedListener);	
+//			}
 			
-			layout.addView(tr);
+			layout.addView(tableRows.get(i));
 		}
 		return  layout;
 	}
@@ -220,14 +230,16 @@ public class ThrowTableFragment extends Fragment {
 	public ThrowTableRow getTableRow(int throwNr){
 		TableLayout layout = getTableLayout();
 		int ridx = ThrowTableFragment.throwNrToRowIdx(throwNr);
-//		Log.i("GIP", "Fragment/getTableRow() - getting row for throw nr " +throwNr+", it's "+ ridx);
+//		log("getTableRow() - getting row for throw nr " +throwNr+", it's "+ ridx);
 		ThrowTableRow tr;
 		try{
-			tr = (ThrowTableRow) layout.getChildAt(ridx);
+//			tr = (ThrowTableRow) layout.getChildAt(ridx);
+			tr = tableRows.get(ridx);
 		}
 		catch (NullPointerException e){
 			throw new IndexOutOfBoundsException("Child for throw nr "+throwNr +" dne at row "+ridx);
 		}
+		
 
 		return tr;
 	}
