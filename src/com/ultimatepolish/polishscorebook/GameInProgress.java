@@ -272,7 +272,7 @@ public class GameInProgress extends MenuContainerActivity
 		fragArray.clear();
 		ThrowTableFragment frag = null;
         for (int i=0;i<N_PAGES;i++){
-        	frag = ThrowTableFragment.newInstance();
+        	frag = ThrowTableFragment.newInstance(i, getApplicationContext());
         	fragArray.add(frag);
         }
         
@@ -759,6 +759,7 @@ public class GameInProgress extends MenuContainerActivity
 			Throw t = g.makeNewThrow(throwNr);
 			t.setThrowType(ThrowType.STRIKE);
 			t.setThrowResult(ThrowResult.CATCH);
+			t.setInitialScores(getPreviousThrow(throwNr));
 			throwArray.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 			tv.setText("nThrows: "+throwArray.size());
