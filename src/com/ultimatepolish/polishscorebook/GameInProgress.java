@@ -17,6 +17,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -492,6 +493,17 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
+		Button btn = null;
+		
+		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
+		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
+		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
+		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
+		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
+		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
+		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
+		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
+		
 	}
 	private void setThrowResult(Throw t) {
 		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
@@ -917,6 +929,11 @@ public class GameInProgress extends MenuContainerActivity
 	private void setErrorScore(int score) {
 		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
 		p.setValue(score);
+	}
+	private void setThrowButtonState(int throwType, int id) {
+		Button btn = (Button) findViewById(id);
+		if (throwType == currentThrowType) {btn.setPressed(true);}
+		else {btn.setPressed(false);}
 	}
 	
 	public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
