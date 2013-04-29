@@ -200,7 +200,7 @@ public class GameInProgress extends MenuContainerActivity
 		super.onPause();
 		updateScoresFromThrowIdx(0);
 		saveAllThrows();
-		saveGame();
+		saveGame(true);
 		
 	}
 	@Override
@@ -668,6 +668,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	void saveAllThrows(){
 		log("saveAllThrows - saving "+throwsList.size() +"throws");
+		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
 		for(Throw t: throwsList){
 			try{
 				saveThrow(t);
@@ -698,8 +699,17 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	void saveGame(){
+		saveGame(false);
+	}
+	void saveGame(boolean onExit){
+		if (onExit) {
+			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
+		}
 		try{
 			gDao.update(g);
+			if (onExit){
+				Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
+			}
 		}
 		catch (SQLException e){
 			String msg = "could not save game: ";
