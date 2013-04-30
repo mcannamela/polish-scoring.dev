@@ -389,10 +389,12 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void initTableFragments(){
 		fragmentArray.clear();
-		ThrowTableFragment frag = ThrowTableFragment.newInstance();
+		
 //		ThrowTableFragment.N_ROWS = 10;
-        fragmentArray.add(frag);
-        
+
+		ThrowTableFragment frag = ThrowTableFragment.newInstance(0, getApplicationContext());
+		fragmentArray.add(frag);
+
         vpAdapter = new FragmentArrayAdapter(getFragmentManager());
         vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
         vp.setAdapter(vpAdapter);
@@ -493,8 +495,8 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
-		Button btn = null;
 		
+		// wait until after click event?
 		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
 		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
@@ -533,7 +535,7 @@ public class GameInProgress extends MenuContainerActivity
 	private void renderPage(int pidx, boolean setVpItem){
 		ThrowTableFragment frag;
 		while (pidx >= fragmentArray.size()) {
-			frag = ThrowTableFragment.newInstance();
+			frag = ThrowTableFragment.newInstance(pidx, getApplicationContext());
         	fragmentArray.add(frag);
 		}
 		if (setVpItem){
@@ -786,6 +788,7 @@ public class GameInProgress extends MenuContainerActivity
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
+			t.setInitialScores(getPreviousThrow(throwIdx));
 			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 			tv.setText("nThrows: " + throwsList.size());
