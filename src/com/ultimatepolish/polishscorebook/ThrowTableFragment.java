@@ -127,15 +127,15 @@ public class ThrowTableFragment extends Fragment {
 		log("onCreateView() - creating view");
 		TableLayout layout;
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
-		
 		ThrowTableRow tr = null;
+		ViewGroup p = null;
 		for (int i=0; i<N_ROWS;i++){
-//			tr = ThrowTableRow.buildBlankRow(container.getContext());
-//			for (int j=0;j<tr.getChildCount();j++){
-//				tr.getChildAt(j).setOnClickListener(throwClickedListener);	
-//			}
-			
-			layout.addView(tableRows.get(i));
+			tr = tableRows.get(i);
+			p = (ViewGroup) tr.getParent();
+			if (p!=null){
+				p.removeView(tr);
+			}
+			layout.addView(tr);
 		}
 		return  layout;
 	}
@@ -228,12 +228,9 @@ public class ThrowTableFragment extends Fragment {
 	}
 	
 	public ThrowTableRow getTableRow(int throwNr){
-		TableLayout layout = getTableLayout();
 		int ridx = ThrowTableFragment.throwNrToRowIdx(throwNr);
-//		log("getTableRow() - getting row for throw nr " +throwNr+", it's "+ ridx);
 		ThrowTableRow tr;
 		try{
-//			tr = (ThrowTableRow) layout.getChildAt(ridx);
 			tr = tableRows.get(ridx);
 		}
 		catch (NullPointerException e){
