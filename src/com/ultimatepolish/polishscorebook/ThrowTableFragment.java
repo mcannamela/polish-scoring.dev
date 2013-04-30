@@ -1,9 +1,11 @@
 package com.ultimatepolish.polishscorebook;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,11 +26,24 @@ public class ThrowTableFragment extends Fragment {
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	public TableLayout layout;
+
+	private int page_idx = -1;
+	private List<ThrowTableRow> tableRows = new ArrayList<ThrowTableRow>(N_ROWS); 
 	
 	OnTableRowClickedListener mListener;
 	
-	static ThrowTableFragment newInstance() {	
+	static ThrowTableFragment newInstance(int page_idx, Context context) {	
 		ThrowTableFragment f = new ThrowTableFragment();
+		f.page_idx = page_idx;
+		ThrowTableRow tr = null;
+		for (int i=0; i<N_ROWS;i++){
+			tr = ThrowTableRow.buildBlankRow(context);
+			for (int j=0;j<tr.getChildCount();j++){
+				tr.getChildAt(j).setOnClickListener(f.throwClickedListener);
+			}
+			
+			f.tableRows.add(tr);
+		}
         return f;
     }
 	
@@ -51,7 +66,7 @@ public class ThrowTableFragment extends Fragment {
 		return 2*N_ROWS*page_idx + local_throw_idx;
 	}
 	public void log(String msg){
-		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+msg);
+		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg);
 	}
 		
 	
@@ -86,7 +101,7 @@ public class ThrowTableFragment extends Fragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
-		log("onAttach - attaching activity");
+		log("onAttach(): attaching activity");
 		super.onAttach(activity);
 		try {
             mListener = (OnTableRowClickedListener) activity;
@@ -97,30 +112,26 @@ public class ThrowTableFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		log("onCreate - creating fragment");
+		log("onCreate(): creating fragment");
 		super.onCreate(savedInstanceState);
 		Log.i("ThrowTableFragment", "onCreate(): hello!");
 	}
 	
 	@Override
 	public void onResume() {
-		log("onResume - resuming fragment");
+		log("onResume(): resuming fragment");
 		super.onResume();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		log("onCreate - creating view");
+		log("onCreate(): creating view");
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
-		ThrowTableRow tr;
+		ThrowTableRow tr = null;
 		for (int i = 0; i < N_ROWS; i++){
-			tr = ThrowTableRow.buildBlankRow(container.getContext());
-			for (int j = 0; j < tr.getChildCount(); j++){
-				tr.getChildAt(j).setOnClickListener(throwClickedListener);	
-			}
-			layout.addView(tr);
+			layout.addView(tableRows.get(i));
 		}
 		Log.i("ThrowTableFragment", "onCreateView(): layout has " + layout.getChildCount() + " children");
 		return layout;
@@ -221,7 +232,8 @@ public class ThrowTableFragment extends Fragment {
 		ThrowTableRow tr;
 		
 		try{
-			tr = (ThrowTableRow) layout.getChildAt(ridx);
+//			tr = (ThrowTableRow) layout.getChildAt(ridx);
+			tr = tableRows.get(ridx);
 		}
 		catch (NullPointerException e){
 			throw new IndexOutOfBoundsException("Child for throw nr " + throwIdx + " dne at row " + ridx);
