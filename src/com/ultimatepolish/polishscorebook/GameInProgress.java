@@ -47,7 +47,7 @@ public class GameInProgress extends MenuContainerActivity
 
 	public static String LOGTAG = "GIP";
 	private FragmentArrayAdapter vpAdapter;
-	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
+	private ArrayList<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
 	
 	Game g;
@@ -136,7 +136,6 @@ public class GameInProgress extends MenuContainerActivity
             builder.setMessage("Time out, Gentlemen!")
                    .setPositiveButton("resume", new DialogInterface.OnClickListener() {
                        public void onClick(DialogInterface dialog, int id) {
-                           // FIRE ZE MISSILES!
                        }
                    	});
             // Create the AlertDialog object and return it
@@ -537,7 +536,6 @@ public class GameInProgress extends MenuContainerActivity
         	fragmentArray.add(frag);
 		}
 		if (setVpItem){
-			
 			vp.setCurrentItem(pidx);
 		}
 		log("renderPage(): vp currentitem is " + vp.getCurrentItem());
@@ -552,7 +550,7 @@ public class GameInProgress extends MenuContainerActivity
 		frag.clearHighlighted();
 		log("renderPage(pidx) - cleared highlighted");
 		
-		if (throwIdx >= range[0] && throwIdx <= range[1]){
+		if (throwIdx >= range[0] && throwIdx < range[1]){
 			frag.highlightThrow(throwIdx);
 		}
 	}

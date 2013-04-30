@@ -44,7 +44,7 @@ public class ThrowTableFragment extends Fragment {
 	public static int[] throwIdxRange(int page_idx){
 		int[] range = new int[2];
 		range[0] = (2*N_ROWS)*page_idx;
-		range[1] = range[0] + 2*N_ROWS - 1;
+		range[1] = range[0] + 2*N_ROWS;
 		return range;
 	}
 	public static int localThrowIdxToGlobal(int page_idx, int local_throw_idx){
@@ -145,7 +145,7 @@ public class ThrowTableFragment extends Fragment {
 			return;
 		}
 		
-		for (int i = range[0]; i <= range[1]; i++){
+		for (int i = range[0]; i < range[1]; i++){
 //			Log.i("ThrowTableFragment", "Trying to render throw at idx " + i);
 			if (i > nThrows - 1){
 				break;
