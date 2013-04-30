@@ -1,0 +1,102 @@
+package com.ultimatepolish.polishscorebook;
+
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.j256.ormlite.dao.Dao;
+import com.ultimatepolish.scorebookdb.Game;
+import com.ultimatepolish.scorebookdb.Player;
+import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.Venue;
+
+public class Detail_Game extends MenuContainerActivity {
+	Long gId;
+	Game g;
+	Player[] p = new Player[2];
+	Session s;
+	Venue v;
+	Dao<Game, Long> gDao;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_detail_game);
+		
+		Intent intent = getIntent();
+		gId = intent.getLongExtra("GID", -1);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);		
+		menu.findItem(R.id.modifyButton).setVisible(true);
+		return true;
+	}
+	@Override
+	public void openModifyActivity() {
+		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
+        intent.putExtra("GID", gId);
+        startActivity(intent);
+    }
+	@Override
+    protected void onRestart(){
+    	super.onRestart();
+    	refreshDetails();
+    }
+    @Override
+    protected void onResume(){
+    	super.onResume();
+    	refreshDetails();
+    }
+	
+	public void refreshDetails(){
+		if (gId != -1){
+			try{
+				Context context = getApplicationContext();
+				gDao = Game.getDao(getApplicationContext());
+				g = gDao.queryForId(gId);
+				
+				p = g.getPlayers(context);
+				s = g.getSession(context);
+				v = g.getVenue(context);
+			}
+			catch (SQLException e){
+				Toast.makeText(getApplicationContext(), 
+						e.getMessage(), 
+						Toast.LENGTH_LONG).show();
+			}
+		}
+		
+		TextView gameP1 = (TextView) findViewById(R.id.gDet_p1);
+		gameP1.setText(p[0].getNickName());
+		
+		TextView gameP2 = (TextView) findViewById(R.id.gDet_p2);
+		gameP2.setText(p[1].getNickName());
+		
+		TextView gameId = (TextView) findViewById(R.id.gDet_id);
+		gameId.setText(String.valueOf(g.getId()));
+		
+		TextView gameSession = (TextView) findViewById(R.id.gDet_session);
+		gameSession.setText(s.getSessionName());
+		
+		TextView gameVenue = (TextView) findViewById(R.id.gDet_venue);
+		gameVenue.setText(v.getName());
+		
+		TextView gameScore = (TextView) findViewById(R.id.gDet_score);
+		gameScore.setText(String.valueOf(g.getFirstPlayerScore()) + "/" + String.valueOf(g.getSecondPlayerScore()));
+
+		DateFormat df = new SimpleDateFormat("EEE MMM dd, yyyy @HH:mm", Locale.US);
+		TextView gameDate = (TextView) findViewById(R.id.gDet_date);
+		gameDate.setText(df.format(g.getDatePlayed()));
+	}
+}
