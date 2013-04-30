@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.TextView;
@@ -160,8 +161,6 @@ public class GameInProgress extends MenuContainerActivity
 		super.onResume();
 		getThrowsFromDB();
 
-//		vpAdapter = (FragmentArrayAdapter) vp.getAdapter(); 
-//		vp.setCurrentItem(0);
 		log("onResume(): vp's adapter has " + vpAdapter.getCount() + " items");
 		
 		// change throw to the last throw
@@ -389,9 +388,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
     //=================================================================
-	
-	/////////////////////////////////////////////////////////
-    /////////////// apply the state of the ui to a throw/////
+    //-  apply the state of the ui to a throw ---------------
     private void applyUIStateToCurrentThrow(Throw t){
     	log("applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
     	applyCurrentThrowType(t);
@@ -399,6 +396,7 @@ public class GameInProgress extends MenuContainerActivity
     	applySpecialMarks(t);
     	applyPreviousScores(t);
     }
+    
 	private void applyCurrentThrowType(Throw t){
 		t.setThrowType(currentThrowType);
 	}
@@ -450,10 +448,9 @@ public class GameInProgress extends MenuContainerActivity
 			t.setInitialScores(getPreviousThrow(t.getThrowIdx()));
 		}	
 	}
-	//////////////////////////////////////////////////////////
 	
-	//-----------------------------------------------------------------
-	//------------- set the state of the ui to the state of a throw----
+	//- apply the state of a throw to the ui ----------------
+	//- apply the state of a throw to the state of the ui ----
 	private void applyCurrentThrowToUIState(Throw t){
 		setThrowType(t);
 		setThrowResult(t);
@@ -484,9 +481,10 @@ public class GameInProgress extends MenuContainerActivity
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
 		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
 		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
-		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
-		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
-		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
+		//disabled until icons are made for them
+//		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
+//		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
+//		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
 		
 	}
 	private void setThrowResult(Throw t) {
@@ -706,7 +704,7 @@ public class GameInProgress extends MenuContainerActivity
 		
 	
 	public void buttonPressed(View view){
-		int buttonId = ((Button) view).getId();
+		int buttonId = ((ImageButton) view).getId();
 		switch (buttonId) {
 			case R.id.gip_button_high:
 				currentThrowType = ThrowType.BALL_HIGH;
@@ -925,7 +923,7 @@ public class GameInProgress extends MenuContainerActivity
 		p.setValue(score);
 	}
 	private void setThrowButtonState(int throwType, int id) {
-		Button btn = (Button) findViewById(id);
+		ImageButton btn = (ImageButton) findViewById(id);
 		if (throwType == currentThrowType) {btn.setPressed(true);}
 		else {btn.setPressed(false);}
 	}

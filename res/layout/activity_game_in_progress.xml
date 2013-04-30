@@ -60,8 +60,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textIsSelectable="false" />
 
-    <Button
+    <ImageButton
         android:id="@+id/gip_button_high"
+        android:src="@drawable/high_throw"
         android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -72,8 +73,9 @@
         android:text="@string/gip_ballHigh_button"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
+    <ImageButton
         android:id="@+id/gip_button_left"
+        android:src="@drawable/left_throw"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="70dp"
@@ -83,8 +85,9 @@
         android:onClick="buttonPressed"
         android:text="@string/gip_ballLeft_button" />
 
-    <Button
+    <ImageButton
         android:id="@+id/gip_button_strike"
+        android:src="@drawable/strike"
         android:layout_toRightOf="@+id/gip_button_left"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="90dp"
@@ -95,8 +98,9 @@
         android:onClick="buttonPressed"
         android:text="@string/gip_strike_button" />
     
-    <Button
+    <ImageButton
         android:id="@+id/gip_button_right"
+        android:src="@drawable/right_throw"
         android:layout_toRightOf="@+id/gip_button_strike"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="70dp"
@@ -106,8 +110,9 @@
         android:onClick="buttonPressed"
         android:text="@string/gip_ballRight_button" />
     
-    <Button
+    <ImageButton
         android:id="@+id/gip_button_low"
+        android:src="@drawable/low_throw"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/gip_button_strike"
         android:layout_width="230dp"
