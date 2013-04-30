@@ -15,20 +15,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ultimatepolish.scorebookdb.Throw;
 
 public class ThrowTableFragment extends Fragment {
 	public static final String LOG_PREFIX = "TTFrag.";
 	public static final String PAGE_IDX_KEY = "page_idx";
-	public static final int N_ROWS = 20;
+	public static int N_ROWS = 20;
 	public static int highlightedColor = Color.GRAY;
 	public static int unhighlightedColor = ThrowTableRow.tableBackgroundColor;
 	public TableLayout layout;
-	
+
 	private int page_idx = -1;
-	private ArrayList<ThrowTableRow> tableRows = new ArrayList<ThrowTableRow>(N_ROWS); 
+	private List<ThrowTableRow> tableRows = new ArrayList<ThrowTableRow>(N_ROWS); 
 	
 	OnTableRowClickedListener mListener;
 	
@@ -101,7 +100,7 @@ public class ThrowTableFragment extends Fragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
-		log("onAttach - attaching activity");
+		log("onAttach(): attaching activity");
 		super.onAttach(activity);
 		try {
             mListener = (OnTableRowClickedListener) activity;
@@ -112,25 +111,25 @@ public class ThrowTableFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		log("onCreate - creating fragment");
+		log("onCreate(): creating fragment");
 		super.onCreate(savedInstanceState);
 	}
 	
 	@Override
 	public void onResume() {
-		log("onResume - resuming fragment");
+		log("onResume(): resuming fragment");
 		super.onResume();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		log("onCreateView - creating view");
+		log("onCreateView(): creating view");
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
 		ThrowTableRow tr = null;
 		ViewGroup p = null;
-		for (int i=0; i<N_ROWS;i++){
+		for (int i = 0; i < N_ROWS; i++){
 			tr = tableRows.get(i);
 			p = (ViewGroup) tr.getParent();
 			if (p!=null){
@@ -235,12 +234,11 @@ public class ThrowTableFragment extends Fragment {
 			tr = tableRows.get(ridx);
 		}
 		catch (NullPointerException e){
-			throw new IndexOutOfBoundsException("Child for throw nr "+throwIdx +" dne at row "+ridx);
+			throw new IndexOutOfBoundsException("Child for throw nr " + throwIdx + " dne at row " + ridx);
 		}
-		
+
 		return tr;
 	}
-	
 	TableLayout getTableLayout(){
 		return (TableLayout) getView();
 	}

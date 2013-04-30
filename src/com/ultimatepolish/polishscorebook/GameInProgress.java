@@ -17,7 +17,6 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -45,11 +44,9 @@ import com.ultimatepolish.scorebookdb.Venue;
 public class GameInProgress extends MenuContainerActivity 
 								implements ThrowTableFragment.OnTableRowClickedListener{
 
-	public static final String LOGTAG = "GIP";
-	private static final int N_PAGES = 10;
-	
+	public static String LOGTAG = "GIP";
 	private FragmentArrayAdapter vpAdapter;
-	private ArrayList<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
+	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
 	
 	Game g;
@@ -59,10 +56,9 @@ public class GameInProgress extends MenuContainerActivity
 	
 	Dao<Game, Long> gDao;
 	Dao<Throw, Long>tDao; 
-	List<Throw> throwsList; 
+	List<Throw> throwsList;
 
 	int throwIdx = 0;
-	int pageIdx = 0;
 	int currentThrowType = ThrowType.NOT_THROWN;
 	
 	// LISTENERS ==================================================
@@ -116,8 +112,7 @@ public class GameInProgress extends MenuContainerActivity
 		@Override
 		public void onPageSelected(int position) {
 			super.onPageSelected(position);
-			pageIdx = position;
-			renderPage(getPageIdx());
+			renderPage(position, false);
 		}
     }
 
@@ -160,7 +155,6 @@ public class GameInProgress extends MenuContainerActivity
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}	
-	
 	@Override
 	protected void onResume(){
 		super.onResume();
@@ -188,7 +182,7 @@ public class GameInProgress extends MenuContainerActivity
 		super.onPause();
 		updateScoresFromThrowIdx(0);
 		saveAllThrows();
-		saveGame();
+		saveGame(true);
 		
 	}
 	@Override
@@ -377,13 +371,12 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void initTableFragments(){
 		fragmentArray.clear();
-		ThrowTableFragment frag = null;
-        for (int i=0;i<N_PAGES;i++){
-        	frag = ThrowTableFragment.newInstance(i, getApplicationContext());
-        	fragmentArray.add(frag);
-        }
 		
-        
+//		ThrowTableFragment.N_ROWS = 10;
+
+		ThrowTableFragment frag = ThrowTableFragment.newInstance(0, getApplicationContext());
+		fragmentArray.add(frag);
+
         vpAdapter = new FragmentArrayAdapter(getFragmentManager());
         vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
         vp.setAdapter(vpAdapter);
@@ -484,8 +477,8 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
-		Button btn = null;
 		
+		// wait until after click event?
 		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
 		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
@@ -519,44 +512,34 @@ public class GameInProgress extends MenuContainerActivity
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
 
 	private void renderPage(int pidx){
-		ThrowTableFragment frag =fragmentArray.get(pidx); 
-		int[] range = ThrowTableFragment.throwIdxRange(pidx);
-		frag.renderAsPage(pidx, throwsList);
-		frag.clearHighlighted();
+		renderPage(pidx, true);
+	}
+
+	private void renderPage(int pidx, boolean setVpItem){
+		ThrowTableFragment frag;
+		while (pidx >= fragmentArray.size()) {
+			frag = ThrowTableFragment.newInstance(pidx, getApplicationContext());
+        	fragmentArray.add(frag);
+		}
+		if (setVpItem){
+			vp.setCurrentItem(pidx);
+		}
+		log("renderPage(): vp currentitem is " + vp.getCurrentItem());
+		log("renderPage(): vp has " + vp.getChildCount() + " children");
 		
-		if (throwIdx>=range[0] && throwIdx<range[1]){
+		frag = fragmentArray.get(pidx);
+		log("renderPage(pidx) - made fragment");
+		int[] range = ThrowTableFragment.throwIdxRange(pidx);
+		log("renderPage(pidx) - got throw range");
+		frag.renderAsPage(pidx, throwsList);
+		log("renderPage(pidx) - rendered as page");
+		frag.clearHighlighted();
+		log("renderPage(pidx) - cleared highlighted");
+		
+		if (throwIdx >= range[0] && throwIdx < range[1]){
 			frag.highlightThrow(throwIdx);
 		}
 	}
-	
-//	private void renderPage(int pidx){
-//		renderPage(pidx, true);
-//	}
-//	private void renderPage(int pidx, boolean setVpItem){
-//		ThrowTableFragment frag;
-//		while (pidx >= fragmentArray.size()) {
-//			frag = ThrowTableFragment.newInstance();
-//        	fragmentArray.add(frag);
-//		}
-//		if (setVpItem){
-//			vp.setCurrentItem(pidx);
-//		}
-//		log("renderPage(): vp currentitem is " + vp.getCurrentItem());
-//		log("renderPage(): vp has " + vp.getChildCount() + " children");
-//		
-//		frag = fragmentArray.get(pidx);
-//		log("renderPage(pidx) - made fragment");
-//		int[] range = ThrowTableFragment.throwIdxRange(pidx);
-//		log("renderPage(pidx) - got throw range");
-//		frag.renderAsPage(pidx, throwsList);
-//		log("renderPage(pidx) - rendered as page");
-//		frag.clearHighlighted();
-//		log("renderPage(pidx) - cleared highlighted");
-//		
-//		if (throwIdx >= range[0] && throwIdx < range[1]){
-//			frag.highlightThrow(throwIdx);
-//		}
-//	}
 	
 	private void updateCurrentScore(){
 		log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
@@ -669,6 +652,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	void saveAllThrows(){
 		log("saveAllThrows - saving "+throwsList.size() +"throws");
+		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
 		for(Throw t: throwsList){
 			try{
 				saveThrow(t);
@@ -699,8 +683,17 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	void saveGame(){
+		saveGame(false);
+	}
+	void saveGame(boolean onExit){
+		if (onExit) {
+			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
+		}
 		try{
 			gDao.update(g);
+			if (onExit){
+				Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
+			}
 		}
 		catch (SQLException e){
 			String msg = "could not save game: ";
@@ -741,7 +734,6 @@ public class GameInProgress extends MenuContainerActivity
 				break;
 		}
 		
-//		log("buttonPressed(view): " + currentThrowType);
 		updateThrow();
 		confirmThrow();
 	}
@@ -777,6 +769,7 @@ public class GameInProgress extends MenuContainerActivity
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
+			t.setInitialScores(getPreviousThrow(throwIdx));
 			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 			tv.setText("nThrows: " + throwsList.size());
@@ -819,24 +812,20 @@ public class GameInProgress extends MenuContainerActivity
 //		
 //	}
 	
-//	int getMaxPageIdx() {
-//		return throwsList.size() / (2*ThrowTableFragment.N_ROWS);
-//	}	
-//	int getPageIdx(int throwIdx) {
-//		if (throwIdx > throwsList.size()) {
-//			throwIdx = throwsList.size();
-//		}	
-//		int pidx = (throwIdx) / (2*ThrowTableFragment.N_ROWS);
-//		if (pidx < 0) {pidx = 0;}
-//		log("pageIdx(int) - Index is " + pidx + ".");
-//		return pidx;
-//	}
-	int getPageIdx(int throwIdx){
-		return getPageIdx();
+	int getPageIdxMax() {
+		return throwsList.size() / (2*ThrowTableFragment.N_ROWS);
+	}	
+	int getPageIdx(int throwIdx) {
+		if (throwIdx > throwsList.size()) {
+			throwIdx = throwsList.size();
+		}	
+		int pidx = (throwIdx) / (2*ThrowTableFragment.N_ROWS);
+		if (pidx < 0) {pidx = 0;}
+		log("getPageIdx(int): Index is " + pidx + ".");
+		return pidx;
 	}
 	int getPageIdx() {
-//		return getPageIdx(throwsList.size());
-		return pageIdx;
+		return getPageIdx(throwsList.size());
 	}
 	
 	boolean isError(){
