@@ -17,7 +17,6 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -47,7 +46,7 @@ public class GameInProgress extends MenuContainerActivity
 
 	public static String LOGTAG = "GIP";
 	private FragmentArrayAdapter vpAdapter;
-	private ArrayList<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
+	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
 	
 	Game g;
@@ -199,7 +198,7 @@ public class GameInProgress extends MenuContainerActivity
 		super.onPause();
 		updateScoresFromThrowIdx(0);
 		saveAllThrows();
-		saveGame();
+		saveGame(true);
 		
 	}
 	@Override
@@ -388,10 +387,12 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void initTableFragments(){
 		fragmentArray.clear();
-		ThrowTableFragment frag = ThrowTableFragment.newInstance();
+		
 //		ThrowTableFragment.N_ROWS = 10;
-        fragmentArray.add(frag);
-        
+
+		ThrowTableFragment frag = ThrowTableFragment.newInstance(0, getApplicationContext());
+		fragmentArray.add(frag);
+
         vpAdapter = new FragmentArrayAdapter(getFragmentManager());
         vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
         vp.setAdapter(vpAdapter);
@@ -492,8 +493,8 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
-		Button btn = null;
 		
+		// wait until after click event?
 		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
 		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
@@ -532,7 +533,7 @@ public class GameInProgress extends MenuContainerActivity
 	private void renderPage(int pidx, boolean setVpItem){
 		ThrowTableFragment frag;
 		while (pidx >= fragmentArray.size()) {
-			frag = ThrowTableFragment.newInstance();
+			frag = ThrowTableFragment.newInstance(pidx, getApplicationContext());
         	fragmentArray.add(frag);
 		}
 		if (setVpItem){
@@ -666,6 +667,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	void saveAllThrows(){
 		log("saveAllThrows - saving "+throwsList.size() +"throws");
+		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
 		for(Throw t: throwsList){
 			try{
 				saveThrow(t);
@@ -696,8 +698,17 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	void saveGame(){
+		saveGame(false);
+	}
+	void saveGame(boolean onExit){
+		if (onExit) {
+			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
+		}
 		try{
 			gDao.update(g);
+			if (onExit){
+				Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
+			}
 		}
 		catch (SQLException e){
 			String msg = "could not save game: ";
@@ -774,6 +785,7 @@ public class GameInProgress extends MenuContainerActivity
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
+			t.setInitialScores(getPreviousThrow(throwIdx));
 			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 			tv.setText("nThrows: " + throwsList.size());
