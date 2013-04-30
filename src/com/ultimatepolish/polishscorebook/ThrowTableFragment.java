@@ -129,8 +129,14 @@ public class ThrowTableFragment extends Fragment {
 		layout = (TableLayout) inflater.inflate(R.layout.fragment_throws_table, container, false);
 		
 		ThrowTableRow tr = null;
+		ViewGroup p = null;
 		for (int i = 0; i < N_ROWS; i++){
-			layout.addView(tableRows.get(i));
+			tr = tableRows.get(i);
+			p = (ViewGroup) tr.getParent();
+			if (p!=null){
+				p.removeView(tr);
+			}
+			layout.addView(tr);
 		}
 		Log.i("ThrowTableFragment", "onCreateView(): layout has " + layout.getChildCount() + " children");
 		return layout;
@@ -224,10 +230,7 @@ public class ThrowTableFragment extends Fragment {
 	}
 	
 	public ThrowTableRow getTableRow(int throwIdx){
-//		layout = (TableLayout) getView();
 		int ridx = ThrowTableFragment.throwIdxToRowIdx(throwIdx);
-//		Log.i("ThrowTableFragment", "getTableRow() - Getting row for throw idx "
-//				+ throwIdx + ", it's " + ridx);
 		ThrowTableRow tr;
 		
 		try{
