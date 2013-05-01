@@ -57,7 +57,7 @@ public class GameInProgress extends MenuContainerActivity
 	
 	Dao<Game, Long> gDao;
 	Dao<Throw, Long>tDao; 
-	List<Throw> throwsList;
+	ArrayList<Throw> throwsList = new ArrayList<Throw>();
 
 	int throwIdx = 0;
 	int currentThrowType = ThrowType.NOT_THROWN;
@@ -317,55 +317,16 @@ public class GameInProgress extends MenuContainerActivity
 		cb.setOnCheckedChangeListener(checkboxChangedListener);	
 	}
 	private void getThrowsFromDB(){
-		// get all the throws for this game from db
-		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put("gameId", g.getId());
-		List<Throw> tList = null;
+		log("getThrowsFromDB() - getting list of throws");
+		throwsList.clear();
 		try{
-			 tList = tDao.queryForFieldValuesArgs(m);
+			 throwsList = g.getThrowList(getApplicationContext());
 		}
 		catch (SQLException e){
-			Toast.makeText(getApplicationContext(), 
-			"error querying throw dao", 
-			Toast.LENGTH_SHORT).show();
+			loge("getThrowsFromDB() - unable to load throws list", e);
 		}
-		
-		// sort the list by throw number if it isnt empty
-		int maxThrowIdx = -1;
-		log("getThrowsFromDB() - tList has " + tList.size() + " elements.");
-		if (!tList.isEmpty()) {
-			Collections.sort(tList);
-			// TODO: remove the following if-statement once negative throw numbers are deleted from all games in db
-//			if (tList.get(0).getThrowIdx() < 0) {
-//				tList.remove(0);
-//			}
-			tList.get(0).setInitialScores(); // make sure scores start at 0-0
-			maxThrowIdx = tList.get(tList.size()-1).getThrowIdx();
-			
-			// verify that tList isnt corrupt by checking:
-				// the first throw idx is 0
-				if (tList.get(0).getThrowIdx() != 0) {
-					log("getThrowsFromDB() - tList starts with throw "
-							+ tList.get(0).getThrowIdx()+ " instead of 1");
-				}
-				// all throws have unique throw numbers
-				for(int i = 0; i < (maxThrowIdx); i++){
-					if (tList.get(i).getThrowIdx() == tList.get(i+1).getThrowIdx()) {
-						log("getThrowsFromDB() - tList has duplicated throw idx (" 
-								+ tList.get(i).getThrowIdx() + ")");
-					}
-				}
-				// max throw number matches the size of tList
-				if (maxThrowIdx != tList.size()-1) {
-					log("getThrowsFromDB() - tList size doesnt match number of throws");
-				}
-		}
-	
-		// push tList to global
-		throwsList = tList;
-		// update the view
+		log("getThrowsFromDB() - "+throwsList.size()+" throws retrieved, setting view");
 		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-		
 		tv.setText("nThrows: "+ throwsList.size());
 	}
 	private void initTableFragments(){
@@ -751,7 +712,7 @@ public class GameInProgress extends MenuContainerActivity
 		Log.d(LOGTAG, msg);
 	}
 	public void loge(String msg, Exception e){
-		Log.e(LOGTAG, msg+":"+e.getMessage());
+		Log.e(LOGTAG, msg+": "+e.getMessage());
 	}
 
 	Throw getThrow(int throwIdx){
