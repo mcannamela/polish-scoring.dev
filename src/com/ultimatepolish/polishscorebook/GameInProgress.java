@@ -165,7 +165,9 @@ public class GameInProgress extends MenuContainerActivity
 		
 		// change throw to the last throw
 		int initThrowIdx = 0;
-		if (throwsList.size() > 0){
+		if (throwsList.size() == 0) {
+			getThrow(initThrowIdx);
+		} else if (throwsList.size() > 0){
 			initThrowIdx = throwsList.size() - 1;
 		}
 		log("onResume() - About to change current throw idx to " + initThrowIdx);
@@ -500,18 +502,21 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void updateCurrentScore(){
-		log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
-		Throw lastThrow = getThrow(throwsList.size()-2);
-		int[] scores = lastThrow.getFinalScores();
-		if (lastThrow.isP1Throw()){
-			g.setFirstPlayerScore(scores[0]);
-			g.setSecondPlayerScore(scores[1]);
+		if (throwsList.size() < 2) {
+			log("updateCurrentScore(): No need to update, there aren't any throws yet");
+		} else {
+			log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
+			Throw lastThrow = getThrow(throwsList.size()-2);
+			int[] scores = lastThrow.getFinalScores();
+			if (lastThrow.isP1Throw()){
+				g.setFirstPlayerScore(scores[0]);
+				g.setSecondPlayerScore(scores[1]);
+			}
+			else{
+				g.setFirstPlayerScore(scores[1]);
+				g.setSecondPlayerScore(scores[0]);
+			}
 		}
-		else{
-			g.setFirstPlayerScore(scores[1]);
-			g.setSecondPlayerScore(scores[0]);
-		}
-		
 	}
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
@@ -728,7 +733,11 @@ public class GameInProgress extends MenuContainerActivity
 			Throw t = g.makeNewThrow(throwIdx);
 			t.setThrowType(ThrowType.NOT_THROWN);
 			t.setThrowResult(ThrowResult.CATCH);
-			t.setInitialScores(getPreviousThrow(throwIdx));
+			if (throwIdx != 0) {
+				t.setInitialScores(getPreviousThrow(throwIdx));
+			} else {
+				t.setInitialScores();
+			}
 			throwsList.add(t);
 			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
 			tv.setText("nThrows: " + throwsList.size());
