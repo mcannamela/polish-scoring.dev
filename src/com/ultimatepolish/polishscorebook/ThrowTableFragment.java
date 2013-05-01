@@ -64,9 +64,7 @@ public class ThrowTableFragment extends Fragment {
 	public static int localThrowIdxToGlobal(int page_idx, int local_throw_idx){
 		return 2*N_ROWS*page_idx + local_throw_idx;
 	}
-	public void log(String msg){
-		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg);
-	}
+	
 		
 	
 	public interface OnTableRowClickedListener {
@@ -149,35 +147,34 @@ public class ThrowTableFragment extends Fragment {
 	public void renderAsPage(int page_idx, List<Throw> throwsList){
 		Throw t;
 		int nThrows = throwsList.size();
-		Log.i("ThrowTableFragment", "nThrows = " + nThrows);
+		log("nThrows = " + nThrows);
 		int[] range = ThrowTableFragment.throwIdxRange(page_idx);
 		
-		Log.i("ThrowTableFragment", "Page's idx range: " + range[0] + "-" + range[1]);
+		log("Page's idx range: " + range[0] + "-" + range[1]);
 		
 		if (nThrows - 1 < range[0]){
-			Log.i("ThrowTableFragment", "Highest throw idx is below lower range.");
+			log("Highest throw idx is below lower range.");
 			return;
 		}
 		
 		for (int i = range[0]; i < range[1]; i++){
-//			Log.i("ThrowTableFragment", "Trying to render throw at idx " + i);
+			logd( "Trying to render throw at idx " + i);
 			if (i > nThrows - 1){
 				break;
 			}
 			t = throwsList.get(i);
-//			Log.i("ThrowTableFragment", "Retrieved throw " + throwsList.get(i).getThrowNumber());
+			logd("Retrieved throw " + throwsList.get(i).getThrowIdx());
 			renderThrow(t);
 		}
 	}
 	private void renderThrow(Throw t){
 		try{
-//			Log.i("ThrowTableFragment", "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 			ThrowTableRow tr = getTableRow(t);
 			tr.updateText(t);
-			Log.i("ThrowTableFragment", "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
+			log( "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 		}
 		catch (IndexOutOfBoundsException e){
-			Log.e("ThrowTableFragment", "renderThrow(): Throw idx " + t.getThrowIdx() + " has no view on this page");
+			loge("renderThrow(): Throw idx " + t.getThrowIdx() + " has no view on this page", e);
 			return;
 		}
 	}
@@ -241,5 +238,14 @@ public class ThrowTableFragment extends Fragment {
 	}
 	TableLayout getTableLayout(){
 		return (TableLayout) getView();
+	}
+	public void log(String msg){
+		Log.i(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg);
+	}
+	public void logd(String msg){
+		Log.d(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg);
+	}
+	public void loge(String msg, Exception e){
+		Log.e(GameInProgress.LOGTAG, LOG_PREFIX+page_idx+'.'+msg+": "+e.getMessage());
 	}
 }
