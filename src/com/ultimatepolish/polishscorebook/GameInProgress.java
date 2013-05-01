@@ -665,7 +665,8 @@ public class GameInProgress extends MenuContainerActivity
 		
 	
 	public void buttonPressed(View view){
-		int buttonId = ((ImageButton) view).getId();
+		int buttonId = view.getId();
+		
 		switch (buttonId) {
 			case R.id.gip_button_high:
 				currentThrowType = ThrowType.BALL_HIGH;
