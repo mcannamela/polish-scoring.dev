@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore.Audio.Playlists;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -18,7 +19,9 @@ import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Game;
+import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.Venue;
 
 public class View_Games extends MenuContainerActivity {
 	private static final String LOGTAG = "View_Games";
@@ -103,40 +106,41 @@ public class View_Games extends MenuContainerActivity {
     	sessionList.clear();
     	// add all the sessions to the headers
     	log("refreshGamesListing() - adding session daos");
-    	Dao<Session, Long> sessionDao = null;
+    	
+    	Context context = getApplicationContext();
+    	Session s;
+    	Player[] p = new Player[2];
+    	
         try{
-        	sessionDao = getHelper().getSessionDao();
-        	for (Session s: sessionDao) {
-        		addSession(s.getSessionName());
+        	Dao<Session, Long> sessionDao = Session.getDao(context);
+        	Dao<Game, Long> gameDao  = Game.getDao(context);
+        	Dao<Player, Long> playerDao = Player.getDao(context);
+        	
+        	log("refreshGamesListing() - adding sessions");
+        	for (Session sess: sessionDao) {
+        		addSession(sess.getSessionName());
         	}
-    	}
-        catch (SQLException e){
-    		Context context = getApplicationContext();
-    		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of sessions failed", e);
-    	}
-        
-        // add all the games
-        log("refreshGamesListing() - adding games");
-    	Dao<Game, Long> gameDao = null;
-        try{
-        	gameDao = getHelper().getGameDao();
+        	
+        	log("refreshGamesListing() - adding games");
         	for (Game g: gameDao) {
         		log("refreshGamesListing() - got game "+g.getId());
-        		addGame(g.getSession(this).getSessionName(), 
+        		s = sessionDao.queryForId(g.getSessionId());
+        		p[0] = playerDao.queryForId(g.getFirstPlayerId());
+        		p[1] = playerDao.queryForId(g.getSecondPlayerId());
+        		
+        		addGame(s.getSessionName(), 
         				String.valueOf(g.getId()), 
-        				g.getPlayers(this)[0].getNickName(), 
-        				g.getPlayers(this)[1].getNickName(),
+        				p[0].getNickName(), 
+        				p[1].getNickName(),
         				String.valueOf(g.getFirstPlayerScore()) + " / " 
         						+ String.valueOf(g.getSecondPlayerScore())
         				);
         	}
     	}
         catch (SQLException e){
-    		Context context = getApplicationContext();
-    		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-    		Log.e(View_Games.class.getName(), "Retrieval of games failed", e);
-        }
+    		loge("Retrieval of games/sessions failed", e);
+    	}
+        
         log("refreshGamesListing() - done adding games, about to expand all");
     	expandAll();
     }
