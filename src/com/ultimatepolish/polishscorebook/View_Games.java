@@ -21,13 +21,17 @@ import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Session;
 
 public class View_Games extends MenuContainerActivity {
+	private static final String LOGTAG = "View_Games";
+	
 	private LinkedHashMap<String, ViewHolderHeader_Game> sHash = new LinkedHashMap<String, ViewHolderHeader_Game>();
 	private ArrayList<ViewHolderHeader_Game> sessionList = new ArrayList<ViewHolderHeader_Game>();
 	private ListAdapter_Game gameAdapter;
 	private ExpandableListView elv;
 	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		log("onCreate() - about to create activity");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_view_listing);
 			
@@ -39,8 +43,12 @@ public class View_Games extends MenuContainerActivity {
         
         elv = (ExpandableListView) findViewById(R.id.dbListing);
         gameAdapter = new ListAdapter_Game(View_Games.this, sessionList);
+        
+        log("onCreate() - setting adapter");
         elv.setAdapter(gameAdapter);
+        log("onCreate() - expanding all");
         expandAll();
+        log("onCreate() - setting listeners");
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
         
@@ -61,11 +69,13 @@ public class View_Games extends MenuContainerActivity {
 	@Override
     protected void onRestart(){
     	super.onRestart();
+    	log("onRestart() - refreshing games listing");
     	refreshGamesListing();
     }
     @Override
     protected void onResume(){
     	super.onResume();
+    	log("onResume() - refreshing games listing");
     	refreshGamesListing();
     }    
     @Override
@@ -77,7 +87,8 @@ public class View_Games extends MenuContainerActivity {
     	//method to expand all groups
     	int count = gameAdapter.getGroupCount();
     	for (int i = 0; i < count; i++){
-		elv.expandGroup(i);
+    		log("expandAll() - expanding group "+ i);
+    		elv.expandGroup(i);
     	}
     }
     private void collapseAll() {
@@ -91,6 +102,7 @@ public class View_Games extends MenuContainerActivity {
     	sHash.clear();
     	sessionList.clear();
     	// add all the sessions to the headers
+    	log("refreshGamesListing() - adding session daos");
     	Dao<Session, Long> sessionDao = null;
         try{
         	sessionDao = getHelper().getSessionDao();
@@ -105,10 +117,12 @@ public class View_Games extends MenuContainerActivity {
     	}
         
         // add all the games
+        log("refreshGamesListing() - adding games");
     	Dao<Game, Long> gameDao = null;
         try{
         	gameDao = getHelper().getGameDao();
         	for (Game g: gameDao) {
+        		log("refreshGamesListing() - got game "+g.getId());
         		addGame(g.getSession(this).getSessionName(), 
         				String.valueOf(g.getId()), 
         				g.getPlayers(this)[0].getNickName(), 
@@ -123,7 +137,7 @@ public class View_Games extends MenuContainerActivity {
     		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
     		Log.e(View_Games.class.getName(), "Retrieval of games failed", e);
         }
-        
+        log("refreshGamesListing() - done adding games, about to expand all");
     	expandAll();
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
@@ -164,6 +178,7 @@ public class View_Games extends MenuContainerActivity {
     	sHash.put(sessionName, vhh_Game);
     }
     private void addGame(String sort, String gameId, String p1, String p2, String score){
+    	log("addGame() - adding game "+ gameId);
     	//find the index of the session header
     	ViewHolderHeader_Game sessionInfo = sHash.get(sort);
 	    ArrayList<ViewHolder_Game> gameList = sessionInfo.getGameList();
@@ -176,5 +191,15 @@ public class View_Games extends MenuContainerActivity {
 			gameInfo.setScore(score);
 			gameList.add(gameInfo);
 		sessionInfo.setGameList(gameList);
+	}
+    
+    public void log(String msg){
+		Log.i(LOGTAG, msg);
+	}
+	public void logd(String msg){
+		Log.d(LOGTAG, msg);
+	}
+	public void loge(String msg, Exception e){
+		Log.e(LOGTAG, msg+":"+e.getMessage());
 	}
 }
