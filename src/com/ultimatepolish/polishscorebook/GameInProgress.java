@@ -442,10 +442,9 @@ public class GameInProgress extends MenuContainerActivity
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
 		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
 		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
-		//disabled until icons are made for them
-//		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
-//		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
-//		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
+		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
+		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
+		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
 		
 	}
 	private void setThrowResult(Throw t) {
@@ -885,7 +884,8 @@ public class GameInProgress extends MenuContainerActivity
 		p.setValue(score);
 	}
 	private void setThrowButtonState(int throwType, int id) {
-		ImageButton btn = (ImageButton) findViewById(id);
+		View btn = findViewById(id);
+//		ImageButton btn = view;
 		if (throwType == currentThrowType) {btn.setPressed(true);}
 		else {btn.setPressed(false);}
 	}
