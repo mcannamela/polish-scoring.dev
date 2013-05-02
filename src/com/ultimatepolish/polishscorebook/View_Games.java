@@ -8,10 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore.Audio.Playlists;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -21,7 +22,6 @@ import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
-import com.ultimatepolish.scorebookdb.Venue;
 
 public class View_Games extends MenuContainerActivity {
 	private static final String LOGTAG = "View_Games";
@@ -54,6 +54,7 @@ public class View_Games extends MenuContainerActivity {
         log("onCreate() - setting listeners");
         elv.setOnChildClickListener(elvItemClicked);
         elv.setOnGroupClickListener(elvGroupClicked);
+        elv.setOnItemLongClickListener(elvItemLongClicked);
         
 	}
 	@Override
@@ -161,8 +162,33 @@ public class View_Games extends MenuContainerActivity {
 		Intent intent = new Intent(getApplicationContext(), Detail_Game.class);
         intent.putExtra("GID", gid);
         startActivity(intent);
-    	return false;
+    	return true;
     	}
+    };
+    private OnItemLongClickListener elvItemLongClicked = new OnItemLongClickListener() {
+    	@Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                int groupPosition = ExpandableListView.getPackedPositionGroup(id);
+                int childPosition = ExpandableListView.getPackedPositionChild(id);
+
+                //get the group header
+        	    ViewHolderHeader_Game sessionInfo = sessionList.get(groupPosition);
+        	    //get the child info
+           		ViewHolder_Game gameInfo =  sessionInfo.getGameList().get(childPosition);
+           		//display it or do something with it
+           		Toast.makeText(getBaseContext(), "Selected " + sessionInfo.getName() 
+           				+ "/" + String.valueOf(gameInfo.getId()), Toast.LENGTH_SHORT).show();
+            	
+           		// load the game in progress screen
+                Long gid  = Long.valueOf(gameInfo.getId());
+        		Intent intent = new Intent(getApplicationContext(), GameInProgress.class);
+                intent.putExtra("GID", gid);
+                startActivity(intent);
+                return true;
+            }
+            return false;
+        }
     };
     private OnGroupClickListener elvGroupClicked =  new OnGroupClickListener() {
     	public boolean onGroupClick(ExpandableListView parent, View v,
@@ -172,7 +198,7 @@ public class View_Games extends MenuContainerActivity {
     	ViewHolderHeader_Game sessionInfo = sessionList.get(groupPosition);
     	//display it or do something with it
     	Toast.makeText(getBaseContext(), "Tapped " + sessionInfo.getName(), Toast.LENGTH_SHORT).show();
-    	return false;
+    	return true;
     	}
     };
     private void addSession(String sessionName){
