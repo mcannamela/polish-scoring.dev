@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +22,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -75,6 +75,29 @@ public class GameInProgress extends MenuContainerActivity
 		}
 	};
 
+	private OnLongClickListener mLongClickListener = new OnLongClickListener() {
+		@Override
+        public boolean onLongClick(View view) {
+			
+			int buttonId = view.getId();
+			
+			switch (buttonId) {
+				case R.id.gip_button_strike:
+					setIsDrinkHit(true);
+					break;
+				case R.id.gip_button_bottle:
+					setIsBroken(true);
+					break;
+				default:
+					setIsShort(true);
+					break;
+			}
+			
+			buttonPressed(view);
+            return true;
+        }
+	};
+	
 	public void onThrowClicked(int local_throw_idx){
 		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
 		if (global_throw_idx > throwsList.size() - 1) {
@@ -82,6 +105,7 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		gotoThrowIdx(global_throw_idx);
 	}
+
 	
     private class FragmentArrayAdapter extends FragmentPagerAdapter{
 
@@ -316,7 +340,27 @@ public class GameInProgress extends MenuContainerActivity
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		cb = (CheckBox) findViewById(R.id.checkBox_trap);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);	
+		cb.setOnCheckedChangeListener(checkboxChangedListener);
+		
+		View view;
+		view = findViewById(R.id.gip_button_high);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_left);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_right);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_low);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_strike);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_bottle);
+		view.setOnLongClickListener(mLongClickListener);
+		
 	}
 	private void getThrowsFromDB(){
 		log("getThrowsFromDB() - getting list of throws");
