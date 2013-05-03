@@ -83,13 +83,25 @@ public class GameInProgress extends MenuContainerActivity
 			
 			switch (buttonId) {
 				case R.id.gip_button_strike:
-					setIsDrinkHit(true);
+					if (isDrinkHit() == false) {
+						setIsDrinkHit(true);
+					} else {
+						setIsDrinkHit(false);
+					}
 					break;
 				case R.id.gip_button_bottle:
-					setIsBroken(true);
+					if (isBroken() == false) {
+						setIsBroken(true);
+					} else {
+						setIsBroken(false);
+					}
 					break;
 				default:
-					setIsShort(true);
+					if (isShort() == false) {
+						setIsShort(true);
+					} else {
+						setIsShort(false);
+					}
 					break;
 			}
 			
