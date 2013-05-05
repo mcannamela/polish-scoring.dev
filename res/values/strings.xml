@@ -59,7 +59,7 @@
 	<string name="gip_error_check">er</string>
 	<string name="gip_owngoal_check">og</string>
 	<string name="gip_goaltend_check">gt</string>
-	<string name="gip_short_check">short</string>
+	<string name="gip_short_check">dead</string>
 	<string name="gip_trap_check">trap</string>
 	<string name="gip_broken_check">broken</string>
 	<string name="gip_onfire_check">onFire</string>
