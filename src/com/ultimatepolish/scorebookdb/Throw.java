@@ -4,9 +4,11 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
+import com.ultimatepolish.polishscorebook.R;
 
 public class Throw implements Comparable<Throw>{
 	public static final String GAME_ID = "gameId";
@@ -194,9 +196,9 @@ public class Throw implements Comparable<Throw>{
 		if (isGoaltend){
 			s+="g"+String.valueOf(goaltendScore);
 		}
-		if (isOnFire){
-			s+="f";
-		}
+//		if (isOnFire){
+//			s+="f";
+//		}
 		if (isFiredOn){
 			s+="F";
 		}
@@ -220,74 +222,171 @@ public class Throw implements Comparable<Throw>{
 		}
 		return s;
 	}
-	public String getThrowString(){
-		String s = "";
+//	public String getThrowString(){
+//		String s = "";
+//		switch(throwType){
+//			case ThrowType.BALL_HIGH:
+//				s = "^";
+//				break;
+//			case ThrowType.BALL_LEFT:
+//				s = "<";
+//				break;
+//			case ThrowType.BALL_RIGHT:
+//				s = ">";
+//				break;
+//			case ThrowType.BALL_LOW:
+//				s = "v";
+//				break;
+//			case ThrowType.STRIKE:
+//				switch (throwResult){
+//				case ThrowResult.DROP:
+//					s = "o";
+//					break;
+//				case ThrowResult.CATCH:
+//				case ThrowResult.STALWART:
+//					s = "\u00b7";
+//					break;
+//				}
+//				break;
+//			case ThrowType.POLE:
+//				switch (throwResult){
+//				case ThrowResult.DROP:
+//					s = "\u03a6";
+//					break;
+//				case ThrowResult.CATCH:
+//					s = "|";
+//					break;
+//				case ThrowResult.STALWART:
+//					s = "+";
+//					break;
+//				}
+//				break;
+//			case ThrowType.CUP:
+//				switch (throwResult){
+//				case ThrowResult.DROP:
+//					s = "\u00a9";
+//					break;
+//				case ThrowResult.CATCH:
+//					s = "\u20b5";
+//					break;
+//				case ThrowResult.STALWART:
+//					s = "\u20b5"+"+";
+//					break;
+//				}
+//				break;
+//			case ThrowType.BOTTLE:
+//				switch (throwResult){
+//					case ThrowResult.DROP:
+//						s = "@";
+//						break;
+//					case ThrowResult.CATCH:
+//						s = "\u0394";
+//						break;
+//					case ThrowResult.STALWART:
+//						s = "\u0394"+"+";
+//						break;
+//				}
+//				break;
+//		}
+//		return s;
+//	}
+	public int getThrowDrawableId(){
+		int d = R.drawable.bxs_notthrown;
 		switch(throwType){
 			case ThrowType.BALL_HIGH:
-				s = "^";
+				if (isOnFire) {
+					d = R.drawable.bxs_high_fire;
+				} else {
+					d = R.drawable.bxs_high;
+				}
 				break;
 			case ThrowType.BALL_LEFT:
-				s = "<";
+				if (isOnFire) {
+					d = R.drawable.bxs_left_fire;
+				} else {
+					d = R.drawable.bxs_left;
+				}
 				break;
 			case ThrowType.BALL_RIGHT:
-				s = ">";
+				if (isOnFire) {
+					d = R.drawable.bxs_right_fire;
+				} else {
+					d = R.drawable.bxs_right;
+				}
 				break;
 			case ThrowType.BALL_LOW:
-				s = "v";
+				if (isOnFire) {
+					d = R.drawable.bxs_low_fire;
+				} else {
+					d = R.drawable.bxs_low;
+				}
 				break;
 			case ThrowType.STRIKE:
 				switch (throwResult){
 				case ThrowResult.DROP:
-					s = "o";
+					d = R.drawable.bxs_strike;
 					break;
 				case ThrowResult.CATCH:
 				case ThrowResult.STALWART:
-					s = "\u00b7";
+					d = R.drawable.bxs_strike_catch;
 					break;
 				}
 				break;
 			case ThrowType.POLE:
 				switch (throwResult){
 				case ThrowResult.DROP:
-					s = "\u03a6";
+					if (isOnFire) {
+						d = R.drawable.bxs_pole_fire;
+					} else {
+						d = R.drawable.bxs_pole;
+					}
 					break;
 				case ThrowResult.CATCH:
-					s = "|";
+					d = R.drawable.bxs_pole_catch;
 					break;
 				case ThrowResult.STALWART:
-					s = "+";
+					d = R.drawable.bxs_pole_stalwart;
 					break;
 				}
 				break;
 			case ThrowType.CUP:
 				switch (throwResult){
 				case ThrowResult.DROP:
-					s = "\u00a9";
+					if (isOnFire) {
+						d = R.drawable.bxs_cup_fire;
+					} else {
+						d = R.drawable.bxs_cup;
+					}
 					break;
 				case ThrowResult.CATCH:
-					s = "\u20b5";
+					d = R.drawable.bxs_cup_catch;
 					break;
 				case ThrowResult.STALWART:
-					s = "\u20b5"+"+";
+					d = R.drawable.bxs_cup_stalwart;
 					break;
 				}
 				break;
 			case ThrowType.BOTTLE:
 				switch (throwResult){
 					case ThrowResult.DROP:
-						s = "@";
+						if (isOnFire) {
+							d = R.drawable.bxs_bottle_fire;
+						} else {
+							d = R.drawable.bxs_bottle;
+						}
 						break;
 					case ThrowResult.CATCH:
-						s = "\u0394";
+						d = R.drawable.bxs_bottle_catch;
 						break;
 					case ThrowResult.STALWART:
-						s = "\u0394"+"+";
+						d = R.drawable.bxs_bottle_stalwart;
 						break;
 				}
 				break;
 		}
-		return s;
+		return d;
 	}
+	
 	
 	public long getId() {
 		return id;

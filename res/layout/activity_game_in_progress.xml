@@ -62,7 +62,7 @@
 
     <ImageButton
         android:id="@+id/gip_button_high"
-        android:src="@drawable/high_throw"
+        android:src="@drawable/btn_high"
         android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -71,11 +71,12 @@
         android:padding="10dp"
         android:rotation="0"
         android:text="@string/gip_ballHigh_button"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:contentDescription="high" />
 
     <ImageButton
         android:id="@+id/gip_button_left"
-        android:src="@drawable/left_throw"
+        android:src="@drawable/btn_left"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="70dp"
@@ -83,11 +84,12 @@
         android:padding="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_ballLeft_button" />
+        android:text="@string/gip_ballLeft_button"
+        android:contentDescription="left" />
 
     <ImageButton
         android:id="@+id/gip_button_strike"
-        android:src="@drawable/strike"
+        android:src="@drawable/btn_strike"
         android:layout_toRightOf="@+id/gip_button_left"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="90dp"
@@ -96,11 +98,12 @@
         android:padding="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"                
         android:onClick="buttonPressed"
-        android:text="@string/gip_strike_button" />
+        android:text="@string/gip_strike_button"
+        android:contentDescription="strike" />
     
     <ImageButton
         android:id="@+id/gip_button_right"
-        android:src="@drawable/right_throw"
+        android:src="@drawable/btn_right"
         android:layout_toRightOf="@+id/gip_button_strike"
         android:layout_below="@+id/gip_button_high"
         android:layout_width="70dp"
@@ -108,11 +111,12 @@
         android:padding="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_ballRight_button" />
+        android:text="@string/gip_ballRight_button"
+        android:contentDescription="right" />
     
     <ImageButton
         android:id="@+id/gip_button_low"
-        android:src="@drawable/low_throw"
+        android:src="@drawable/btn_low"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/gip_button_strike"
         android:layout_width="230dp"
@@ -120,7 +124,8 @@
         android:padding="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_ballLow_button" />
+        android:text="@string/gip_ballLow_button"
+        android:contentDescription="low" />
     
     <Button
         android:id="@+id/gip_button_pole"
@@ -130,7 +135,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_pole_button" />
+        android:text="@string/gip_pole_button"
+        android:contentDescription="pole" />
 	
 	<Button
         android:id="@+id/gip_button_bottle"
@@ -140,7 +146,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_bottle_button" />
+        android:text="@string/gip_bottle_button"
+        android:contentDescription="bottle" />
     
     <Button
         android:id="@+id/gip_button_cup"
@@ -150,7 +157,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:onClick="buttonPressed"
-        android:text="@string/gip_cup_button" />
+        android:text="@string/gip_cup_button"
+        android:contentDescription="cup" />
     
      <NumberPicker
          android:id="@+id/numPicker_catch"

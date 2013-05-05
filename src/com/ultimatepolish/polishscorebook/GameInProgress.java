@@ -78,7 +78,7 @@ public class GameInProgress extends MenuContainerActivity
 	private OnLongClickListener mLongClickListener = new OnLongClickListener() {
 		@Override
         public boolean onLongClick(View view) {
-			
+			log("mLongClickListener(): " + view.getContentDescription() + " was long pressed");
 			int buttonId = view.getId();
 			
 			switch (buttonId) {
@@ -540,8 +540,7 @@ public class GameInProgress extends MenuContainerActivity
 		if (setVpItem){
 			vp.setCurrentItem(pidx);
 		}
-		log("renderPage(): vp currentitem is " + vp.getCurrentItem());
-		log("renderPage(): vp has " + vp.getChildCount() + " children");
+		log("renderPage(): vp currentitem is " + vp.getCurrentItem() + " of " + vp.getChildCount() + " children");
 		
 		frag = fragmentArray.get(pidx);
 		log("renderPage(pidx) - made fragment");
@@ -725,6 +724,7 @@ public class GameInProgress extends MenuContainerActivity
 		
 	
 	public void buttonPressed(View view){
+		log("buttonPressed(): " + view.getContentDescription() + " was pressed");
 		int buttonId = view.getId();
 		
 		switch (buttonId) {

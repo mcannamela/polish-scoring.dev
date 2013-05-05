@@ -200,7 +200,7 @@ public class ThrowTableFragment extends Fragment {
 			return;
 		}
 		
-		TextView tv;
+		View view;
 		int start, stop;
 		if (Throw.isP1Throw(throwIdx)){
 			start = 1;
@@ -211,12 +211,12 @@ public class ThrowTableFragment extends Fragment {
 			stop = 5;
 		}
 		for (int i = start; i < stop; i++){
-			tv = (TextView) tr.getChildAt(i);
+			view = tr.getChildAt(i);
 			if (highlight){
-				tv.setBackgroundColor(highlightedColor);
+				view.setBackgroundColor(highlightedColor);
 			}
 			else{
-				tv.setBackgroundColor(unhighlightedColor);
+				view.setBackgroundColor(unhighlightedColor);
 			}
 		}
 	}
