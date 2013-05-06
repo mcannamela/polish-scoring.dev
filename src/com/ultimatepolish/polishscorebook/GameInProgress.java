@@ -58,21 +58,19 @@ public class GameInProgress extends MenuContainerActivity
 	
 	Dao<Game, Long> gDao;
 	Dao<Throw, Long>tDao; 
-//	ArrayList<Throw> throwsList = new ArrayList<Throw>();
 
-//	int throwIdx = 0;
 	int currentThrowType = ThrowType.NOT_THROWN;
 	
 	// LISTENERS ==================================================
 	private OnCheckedChangeListener checkboxChangedListener = new OnCheckedChangeListener(){
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-			updateThrow();
+			updateActiveThrow();
 		}
 	};
 
     private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
 		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
-			updateThrow();
+			updateActiveThrow();
 		}
 	};
 
@@ -111,6 +109,14 @@ public class GameInProgress extends MenuContainerActivity
         }
 	};
 	
+	private class MyPageChangeListener extends ViewPager.SimpleOnPageChangeListener{
+		@Override
+		public void onPageSelected(int position) {
+			super.onPageSelected(position);
+			renderPage(position, false);
+		}
+    }
+	
 	public void onThrowClicked(int local_throw_idx){
 		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
 		if (global_throw_idx > ag.nThrows() - 1) {
@@ -118,8 +124,44 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		gotoThrowIdx(global_throw_idx);
 	}
-
 	
+	public void buttonPressed(View view){
+		log("buttonPressed(): " + view.getContentDescription() + " was pressed");
+		int buttonId = view.getId();
+		
+		switch (buttonId) {
+			case R.id.gip_button_high:
+				currentThrowType = ThrowType.BALL_HIGH;
+				break;
+			case R.id.gip_button_low:
+				currentThrowType = ThrowType.BALL_LOW;
+				break;
+			case R.id.gip_button_left:
+				currentThrowType = ThrowType.BALL_LEFT;
+				break;
+			case R.id.gip_button_right:
+				currentThrowType = ThrowType.BALL_RIGHT;
+				break;
+			case R.id.gip_button_strike:
+				currentThrowType = ThrowType.STRIKE;
+				break;
+			case R.id.gip_button_bottle:
+				currentThrowType = ThrowType.BOTTLE;
+				break;
+			case R.id.gip_button_pole:
+				currentThrowType = ThrowType.POLE;
+				break;
+			case R.id.gip_button_cup:
+				currentThrowType = ThrowType.CUP;
+				break;
+		}
+		
+//		updateActiveThrow();
+		confirmThrow();
+	}
+	//==================================================
+	
+//############################### INNER CLASSES ############################
     private class FragmentArrayAdapter extends FragmentPagerAdapter{
 
     	public FragmentArrayAdapter(FragmentManager fm) {
@@ -146,13 +188,7 @@ public class GameInProgress extends MenuContainerActivity
 
     }
     
-    private class MyPageChangeListener extends ViewPager.SimpleOnPageChangeListener{
-		@Override
-		public void onPageSelected(int position) {
-			super.onPageSelected(position);
-			renderPage(position, false);
-		}
-    }
+    
 
     public static class GentlemensDialogFragment extends DialogFragment{
     	@Override
@@ -168,8 +204,9 @@ public class GameInProgress extends MenuContainerActivity
             return builder.create();
         }
     }
+  //#################################################################
     
-    // INITIALIZATION =============================================
+    // ANDROID CALLBACKS =============================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		log("onCreate(): creating GIP");
@@ -196,23 +233,16 @@ public class GameInProgress extends MenuContainerActivity
 	@Override
 	protected void onResume(){
 		super.onResume();
-//		getThrowsFromDB();
-//
 		log("onResume(): vp's adapter has " + vpAdapter.getCount() + " items");
-		
-		// change throw to the last throw
-		
 		gotoThrowIdx(ag.getActiveIdx());
 	}
 	@Override
 	protected void onRestart(){
 		super.onRestart();
-//		getThrowsFromDB();
 	}	
 	@Override
 	protected void onPause() {
 		super.onPause();
-//		updateScoresFromThrowIdx(0);
 		ag.saveAllThrows();
 		saveGame(true);
 	}
@@ -220,7 +250,9 @@ public class GameInProgress extends MenuContainerActivity
     protected void onStop() {
     	super.onStop();
     }
+	//=================================================================
 	
+	// INITIALIZATION =============================================
 	private void initGame(long gId){
 		Context context = getApplicationContext();
 		if (gId!=-1){
@@ -241,8 +273,6 @@ public class GameInProgress extends MenuContainerActivity
 						e.getMessage(), 
 						Toast.LENGTH_LONG).show();
 			}
-			
-//			vp = (ViewPager) findViewById(R.id.viewPager_throwsTables);
 		}
 	}
 	private void initMetadata(){
@@ -371,19 +401,7 @@ public class GameInProgress extends MenuContainerActivity
 		view.setOnLongClickListener(mLongClickListener);
 		
 	}
-//	private void getThrowsFromDB(){
-//		log("getThrowsFromDB() - getting list of throws");
-//		throwsList.clear();
-//		try{
-//			 throwsList = g.getThrowList(getApplicationContext());
-//		}
-//		catch (SQLException e){
-//			loge("getThrowsFromDB() - unable to load throws list", e);
-//		}
-//		log("getThrowsFromDB() - "+throwsList.size()+" throws retrieved, setting view");
-//		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-//		tv.setText("nThrows: "+ throwsList.size());
-//	}
+
 	private void initTableFragments(){
 		fragmentArray.clear();
 		
@@ -404,24 +422,25 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
     //=================================================================
-    //-  apply the state of the ui to a throw ---------------
-	private void applyUIStateToCurrentThrow(){
+	
+	
+    //-  SET THROW FROM UI STATE ---------------------------------------------
+	private void applyUIStateToActiveThrow(){
 		applyUIStateToThrow(uiThrow);
 		ag.updateActiveThrow(uiThrow);
     }
 	
 	private void applyUIStateToThrow(Throw t){
 		log("applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
-    	applyCurrentThrowType(t);
-    	applyCurrentThrowResult(t);
-    	applySpecialMarks(t);
-//    	applyPreviousScores(t);
+    	applyUIThrowTypeToThrow(t);
+    	applyUIThrowResultToThrow(t);
+    	applyUISpecialMarksToThrow(t);
 	}
     
-	private void applyCurrentThrowType(Throw t){
+	private void applyUIThrowTypeToThrow(Throw t){
 		t.setThrowType(currentThrowType);
 	}
-	private void applyCurrentThrowResult(Throw t){
+	private void applyUIThrowResultToThrow(Throw t){
 		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
 		switch (np.getValue()) { 
 		case 0:
@@ -437,7 +456,7 @@ public class GameInProgress extends MenuContainerActivity
 			// TODO: error handling? 
 		}		
 	}
-	private void applySpecialMarks(Throw t){
+	private void applyUISpecialMarksToThrow(Throw t){
 		t.isError = isError();
 		t.isGoaltend = isGoaltend();
 		t.isOwnGoal = isOwnGoal();
@@ -462,17 +481,11 @@ public class GameInProgress extends MenuContainerActivity
 		t.isOnFire=isOnFire();
 		t.isFiredOn=isFiredOn();
 	}
-//	private void applyPreviousScores(Throw t) {
-//		if (t.getThrowIdx() == 0) {
-//			t.setInitialScores();
-//		} else {
-//			t.setInitialScores(getPreviousThrow(t.getThrowIdx()));
-//		}	
-//	}
+	//-------------------------------------------------------------
 	
-	//- apply the state of a throw to the ui ----------------
-	//- apply the state of a throw to the state of the ui ----
-	private void applyUIThrowToUIState(){
+	//APPLY THROW STATE TO UI STATE ===============================
+	private void applyActiveThrowToUIState(){
+		uiThrow = ag.getActiveThrow();
 		applyThrowToUIState(uiThrow);
 	}
 	private void applyThrowToUIState(Throw t){
@@ -527,7 +540,7 @@ public class GameInProgress extends MenuContainerActivity
 		}		
 		
 	}
-	//-----------------------------------------------------------------
+	//===================================================================
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 	//{{{{{{{{{{{{{{{{{{{{{{{{{Draw the scores{{{{{{{{{{{{{{{{{{{{{{{
@@ -545,40 +558,22 @@ public class GameInProgress extends MenuContainerActivity
 		if (setVpItem){
 			vp.setCurrentItem(pidx);
 		}
-		log("renderPage(): vp currentitem is " + vp.getCurrentItem() + " of " + vp.getChildCount() + " children");
+		logd("renderPage(): vp currentitem is " + vp.getCurrentItem() + " of " + vp.getChildCount() + " children");
 		
 		frag = fragmentArray.get(pidx);
-		log("renderPage(pidx) - made fragment");
+		logd("renderPage() - got fragment");
 		int[] range = ThrowTableFragment.throwIdxRange(pidx);
-		log("renderPage(pidx) - got throw range");
+		logd("renderPage() - got throw range");
 		frag.renderAsPage(pidx, ag.getThrows());
-		log("renderPage(pidx) - rendered as page");
+		log("renderPage() - rendered as page "+pidx);
 		frag.clearHighlighted();
-		log("renderPage(pidx) - cleared highlighted");
+		logd("renderPage() - cleared highlighted");
 		
 		int idx = ag.getActiveIdx();
 		if (idx >= range[0] && idx < range[1]){
 			frag.highlightThrow(idx);
 		}
 	}
-	
-//	private void updateCurrentScore(){
-//		if (throwsList.size() < 2) {
-//			log("updateCurrentScore(): No need to update, there aren't any throws yet");
-//		} else {
-//			log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
-//			Throw lastThrow = getThrow(throwsList.size()-2);
-//			int[] scores = lastThrow.getFinalScores();
-//			if (lastThrow.isP1Throw()){
-//				g.setFirstPlayerScore(scores[0]);
-//				g.setSecondPlayerScore(scores[1]);
-//			}
-//			else{
-//				g.setFirstPlayerScore(scores[1]);
-//				g.setSecondPlayerScore(scores[0]);
-//			}
-//		}
-//	}
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
@@ -597,84 +592,25 @@ public class GameInProgress extends MenuContainerActivity
 		frag.show(getFragmentManager(), "gentlemens");
 	}
 
-	
 	void gotoThrowIdx(int newActiveIdx){
-		int oldActiveIdx = ag.getActiveIdx();
-		log("gotoThrow() - Going from throw idx " + oldActiveIdx + " to throw idx " + newActiveIdx + ".");
+		log("gotoThrow() - Going from throw idx " + ag.getActiveIdx() + " to throw idx " + newActiveIdx + ".");
 		
-		ag.updateActiveThrow(uiThrow);
+		applyUIStateToActiveThrow();
 		ag.setActiveIdx(newActiveIdx);
-		uiThrow = ag.getActiveThrow();
-		applyUIThrowToUIState();
+		applyActiveThrowToUIState();
 		
-		int throwIdx = ag.getActiveIdx();
-		assert throwIdx == newActiveIdx;
+		int idx = ag.getActiveIdx();
+		assert idx == newActiveIdx;
 		try{			
-			renderPage(getPageIdx(throwIdx));
-			log("gotoThrow() - Changed to page " + getPageIdx(throwIdx) + ".");
+			renderPage(getPageIdx(idx));
+			log("gotoThrow() - Changed to page " + getPageIdx(idx) + ".");
 		}
 		catch (NullPointerException e){
-			loge("gotoThrow() - Failed to change to page " + getPageIdx(throwIdx) + ".", e);
+			loge("gotoThrow() - Failed to change to page " + getPageIdx(idx) + ".", e);
 		}
 		
 		ag.saveGame();
-		
 	}
-//	private void updateScoresFromThrow(Throw t){
-//		updateScoresFromThrowIdx(t.getThrowIdx());
-//	}
-//	private void updateScoresFromThrowIdx(int throwIdx){
-//		Throw t,u;
-//		log("updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
-//		if (throwIdx <= 0 && throwsList.size() != 0) {
-////			log("updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
-//			t = getThrow(0);
-//			t.setInitialScores();
-////			log("Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
-//			throwIdx = 1;
-//		}
-//		for (int i = throwIdx; i < throwsList.size(); i++){
-////			log("updateScoresFromThrowIdx(): About to get throw idx " + i);
-//			t = getThrow(i);
-//			u = getPreviousThrow(i);
-//			t.setInitialScores(u);
-////			log("Setting initial scores of throw " + t.getThrowNumber()
-////					+ " to final scores of throw " + u.getThrowNumber());
-//		}
-//		updateCurrentScore();
-//	}
-//	void saveAllThrows(){
-//		log("saveAllThrows - saving "+throwsList.size() +"throws");
-//		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
-//		for(Throw t: throwsList){
-//			try{
-//				saveThrow(t);
-//			}
-//			catch(SQLException e){
-//				String msg = "could not save throw "+t.getThrowIdx();
-//				loge(msg, e);
-//				Toast.makeText(getApplicationContext(), 
-//						msg + ": " + e.getMessage(), 
-//						Toast.LENGTH_SHORT).show();
-//			}
-//		}
-//	}
-//	void saveThrow(Throw t) throws SQLException{
-//		HashMap<String,Object> m = new HashMap<String,Object>();
-//		m.put(Throw.THROW_NUMBER, t.getThrowIdx());
-//		m.put(Throw.GAME_ID, t.getGameId());
-//		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
-//		if (tList.isEmpty()){
-//			tDao.create(t);
-////			log("saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
-//		}
-//		else{
-//			t.setId(tList.get(0).getId());
-//			tDao.update(t);
-////			log("saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
-//		}
-//	}
-	
 	void saveGame(){
 		saveGame(false);
 	}
@@ -689,46 +625,10 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		
 	}
-		
 	
-	public void buttonPressed(View view){
-		log("buttonPressed(): " + view.getContentDescription() + " was pressed");
-		int buttonId = view.getId();
-		
-		switch (buttonId) {
-			case R.id.gip_button_high:
-				currentThrowType = ThrowType.BALL_HIGH;
-				break;
-			case R.id.gip_button_low:
-				currentThrowType = ThrowType.BALL_LOW;
-				break;
-			case R.id.gip_button_left:
-				currentThrowType = ThrowType.BALL_LEFT;
-				break;
-			case R.id.gip_button_right:
-				currentThrowType = ThrowType.BALL_RIGHT;
-				break;
-			case R.id.gip_button_strike:
-				currentThrowType = ThrowType.STRIKE;
-				break;
-			case R.id.gip_button_bottle:
-				currentThrowType = ThrowType.BOTTLE;
-				break;
-			case R.id.gip_button_pole:
-				currentThrowType = ThrowType.POLE;
-				break;
-			case R.id.gip_button_cup:
-				currentThrowType = ThrowType.CUP;
-				break;
-		}
-		
-		updateThrow();
-		confirmThrow();
-	}
-	
-	private void updateThrow(){
+	private void updateActiveThrow(){
 		log("updateThrow(): Updating throw at idx " + ag.getActiveIdx());
-		applyUIStateToCurrentThrow();
+		applyUIStateToActiveThrow();
 		renderPage(getPageIdx(ag.getActiveIdx()));
 	}
 	
@@ -742,65 +642,6 @@ public class GameInProgress extends MenuContainerActivity
 		Log.e(LOGTAG, msg+": "+e.getMessage());
 	}
 
-//	Throw getThrow(int throwIdx){
-//		if (throwIdx >= 0 && throwIdx < throwsList.size()){
-//			// throwNr is a prior throw
-////			log("getThrow(): Getting prior throw at idx " + throwIdx);
-//			return throwsList.get(throwIdx);
-//		}
-//		else if(throwIdx == throwsList.size()){
-//			// throw number is the next throw
-//			// TODO: start as a new type "NOTTHROWN"
-////			log("getThrow(): Making a new throw at idx " + throwIdx);
-//			Throw t = g.makeNewThrow(throwIdx);
-//			t.setThrowType(ThrowType.NOT_THROWN);
-//			t.setThrowResult(ThrowResult.CATCH);
-//			if (throwIdx != 0) {
-//				t.setInitialScores(getPreviousThrow(throwIdx));
-//			} else {
-//				t.setInitialScores();
-//			}
-//			throwsList.add(t);
-//			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-//			tv.setText("nThrows: " + throwsList.size());
-//			return t;
-//		}
-//		else{
-//			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
-//					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
-//		}
-//	}
-//	Throw getPreviousThrow(int throwIdx){
-//		Throw t;
-//		if (throwIdx > 0){
-//			t =  throwsList.get(throwIdx-1);
-//		}
-//		else{
-//			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
-//					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
-//		}
-//		return t;
-//	}
-//	Throw getPreviousThrow(){
-//		return getPreviousThrow(throwIdx);
-//	}
-//	Throw getNextThrow(int throwIdx){
-//		return getThrow(throwIdx+1);
-//	}
-//	ThrowTableFragment getCurrentFragment(){
-//		return fragArray.get(page_idx);
-//	}
-//	ThrowTableRow getThrowTableRow(Throw t){
-//		int pidx = ThrowTableFragment.throwNrToPageIdx(t.getThrowNumber());
-//		try{
-//			return fragArray.get(pidx).getTableRow(t.getThrowNumber());
-//		}
-//		catch (ArrayIndexOutOfBoundsException e){
-//			throw new RuntimeException("wrong page idx for throw nr "+
-//					t.getThrowNumber()+", pidx = "+pidx+": "+e.getMessage());
-//		}
-//		
-//	}
 	
 	int getPageIdxMax() {
 		return ag.nThrows() / (2*ThrowTableFragment.N_ROWS);
