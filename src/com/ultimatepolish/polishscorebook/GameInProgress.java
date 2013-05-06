@@ -23,17 +23,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.ultimatepolish.scorebookdb.ActiveGame;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
@@ -51,15 +50,17 @@ public class GameInProgress extends MenuContainerActivity
 	private ViewPager vp;
 	
 	Game g;
+	ActiveGame ag;
+	Throw uiThrow;
 	Player[] p = new Player[2]; 
 	Session s;
 	Venue v;
 	
 	Dao<Game, Long> gDao;
 	Dao<Throw, Long>tDao; 
-	ArrayList<Throw> throwsList = new ArrayList<Throw>();
+//	ArrayList<Throw> throwsList = new ArrayList<Throw>();
 
-	int throwIdx = 0;
+//	int throwIdx = 0;
 	int currentThrowType = ThrowType.NOT_THROWN;
 	
 	// LISTENERS ==================================================
@@ -112,8 +113,8 @@ public class GameInProgress extends MenuContainerActivity
 	
 	public void onThrowClicked(int local_throw_idx){
 		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
-		if (global_throw_idx > throwsList.size() - 1) {
-			global_throw_idx = throwsList.size() - 1;
+		if (global_throw_idx > ag.nThrows() - 1) {
+			global_throw_idx = ag.nThrows() - 1;
 		}
 		gotoThrowIdx(global_throw_idx);
 	}
@@ -195,32 +196,25 @@ public class GameInProgress extends MenuContainerActivity
 	@Override
 	protected void onResume(){
 		super.onResume();
-		getThrowsFromDB();
-
+//		getThrowsFromDB();
+//
 		log("onResume(): vp's adapter has " + vpAdapter.getCount() + " items");
 		
 		// change throw to the last throw
-		int initThrowIdx = 0;
-		if (throwsList.size() == 0) {
-			getThrow(initThrowIdx);
-		} else if (throwsList.size() > 0){
-			initThrowIdx = throwsList.size() - 1;
-		}
-		log("onResume() - About to change current throw idx to " + initThrowIdx);
-		gotoThrowIdx(initThrowIdx, false);
+		
+		gotoThrowIdx(ag.getActiveIdx());
 	}
 	@Override
 	protected void onRestart(){
 		super.onRestart();
-		getThrowsFromDB();
+//		getThrowsFromDB();
 	}	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		updateScoresFromThrowIdx(0);
-		saveAllThrows();
+//		updateScoresFromThrowIdx(0);
+		ag.saveAllThrows();
 		saveGame(true);
-		
 	}
 	@Override
     protected void onStop() {
@@ -235,9 +229,12 @@ public class GameInProgress extends MenuContainerActivity
 				tDao = Throw.getDao(context);
 				
 				g = gDao.queryForId(gId);
+				ag = new ActiveGame(g, context);
+				uiThrow = ag.getActiveThrow();
 				p = g.getPlayers(context);
 				s = g.getSession(context);
 				v = g.getVenue(context);
+				
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -374,19 +371,19 @@ public class GameInProgress extends MenuContainerActivity
 		view.setOnLongClickListener(mLongClickListener);
 		
 	}
-	private void getThrowsFromDB(){
-		log("getThrowsFromDB() - getting list of throws");
-		throwsList.clear();
-		try{
-			 throwsList = g.getThrowList(getApplicationContext());
-		}
-		catch (SQLException e){
-			loge("getThrowsFromDB() - unable to load throws list", e);
-		}
-		log("getThrowsFromDB() - "+throwsList.size()+" throws retrieved, setting view");
-		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-		tv.setText("nThrows: "+ throwsList.size());
-	}
+//	private void getThrowsFromDB(){
+//		log("getThrowsFromDB() - getting list of throws");
+//		throwsList.clear();
+//		try{
+//			 throwsList = g.getThrowList(getApplicationContext());
+//		}
+//		catch (SQLException e){
+//			loge("getThrowsFromDB() - unable to load throws list", e);
+//		}
+//		log("getThrowsFromDB() - "+throwsList.size()+" throws retrieved, setting view");
+//		TextView tv = (TextView) findViewById(R.id.textView_throwCount);
+//		tv.setText("nThrows: "+ throwsList.size());
+//	}
 	private void initTableFragments(){
 		fragmentArray.clear();
 		
@@ -408,13 +405,18 @@ public class GameInProgress extends MenuContainerActivity
 	
     //=================================================================
     //-  apply the state of the ui to a throw ---------------
-    private void applyUIStateToCurrentThrow(Throw t){
-    	log("applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
+	private void applyUIStateToCurrentThrow(){
+		applyUIStateToThrow(uiThrow);
+		ag.updateActiveThrow(uiThrow);
+    }
+	
+	private void applyUIStateToThrow(Throw t){
+		log("applyUIStateToCurrentThrow() - Applying state to throw idx " + t.getThrowIdx());
     	applyCurrentThrowType(t);
     	applyCurrentThrowResult(t);
     	applySpecialMarks(t);
-    	applyPreviousScores(t);
-    }
+//    	applyPreviousScores(t);
+	}
     
 	private void applyCurrentThrowType(Throw t){
 		t.setThrowType(currentThrowType);
@@ -460,17 +462,20 @@ public class GameInProgress extends MenuContainerActivity
 		t.isOnFire=isOnFire();
 		t.isFiredOn=isFiredOn();
 	}
-	private void applyPreviousScores(Throw t) {
-		if (t.getThrowIdx() == 0) {
-			t.setInitialScores();
-		} else {
-			t.setInitialScores(getPreviousThrow(t.getThrowIdx()));
-		}	
-	}
+//	private void applyPreviousScores(Throw t) {
+//		if (t.getThrowIdx() == 0) {
+//			t.setInitialScores();
+//		} else {
+//			t.setInitialScores(getPreviousThrow(t.getThrowIdx()));
+//		}	
+//	}
 	
 	//- apply the state of a throw to the ui ----------------
 	//- apply the state of a throw to the state of the ui ----
-	private void applyCurrentThrowToUIState(Throw t){
+	private void applyUIThrowToUIState(){
+		applyThrowToUIState(uiThrow);
+	}
+	private void applyThrowToUIState(Throw t){
 		setThrowType(t);
 		setThrowResult(t);
 		setSpecialMarks(t);
@@ -546,93 +551,64 @@ public class GameInProgress extends MenuContainerActivity
 		log("renderPage(pidx) - made fragment");
 		int[] range = ThrowTableFragment.throwIdxRange(pidx);
 		log("renderPage(pidx) - got throw range");
-		frag.renderAsPage(pidx, throwsList);
+		frag.renderAsPage(pidx, ag.getThrows());
 		log("renderPage(pidx) - rendered as page");
 		frag.clearHighlighted();
 		log("renderPage(pidx) - cleared highlighted");
 		
-		if (throwIdx >= range[0] && throwIdx < range[1]){
-			frag.highlightThrow(throwIdx);
+		int idx = ag.getActiveIdx();
+		if (idx >= range[0] && idx < range[1]){
+			frag.highlightThrow(idx);
 		}
 	}
 	
-	private void updateCurrentScore(){
-		if (throwsList.size() < 2) {
-			log("updateCurrentScore(): No need to update, there aren't any throws yet");
-		} else {
-			log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
-			Throw lastThrow = getThrow(throwsList.size()-2);
-			int[] scores = lastThrow.getFinalScores();
-			if (lastThrow.isP1Throw()){
-				g.setFirstPlayerScore(scores[0]);
-				g.setSecondPlayerScore(scores[1]);
-			}
-			else{
-				g.setFirstPlayerScore(scores[1]);
-				g.setSecondPlayerScore(scores[0]);
-			}
-		}
-	}
+//	private void updateCurrentScore(){
+//		if (throwsList.size() < 2) {
+//			log("updateCurrentScore(): No need to update, there aren't any throws yet");
+//		} else {
+//			log("updateCurrentScore(): About to get throwIdx " + String.valueOf(throwsList.size()-2));
+//			Throw lastThrow = getThrow(throwsList.size()-2);
+//			int[] scores = lastThrow.getFinalScores();
+//			if (lastThrow.isP1Throw()){
+//				g.setFirstPlayerScore(scores[0]);
+//				g.setSecondPlayerScore(scores[1]);
+//			}
+//			else{
+//				g.setFirstPlayerScore(scores[1]);
+//				g.setSecondPlayerScore(scores[0]);
+//			}
+//		}
+//	}
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
 	public void confirmThrow(){
-		if ((throwIdx + 7) % 70 == 0) {
+		int activeIdx = ag.getActiveIdx();
+		if ((activeIdx + 7) % 70 == 0) {
 			Toast.makeText(getApplicationContext(), 
 					"GTO in 3 innings", Toast.LENGTH_LONG).show();
-		} else if ((throwIdx+1) % 70 == 0) {
+		} else if ((activeIdx+1) % 70 == 0) {
 			respectGentlemens();
 		}
-		gotoThrowIdx(throwIdx+1);
+		gotoThrowIdx(activeIdx+1);
 	}
 	private void respectGentlemens(){
 		GentlemensDialogFragment frag = new GentlemensDialogFragment();
 		frag.show(getFragmentManager(), "gentlemens");
 	}
 
-	void gotoThrowIdx(int newThrowIdx){
-		gotoThrowIdx(newThrowIdx, true);
-	}
-	void gotoThrowIdx(int newThrowIdx, boolean saveCurrent){
-		log("gotoThrow() - Going from throw idx " + throwIdx + " to throw idx " + newThrowIdx + ".");
-
-		Throw t;
-		if (saveCurrent == true) {
-			// Save the current throw based on UI
-			log("gotoThrowIdx(): About to get throw idx " + throwIdx);
-			t = getThrow(throwIdx);
-			log("gotoThrow() - Retrieved throw " + t.getThrowIdx() + " from list.");
-			
-			applyUIStateToCurrentThrow(t);
-			
-			try{
-				saveThrow(t);
-			}
-			catch (SQLException e){
-//				Toast.makeText(getApplicationContext(), 
-//				"Could not save throw at idx " + throwIdx + ", " + e.getMessage(), 
-//				Toast.LENGTH_LONG).show();
-				loge("gotoThrow(): ", e);
-			}
-		}
+	
+	void gotoThrowIdx(int newActiveIdx){
+		int oldActiveIdx = ag.getActiveIdx();
+		log("gotoThrow() - Going from throw idx " + oldActiveIdx + " to throw idx " + newActiveIdx + ".");
 		
+		ag.updateActiveThrow(uiThrow);
+		ag.setActiveIdx(newActiveIdx);
+		uiThrow = ag.getActiveThrow();
+		applyUIThrowToUIState();
 		
-		// Update the scores
-		updateScoresFromThrowIdx(0);
-		
-		// Go to throw newThrowNr
-		throwIdx = newThrowIdx;
-//		log("gotoThrow() - throwIdx is now " + throwIdx);
-		
-		log("gotoThrowIdx(): About to get throw idx " + throwIdx);
-		t = getThrow(throwIdx);
-//		log("gotoThrow() - Retrieved throw " + t.getThrowNumber() + " from list.");
-		
-		applyCurrentThrowToUIState(t);
-		
-//		vpAdapter = (FragmentArrayAdapter) vp.getAdapter();
-		
-//		log("gotoThrow() - vp's adapter has  " + vpAdapter.getCount() + " items");
+		int throwIdx = ag.getActiveIdx();
+		assert throwIdx == newActiveIdx;
 		try{			
 			renderPage(getPageIdx(throwIdx));
 			log("gotoThrow() - Changed to page " + getPageIdx(throwIdx) + ".");
@@ -641,64 +617,63 @@ public class GameInProgress extends MenuContainerActivity
 			loge("gotoThrow() - Failed to change to page " + getPageIdx(throwIdx) + ".", e);
 		}
 		
-		updateCurrentScore();
-		saveGame();
+		ag.saveGame();
 		
 	}
-	private void updateScoresFromThrow(Throw t){
-		updateScoresFromThrowIdx(t.getThrowIdx());
-	}
-	private void updateScoresFromThrowIdx(int throwIdx){
-		Throw t,u;
-		log("updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
-		if (throwIdx <= 0 && throwsList.size() != 0) {
-//			log("updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
-			t = getThrow(0);
-			t.setInitialScores();
-//			log("Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
-			throwIdx = 1;
-		}
-		for (int i = throwIdx; i < throwsList.size(); i++){
-//			log("updateScoresFromThrowIdx(): About to get throw idx " + i);
-			t = getThrow(i);
-			u = getPreviousThrow(i);
-			t.setInitialScores(u);
-//			log("Setting initial scores of throw " + t.getThrowNumber()
-//					+ " to final scores of throw " + u.getThrowNumber());
-		}
-		updateCurrentScore();
-	}
-	void saveAllThrows(){
-		log("saveAllThrows - saving "+throwsList.size() +"throws");
-		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
-		for(Throw t: throwsList){
-			try{
-				saveThrow(t);
-			}
-			catch(SQLException e){
-				String msg = "could not save throw "+t.getThrowIdx();
-				loge(msg, e);
-				Toast.makeText(getApplicationContext(), 
-						msg + ": " + e.getMessage(), 
-						Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-	void saveThrow(Throw t) throws SQLException{
-		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put(Throw.THROW_NUMBER, t.getThrowIdx());
-		m.put(Throw.GAME_ID, t.getGameId());
-		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
-		if (tList.isEmpty()){
-			tDao.create(t);
-//			log("saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
-		}
-		else{
-			t.setId(tList.get(0).getId());
-			tDao.update(t);
-//			log("saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
-		}
-	}
+//	private void updateScoresFromThrow(Throw t){
+//		updateScoresFromThrowIdx(t.getThrowIdx());
+//	}
+//	private void updateScoresFromThrowIdx(int throwIdx){
+//		Throw t,u;
+//		log("updateScoresFromThrowIdx(throwIdx): Updating scores from throw idx " + throwIdx);
+//		if (throwIdx <= 0 && throwsList.size() != 0) {
+////			log("updateScoresFromThrowIdx(): About to get throw idx " + throwIdx);
+//			t = getThrow(0);
+//			t.setInitialScores();
+////			log("Setting initial scores of throw " + t.getThrowNumber() + " to 0-0");
+//			throwIdx = 1;
+//		}
+//		for (int i = throwIdx; i < throwsList.size(); i++){
+////			log("updateScoresFromThrowIdx(): About to get throw idx " + i);
+//			t = getThrow(i);
+//			u = getPreviousThrow(i);
+//			t.setInitialScores(u);
+////			log("Setting initial scores of throw " + t.getThrowNumber()
+////					+ " to final scores of throw " + u.getThrowNumber());
+//		}
+//		updateCurrentScore();
+//	}
+//	void saveAllThrows(){
+//		log("saveAllThrows - saving "+throwsList.size() +"throws");
+//		Toast.makeText(getApplicationContext(), "Saving all throws...", Toast.LENGTH_SHORT).show();
+//		for(Throw t: throwsList){
+//			try{
+//				saveThrow(t);
+//			}
+//			catch(SQLException e){
+//				String msg = "could not save throw "+t.getThrowIdx();
+//				loge(msg, e);
+//				Toast.makeText(getApplicationContext(), 
+//						msg + ": " + e.getMessage(), 
+//						Toast.LENGTH_SHORT).show();
+//			}
+//		}
+//	}
+//	void saveThrow(Throw t) throws SQLException{
+//		HashMap<String,Object> m = new HashMap<String,Object>();
+//		m.put(Throw.THROW_NUMBER, t.getThrowIdx());
+//		m.put(Throw.GAME_ID, t.getGameId());
+//		List<Throw> tList = tDao.queryForFieldValuesArgs(m);
+//		if (tList.isEmpty()){
+//			tDao.create(t);
+////			log("saveThrow(Throw) - Throw idx " + t.getThrowIdx() + " not found in db, did not save.");
+//		}
+//		else{
+//			t.setId(tList.get(0).getId());
+//			tDao.update(t);
+////			log("saveThrow(Throw) - Saved throw idx " + t.getThrowIdx());
+//		}
+//	}
 	
 	void saveGame(){
 		saveGame(false);
@@ -707,19 +682,12 @@ public class GameInProgress extends MenuContainerActivity
 		if (onExit) {
 			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
 		}
-		try{
-			gDao.update(g);
-			if (onExit){
-				Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
-			}
+		ag.saveGame();
+		
+		if (onExit){
+			Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
 		}
-		catch (SQLException e){
-			String msg = "could not save game: ";
-			loge(msg, e);
-			Toast.makeText(getApplicationContext(), 
-					msg+": "+e.getMessage(), 
-					Toast.LENGTH_SHORT).show();
-		}
+		
 	}
 		
 	
@@ -759,11 +727,9 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void updateThrow(){
-		log("updateThrow(): Updating throw at idx " + throwIdx);
-		Throw t = getThrow(throwIdx);
-		applyUIStateToCurrentThrow(t);
-		updateScoresFromThrowIdx(0);
-		renderPage(getPageIdx(throwIdx));
+		log("updateThrow(): Updating throw at idx " + ag.getActiveIdx());
+		applyUIStateToCurrentThrow();
+		renderPage(getPageIdx(ag.getActiveIdx()));
 	}
 	
 	public void log(String msg){
@@ -776,51 +742,51 @@ public class GameInProgress extends MenuContainerActivity
 		Log.e(LOGTAG, msg+": "+e.getMessage());
 	}
 
-	Throw getThrow(int throwIdx){
-		if (throwIdx >= 0 && throwIdx < throwsList.size()){
-			// throwNr is a prior throw
-//			log("getThrow(): Getting prior throw at idx " + throwIdx);
-			return throwsList.get(throwIdx);
-		}
-		else if(throwIdx == throwsList.size()){
-			// throw number is the next throw
-			// TODO: start as a new type "NOTTHROWN"
-//			log("getThrow(): Making a new throw at idx " + throwIdx);
-			Throw t = g.makeNewThrow(throwIdx);
-			t.setThrowType(ThrowType.NOT_THROWN);
-			t.setThrowResult(ThrowResult.CATCH);
-			if (throwIdx != 0) {
-				t.setInitialScores(getPreviousThrow(throwIdx));
-			} else {
-				t.setInitialScores();
-			}
-			throwsList.add(t);
-			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
-			tv.setText("nThrows: " + throwsList.size());
-			return t;
-		}
-		else{
-			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
-					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
-		}
-	}
-	Throw getPreviousThrow(int throwIdx){
-		Throw t;
-		if (throwIdx > 0){
-			t =  throwsList.get(throwIdx-1);
-		}
-		else{
-			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
-					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
-		}
-		return t;
-	}
-	Throw getPreviousThrow(){
-		return getPreviousThrow(throwIdx);
-	}
-	Throw getNextThrow(int throwIdx){
-		return getThrow(throwIdx+1);
-	}
+//	Throw getThrow(int throwIdx){
+//		if (throwIdx >= 0 && throwIdx < throwsList.size()){
+//			// throwNr is a prior throw
+////			log("getThrow(): Getting prior throw at idx " + throwIdx);
+//			return throwsList.get(throwIdx);
+//		}
+//		else if(throwIdx == throwsList.size()){
+//			// throw number is the next throw
+//			// TODO: start as a new type "NOTTHROWN"
+////			log("getThrow(): Making a new throw at idx " + throwIdx);
+//			Throw t = g.makeNewThrow(throwIdx);
+//			t.setThrowType(ThrowType.NOT_THROWN);
+//			t.setThrowResult(ThrowResult.CATCH);
+//			if (throwIdx != 0) {
+//				t.setInitialScores(getPreviousThrow(throwIdx));
+//			} else {
+//				t.setInitialScores();
+//			}
+//			throwsList.add(t);
+//			TextView tv = (TextView) findViewById(R.id.textView_throwCount);
+//			tv.setText("nThrows: " + throwsList.size());
+//			return t;
+//		}
+//		else{
+//			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
+//					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
+//		}
+//	}
+//	Throw getPreviousThrow(int throwIdx){
+//		Throw t;
+//		if (throwIdx > 0){
+//			t =  throwsList.get(throwIdx-1);
+//		}
+//		else{
+//			throw new RuntimeException("Tried to retrieve an invalid throw at idx "
+//					+ throwIdx + "/" + String.valueOf(throwsList.size()-1));
+//		}
+//		return t;
+//	}
+//	Throw getPreviousThrow(){
+//		return getPreviousThrow(throwIdx);
+//	}
+//	Throw getNextThrow(int throwIdx){
+//		return getThrow(throwIdx+1);
+//	}
 //	ThrowTableFragment getCurrentFragment(){
 //		return fragArray.get(page_idx);
 //	}
@@ -837,11 +803,11 @@ public class GameInProgress extends MenuContainerActivity
 //	}
 	
 	int getPageIdxMax() {
-		return throwsList.size() / (2*ThrowTableFragment.N_ROWS);
+		return ag.nThrows() / (2*ThrowTableFragment.N_ROWS);
 	}	
 	int getPageIdx(int throwIdx) {
-		if (throwIdx > throwsList.size()) {
-			throwIdx = throwsList.size();
+		if (throwIdx > ag.nThrows()) {
+			throwIdx = ag.nThrows();
 		}	
 		int pidx = (throwIdx) / (2*ThrowTableFragment.N_ROWS);
 		if (pidx < 0) {pidx = 0;}
@@ -849,7 +815,7 @@ public class GameInProgress extends MenuContainerActivity
 		return pidx;
 	}
 	int getPageIdx() {
-		return getPageIdx(throwsList.size());
+		return getPageIdx(ag.nThrows());
 	}
 	
 	boolean isError(){
