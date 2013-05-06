@@ -117,6 +117,8 @@ public class GameInProgress extends MenuContainerActivity
 		}
     }
 	
+	
+	
 	public void onThrowClicked(int local_throw_idx){
 		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
 		if (global_throw_idx > ag.nThrows() - 1) {
@@ -188,7 +190,44 @@ public class GameInProgress extends MenuContainerActivity
 
     }
     
-    
+    public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
+	    private float MIN_SCALE = 0.85f;
+	    private float MIN_ALPHA = 0.5f;
+
+	    public void transformPage(View view, float position) {
+	        int pageWidth = view.getWidth();
+	        int pageHeight = view.getHeight();
+
+	        if (position < -1) { // [-Infinity,-1)
+	            // This page is way off-screen to the left.
+	            view.setAlpha(0);
+
+	        } else if (position <= 1) { // [-1,1]
+	            // Modify the default slide transition to shrink the page as well
+	            float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
+	            float vertMargin = pageHeight * (1 - scaleFactor) / 2;
+	            float horzMargin = pageWidth * (1 - scaleFactor) / 2;
+	            if (position < 0) {
+	                view.setTranslationX(horzMargin - vertMargin / 2);
+	            } else {
+	                view.setTranslationX(-horzMargin + vertMargin / 2);
+	            }
+
+	            // Scale the page down (between MIN_SCALE and 1)
+	            view.setScaleX(scaleFactor);
+	            view.setScaleY(scaleFactor);
+
+	            // Fade the page relative to its size.
+	            view.setAlpha(MIN_ALPHA +
+	                    (scaleFactor - MIN_SCALE) /
+	                    (1 - MIN_SCALE) * (1 - MIN_ALPHA));
+
+	        } else { // (1,+Infinity]
+	            // This page is way off-screen to the right.
+	            view.setAlpha(0);
+	        }
+	    }
+	}
 
     public static class GentlemensDialogFragment extends DialogFragment{
     	@Override
@@ -424,6 +463,67 @@ public class GameInProgress extends MenuContainerActivity
     //=================================================================
 	
 	
+	//STATE LOGIC AND PROGRAM FLOW +++++++++++++++++++++++++++++++++++++
+	void updateActiveThrow(){
+		log("updateThrow(): Updating throw at idx " + ag.getActiveIdx());
+		applyUIStateToActiveThrow();
+		renderPage(getPageIdx(ag.getActiveIdx()));
+	}
+	
+	void confirmThrow(){
+		int activeIdx = ag.getActiveIdx();
+		if ((activeIdx + 7) % 70 == 0) {
+			Toast.makeText(getApplicationContext(), 
+					"GTO in 3 innings", Toast.LENGTH_LONG).show();
+		} else if ((activeIdx+1) % 70 == 0) {
+			respectGentlemens();
+		}
+		gotoThrowIdx(activeIdx+1);
+	}
+	
+	void gotoThrowIdx(int newActiveIdx){
+		log("gotoThrow() - Going from throw idx " + ag.getActiveIdx() + " to throw idx " + newActiveIdx + ".");
+		
+		applyUIStateToActiveThrow();
+		ag.setActiveIdx(newActiveIdx);
+		applyActiveThrowToUIState();
+		
+		int idx = ag.getActiveIdx();
+		assert idx == newActiveIdx;
+		try{			
+			renderPage(getPageIdx(idx));
+			log("gotoThrow() - Changed to page " + getPageIdx(idx) + ".");
+		}
+		catch (NullPointerException e){
+			loge("gotoThrow() - Failed to change to page " + getPageIdx(idx) + ".", e);
+		}
+		
+		ag.saveGame();
+	}
+	
+	private void respectGentlemens(){
+		GentlemensDialogFragment frag = new GentlemensDialogFragment();
+		frag.show(getFragmentManager(), "gentlemens");
+	}
+
+	private void saveGame(){
+		saveGame(false);
+	}
+	
+	private void saveGame(boolean onExit){
+		if (onExit) {
+			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
+		}
+		ag.saveGame();
+		
+		if (onExit){
+			Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
+		}
+		
+	}
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	
     //-  SET THROW FROM UI STATE ---------------------------------------------
 	private void applyUIStateToActiveThrow(){
 		applyUIStateToThrow(uiThrow);
@@ -577,61 +677,6 @@ public class GameInProgress extends MenuContainerActivity
 	
 	//{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
 
-	public void confirmThrow(){
-		int activeIdx = ag.getActiveIdx();
-		if ((activeIdx + 7) % 70 == 0) {
-			Toast.makeText(getApplicationContext(), 
-					"GTO in 3 innings", Toast.LENGTH_LONG).show();
-		} else if ((activeIdx+1) % 70 == 0) {
-			respectGentlemens();
-		}
-		gotoThrowIdx(activeIdx+1);
-	}
-	private void respectGentlemens(){
-		GentlemensDialogFragment frag = new GentlemensDialogFragment();
-		frag.show(getFragmentManager(), "gentlemens");
-	}
-
-	void gotoThrowIdx(int newActiveIdx){
-		log("gotoThrow() - Going from throw idx " + ag.getActiveIdx() + " to throw idx " + newActiveIdx + ".");
-		
-		applyUIStateToActiveThrow();
-		ag.setActiveIdx(newActiveIdx);
-		applyActiveThrowToUIState();
-		
-		int idx = ag.getActiveIdx();
-		assert idx == newActiveIdx;
-		try{			
-			renderPage(getPageIdx(idx));
-			log("gotoThrow() - Changed to page " + getPageIdx(idx) + ".");
-		}
-		catch (NullPointerException e){
-			loge("gotoThrow() - Failed to change to page " + getPageIdx(idx) + ".", e);
-		}
-		
-		ag.saveGame();
-	}
-	void saveGame(){
-		saveGame(false);
-	}
-	void saveGame(boolean onExit){
-		if (onExit) {
-			Toast.makeText(getApplicationContext(), "Saving the game...", 2).show();
-		}
-		ag.saveGame();
-		
-		if (onExit){
-			Toast.makeText(getApplicationContext(), "Game saved.", Toast.LENGTH_SHORT).show();
-		}
-		
-	}
-	
-	private void updateActiveThrow(){
-		log("updateThrow(): Updating throw at idx " + ag.getActiveIdx());
-		applyUIStateToActiveThrow();
-		renderPage(getPageIdx(ag.getActiveIdx()));
-	}
-	
 	public void log(String msg){
 		Log.i(LOGTAG, msg);
 	}
@@ -762,43 +807,6 @@ public class GameInProgress extends MenuContainerActivity
 		else {btn.setPressed(false);}
 	}
 	
-	public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
-	    private float MIN_SCALE = 0.85f;
-	    private float MIN_ALPHA = 0.5f;
-
-	    public void transformPage(View view, float position) {
-	        int pageWidth = view.getWidth();
-	        int pageHeight = view.getHeight();
-
-	        if (position < -1) { // [-Infinity,-1)
-	            // This page is way off-screen to the left.
-	            view.setAlpha(0);
-
-	        } else if (position <= 1) { // [-1,1]
-	            // Modify the default slide transition to shrink the page as well
-	            float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
-	            float vertMargin = pageHeight * (1 - scaleFactor) / 2;
-	            float horzMargin = pageWidth * (1 - scaleFactor) / 2;
-	            if (position < 0) {
-	                view.setTranslationX(horzMargin - vertMargin / 2);
-	            } else {
-	                view.setTranslationX(-horzMargin + vertMargin / 2);
-	            }
-
-	            // Scale the page down (between MIN_SCALE and 1)
-	            view.setScaleX(scaleFactor);
-	            view.setScaleY(scaleFactor);
-
-	            // Fade the page relative to its size.
-	            view.setAlpha(MIN_ALPHA +
-	                    (scaleFactor - MIN_SCALE) /
-	                    (1 - MIN_SCALE) * (1 - MIN_ALPHA));
-
-	        } else { // (1,+Infinity]
-	            // This page is way off-screen to the right.
-	            view.setAlpha(0);
-	        }
-	    }
-	}
+	
 	
 }
