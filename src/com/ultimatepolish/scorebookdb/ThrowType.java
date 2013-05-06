@@ -9,5 +9,8 @@ public final class ThrowType {
 	public static final int BALL_RIGHT = 5;
 	public static final int BALL_LOW = 6;
 	public static final int BALL_LEFT = 7;
-	public static final int NOT_THROWN = 8;
+	public static final int SHORT = 8;
+	public static final int TRAP = 9;
+	public static final int TRAP_REDEEMED = 10;
+	public static final int NOT_THROWN = 11;
 }
