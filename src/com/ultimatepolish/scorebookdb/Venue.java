@@ -2,6 +2,7 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 
@@ -11,41 +12,54 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class Venue {
-	public static final String VENUE_NAME = "name";
+	public static final String VENUE_NAME = "venueName";
 	
 	@DatabaseField(generatedId=true)
 	private long id;
 	
 	@DatabaseField(canBeNull=false, unique=true, columnName=VENUE_NAME)
-	private String name;
+	private String venueName;
 	
 	@DatabaseField(canBeNull=true)
 	public boolean scoreKeptFromTop = true;
 	
+	@DatabaseField
+	private long longitude;
+	
+	@DatabaseField
+	private long latitude;
+	
+	@DatabaseField
+	private long zipCode;
+	
+	@DatabaseField
+	private boolean isActive = true;
+	
 	Venue(){}
 
-	public Venue(String name, boolean scoreKeptFromTop) {
+	public Venue(String venueName, boolean scoreKeptFromTop) {
 		super();
-		this.name = name;
+		this.venueName = venueName;
 		this.scoreKeptFromTop = scoreKeptFromTop;
 	}
+	
 	public static Dao<Venue, Long> getDao(Context context) throws SQLException{
 		DatabaseHelper helper = new DatabaseHelper(context);
 		Dao<Venue, Long> d = helper.getVenueDao();
 		return d;
 	}
-	public static ArrayList<Venue> getAll(Context context) throws SQLException{
+	public static List<Venue> getAll(Context context) throws SQLException{
 		Dao<Venue, Long> d = Venue.getDao(context);
-		ArrayList<Venue> venues = new ArrayList<Venue>();
+		List<Venue> venues = new ArrayList<Venue>();
 		for(Venue v:d){
 			venues.add(v);
 		}
 		return venues;
 	}
 
-	public Venue(String name) {
+	public Venue(String venueName) {
 		super();
-		this.name = name;
+		this.venueName = venueName;
 	}
 
 	public long getId() {
@@ -57,11 +71,11 @@ public class Venue {
 	}
 
 	public String getName() {
-		return name;
+		return venueName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String venueName) {
+		this.venueName = venueName;
 	}
 
 	public void setScoreFromTop(Boolean sfTop) {
@@ -72,8 +86,12 @@ public class Venue {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public boolean getIsActive() {
+		return isActive;
+	}
 
-	
-	
-	
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
+	}
 }

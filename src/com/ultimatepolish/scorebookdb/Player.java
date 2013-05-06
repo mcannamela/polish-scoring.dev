@@ -19,7 +19,6 @@ public class Player{
 	public static final String LAST_NAME = "lastName";
 	public static final String NICK_NAME = "nickName";
 	
-	
 	@DatabaseField(generatedId=true)
 	private long id;
 	
@@ -39,20 +38,23 @@ public class Player{
 	public boolean throwsLeftHanded;
 	
 	@DatabaseField
+	public boolean prefersRightSide;
+	
+	@DatabaseField
+	public boolean prefersLeftSide;
+	
+	@DatabaseField
 	private int height_cm;
 	
 	@DatabaseField
 	private int weight_kg;
+	
+	@DatabaseField
+	private long drawableId;
+	
+	@DatabaseField
+	private boolean isActive = true;
 
-	@DatabaseField
-	private int  nGames;
-	
-	@DatabaseField
-	private int  nWins;
-	
-	@DatabaseField
-	private int  nLosses;
-	
 	Player(){}
 
 	public Player(  String firstName, 
@@ -118,9 +120,9 @@ public class Player{
 		return exists(firstName, lastName, nickName, context);
 	}
 		
-	public static ArrayList<Player> getAll(Context context) throws SQLException{
+	public static List<Player> getAll(Context context) throws SQLException{
 		Dao<Player, Long> d = Player.getDao(context);
-		ArrayList<Player> players = new ArrayList<Player>();
+		List<Player> players = new ArrayList<Player>();
 		for(Player p:d){
 			players.add(p);
 		}
@@ -134,7 +136,6 @@ public class Player{
 		return m;
 	}
 	
-
 	public long getId() {
 		return id;
 	}
@@ -169,8 +170,38 @@ public class Player{
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
-
 	
+	public boolean getRightHanded() {
+		return throwsRightHanded;
+	}
+	
+	public void setRightHanded(boolean rightHanded) {
+		this.throwsRightHanded = rightHanded;
+	}
+	
+	public boolean getLeftHanded() {
+		return throwsLeftHanded;
+	}
+
+	public void setLeftHanded(boolean leftHanded) {
+		this.throwsLeftHanded = leftHanded;
+	}
+	
+	public boolean getPrefersRightSide() {
+		return prefersRightSide;
+	}
+	
+	public void setPrefersRightSide(boolean prefersRightSide) {
+		this.prefersRightSide = prefersRightSide;
+	}
+	
+	public boolean getPrefersLeftSide() {
+		return prefersLeftSide;
+	}
+
+	public void setPrefersLeftSide(boolean prefersLeftSide) {
+		this.prefersLeftSide = prefersLeftSide;
+	}
 
 	public int getHeight_cm() {
 		return height_cm;
@@ -188,37 +219,19 @@ public class Player{
 		this.weight_kg = weight_kg;
 	}
 
-	public void setRightHanded(boolean rightHanded) {
-		this.throwsRightHanded = rightHanded;
+	public long getDrawableId() {
+		return drawableId;
 	}
 
-	public void setLeftHanded(boolean leftHanded) {
-		this.throwsLeftHanded = leftHanded;
-	}
-
-	public int getnGames() {
-		return nGames;
-	}
-
-	public void setnGames(int nGames) {
-		this.nGames = nGames;
-	}
-
-	public int getnWins() {
-		return nWins;
-	}
-
-	public void setnWins(int nWins) {
-		this.nWins = nWins;
-	}
-
-	public int getnLosses() {
-		return nLosses;
-	}
-
-	public void setnLosses(int nLosses) {
-		this.nLosses = nLosses;
+	public void setDrawableId(long drawableId) {
+		this.drawableId = drawableId;
 	}
 	
-	
+	public boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
+	}
 }

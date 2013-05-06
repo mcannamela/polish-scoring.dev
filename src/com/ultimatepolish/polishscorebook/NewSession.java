@@ -85,7 +85,7 @@ public class NewSession extends MenuContainerActivity {
 				Toast.makeText(context, "Could not modify session.", Toast.LENGTH_SHORT).show();
 			}
     	} else {
-    		session = new Session(sessionName, startDate);
+    		session = new Session(sessionName, startDate, 1, false);
         	
         	try{
         		Dao<Session, Long> dao = getHelper().getSessionDao();
