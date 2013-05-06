@@ -61,12 +61,34 @@ public class Game {
 		this.datePlayed = new Date();
 	}
 
-	public static Dao<Game, Long> getDao(Context context) throws SQLException{
+	public static Dao<Game, Long> getDao(Context context) {
 		DatabaseHelper helper = new DatabaseHelper(context);
-		Dao<Game, Long> d = helper.getGameDao();
+		Dao<Game, Long> d = null;
+		try {
+			d = helper.getGameDao();
+		}
+		catch (SQLException e){
+			throw new RuntimeException("couldn't get dao: ", e);
+		}
 		return d;
 	}
-	
+	public boolean isValidThrow(Throw t){
+		boolean isValid = true;
+		int idx = t.getThrowIdx();
+		switch (idx%2){
+		    //first player is on offense
+			case 0:
+				isValid= isValid && (t.getPlayerId()==firstPlayerId);
+				break;
+		    //second player is on defense
+			case 1:
+				isValid= isValid && (t.getPlayerId()==secondPlayerId);
+				break;
+			default:
+				throw new RuntimeException("invalid index "+idx);
+		}
+		return isValid;
+	}
 	public Player[] getPlayers(Context context) throws SQLException{
 		Player[] players = new Player[2]; 
 		Dao<Player, Long> d = Player.getDao(context);

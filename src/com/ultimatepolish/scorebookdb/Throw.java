@@ -2,6 +2,7 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -91,10 +92,22 @@ public class Throw implements Comparable<Throw>{
 		this.playerId = playerId;
 		this.timestamp = timestamp;
 	}
-	public static Dao<Throw, Long> getDao(Context context) throws SQLException{
+	public static Dao<Throw, Long> getDao(Context context){
 		DatabaseHelper helper = new DatabaseHelper(context);
-		Dao<Throw, Long> d = helper.getThrowDao();
+		Dao<Throw, Long> d = null;
+		try {
+			d = helper.getThrowDao();
+		}
+		catch (SQLException e){
+			throw new RuntimeException("couldn't get dao: ", e);
+		}
 		return d;
+	}
+	public HashMap<String, Object> getQueryMap(){
+		HashMap<String,Object> m = new HashMap<String,Object>();
+		m.put(Throw.THROW_NUMBER, getThrowIdx());
+		m.put(Throw.GAME_ID, getGameId());
+		return m;
 	}
 	public void setInitialScores(Throw previousThrow){
 		int[] scores = previousThrow.getFinalScores();
