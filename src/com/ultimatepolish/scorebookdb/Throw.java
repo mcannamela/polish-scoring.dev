@@ -518,7 +518,5 @@ public class Throw implements Comparable<Throw>{
 	public boolean isP1Throw(){
 		return isP1Throw(throwNumber);
 	}
-	
-
-	
 }
+

@@ -2,6 +2,7 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
@@ -19,8 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ultimatepolish.scorebookdb.Player;
-import com.ultimatepolish.scorebookdb.Session;
-import com.ultimatepolish.scorebookdb.Venue;
 
 public class NewTeam extends MenuContainerActivity {
 	Long tId;
@@ -33,8 +32,8 @@ public class NewTeam extends MenuContainerActivity {
 	int p1_pos = 0;
 	int p2_pos = 1;
 	
-	ArrayList<Player> players = new ArrayList<Player>();
-	ArrayList<String> playerNames = new ArrayList<String>();
+	List<Player> players = new ArrayList<Player>();
+	List<String> playerNames = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -3,6 +3,7 @@ package com.ultimatepolish.scorebookdb;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.content.Context;
 
@@ -25,14 +26,22 @@ public class Session {
 	private Date endDate;
 	
 	@DatabaseField(canBeNull=false)
-	public boolean isLeague = false;
+	public int sessionType;
+	
+	@DatabaseField
+	private boolean isTeam = false;
+	
+	@DatabaseField
+	private boolean isActive = true;
 	
 	public Session(){}
 
-	public Session(String sessionName, Date startDate) {
+	public Session(String sessionName, Date startDate, int sessionType, boolean isTeam) {
 		super();
 		this.sessionName = sessionName;
 		this.startDate = startDate;
+		this.sessionType = sessionType;
+		this.isTeam = isTeam;
 		
 	}
 	
@@ -41,16 +50,16 @@ public class Session {
 		Dao<Session, Long> d = helper.getSessionDao();
 		return d;
 	}
-	public static ArrayList<Session> getAll(Context context) throws SQLException{
+	
+	public static List<Session> getAll(Context context) throws SQLException{
 		Dao<Session, Long> d = Session.getDao(context);
-		ArrayList<Session> sessions = new ArrayList<Session>();
+		List<Session> sessions = new ArrayList<Session>();
 		for(Session s:d){
 			sessions.add(s);
 		}
 		return sessions;
 	}
 	
-
 	public long getId() {
 		return id;
 	}
@@ -83,8 +92,27 @@ public class Session {
 		this.endDate = endDate;
 	}
 	
+	public int getSessionType() {
+		return sessionType;
+	}
+
+	public void setSessionType(int sessionType) {
+		this.sessionType = sessionType;
+	}
 	
+	public boolean getIsTeam() {
+		return isTeam;
+	}
+
+	public void setIsTeam(boolean isTeam) {
+		this.isTeam = isTeam;
+	}
 	
-	
-	
+	public boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
+	}
 }

@@ -22,8 +22,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private static final int DATABASE_VERSION = 9;
 
 	private Dao<Player, Long> playerDao;
+	private Dao<PlayerStats, Long> playerStatsDao;
+	private Dao<Team, Long> teamDao;
+	private Dao<TeamStats, Long> teamStatsDao;
+	private Dao<Badge, Long> badgeDao;
 	private Dao<Game, Long> gameDao;
 	private Dao<Session, Long> sessionDao;
+	private Dao<SessionMember, Long> sessionMemberDao;
 	private Dao<Throw, Long> throwDao;
 	private Dao<Venue, Long> venueDao;
 
@@ -39,8 +44,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public void onCreate(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource) {
 		try {
 			TableUtils.createTable(connectionSource, Player.class);
+			TableUtils.createTable(connectionSource, PlayerStats.class);
+			TableUtils.createTable(connectionSource, Team.class);
+			TableUtils.createTable(connectionSource, TeamStats.class);
+			TableUtils.createTable(connectionSource, Badge.class);
 			TableUtils.createTable(connectionSource, Game.class);
 			TableUtils.createTable(connectionSource, Session.class);
+			TableUtils.createTable(connectionSource, SessionMember.class);
 			TableUtils.createTable(connectionSource, Throw.class);
 			TableUtils.createTable(connectionSource, Venue.class);
 		} catch (SQLException e) {
@@ -52,8 +62,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public void onUpgrade(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource, int oldVer, int newVer) {
 		try {
 			TableUtils.dropTable(connectionSource, Player.class, true);
+			TableUtils.dropTable(connectionSource, PlayerStats.class, true);
+			TableUtils.dropTable(connectionSource, Team.class, true);
+			TableUtils.dropTable(connectionSource, TeamStats.class, true);
+			TableUtils.dropTable(connectionSource, Badge.class, true);
 			TableUtils.dropTable(connectionSource, Game.class, true);
 			TableUtils.dropTable(connectionSource, Session.class, true);
+			TableUtils.dropTable(connectionSource, SessionMember.class, true);
 			TableUtils.dropTable(connectionSource, Throw.class, true);
 			TableUtils.dropTable(connectionSource, Venue.class, true);
 			onCreate(sqliteDatabase, connectionSource);
@@ -69,6 +84,34 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return playerDao;
 	}
+	
+	public Dao<PlayerStats, Long> getPlayerStatsDao() throws SQLException {
+		if (playerStatsDao == null) {
+			playerStatsDao = getDao(PlayerStats.class);
+		}
+		return playerStatsDao;
+	}
+	
+	public Dao<Team, Long> getTeamDao() throws SQLException {
+		if (teamDao == null) {
+			teamDao = getDao(Team.class);
+		}
+		return teamDao;
+	}
+	
+	public Dao<TeamStats, Long> getTeamStatsDao() throws SQLException {
+		if (teamStatsDao == null) {
+			teamStatsDao = getDao(TeamStats.class);
+		}
+		return teamStatsDao;
+	}
+	
+	public Dao<Badge, Long> getBadgeDao() throws SQLException {
+		if (badgeDao == null) {
+			badgeDao = getDao(Badge.class);
+		}
+		return badgeDao;
+	}
 
 	public Dao<Game, Long> getGameDao() throws SQLException {
 		if (gameDao == null) {
@@ -81,6 +124,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			sessionDao = getDao(Session.class);
 		}
 		return sessionDao;
+	}
+	public Dao<SessionMember, Long> getSessionMemberDao() throws SQLException {
+		if (sessionMemberDao == null) {
+			sessionMemberDao = getDao(SessionMember.class);
+		}
+		return sessionMemberDao;
 	}
 	public Dao<Throw, Long> getThrowDao() throws SQLException {
 		if (throwDao == null) {

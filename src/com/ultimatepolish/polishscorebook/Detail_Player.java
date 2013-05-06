@@ -77,7 +77,8 @@ public class Detail_Player extends MenuContainerActivity {
 		pWeight.setText("Weight: " + String.valueOf(p.getWeight_kg()) + " kg");
 		
 		TextView pWinRatio = (TextView) findViewById(R.id.pDet_winRatio);
-		pWinRatio.setText(String.valueOf(p.getnWins()) + "/" + String.valueOf(p.getnLosses()));
+//		pWinRatio.setText(String.valueOf(p.getnWins()) + "/" + String.valueOf(p.getnLosses()));
+		pWinRatio.setText("Win Ratio here eventually...");
 		
 		TextView pHanded = (TextView) findViewById(R.id.pDet_handed);
 		if (p.throwsLeftHanded) {
