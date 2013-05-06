@@ -171,7 +171,7 @@ public class ThrowTableFragment extends Fragment {
 		try{
 			ThrowTableRow tr = getTableRow(t);
 			tr.updateText(t);
-			log( "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
+			logd( "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 		}
 		catch (IndexOutOfBoundsException e){
 			loge("renderThrow(): Throw idx " + t.getThrowIdx() + " has no view on this page", e);
