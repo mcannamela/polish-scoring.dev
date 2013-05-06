@@ -436,10 +436,10 @@ public class GameInProgress extends MenuContainerActivity
 		}		
 	}
 	private void applySpecialMarks(Throw t){
-		t.isDefensiveError = isError();
+		t.isError = isError();
 		t.isGoaltend = isGoaltend();
 		t.isOwnGoal = isOwnGoal();
-		if (t.isDefensiveError){
+		if (t.isError){
 			t.setErrorScore(getErrorScore());
 		}
 		if (t.isOwnGoal){
@@ -450,11 +450,11 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		
 		
-		t.isDead = isShort();
+		t.isShort = isShort();
 		t.isTrap=isTrap();
 		t.isBroken = isBroken();
 		
-		t.isDefensiveDrinkDropped = isDrinkDrop();
+		t.isDrinkDropped = isDrinkDrop();
 		t.isDrinkHit = isDrinkHit();
 		
 		t.isOnFire=isOnFire();
@@ -476,18 +476,18 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setSpecialMarks(Throw t){
-		setIsError(t.isDefensiveError);
+		setIsError(t.isError);
 		setIsOwnGoal(t.isOwnGoal);
 		setIsGoaltend(t.isGoaltend);
 		setErrorScore(t.getErrorScore());
 		setOwnGoalScore(t.getOwnGoalScore());
 		setGoaltendScore(t.getGoaltendScore());
 		
-		setIsShort(t.isDead);
+		setIsShort(t.isShort);
 		setIsTrap(t.isTrap);
 		setIsBroken(t.isBroken);
 		setIsDrinkHit(t.isDrinkHit);
-		setIsDrinkDropped(t.isDefensiveDrinkDropped);
+		setIsDrinkDropped(t.isDrinkDropped);
 		setIsOnFire(t.isOnFire);
 		setIsFiredOn(t.isFiredOn);
 	}

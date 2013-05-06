@@ -12,41 +12,31 @@ import com.ultimatepolish.polishscorebook.R;
 
 public class Throw implements Comparable<Throw>{
 	public static final String GAME_ID = "gameId";
-	public static final String THROW_INDEX = "throwIdx";
-
+	public static final String THROW_NUMBER = "throwNumber";
 	@DatabaseField(generatedId=true)
 	private long id;
 	
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private int throwIdx;
-
+	private int throwNumber;
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private long gameId;
-
 	@DatabaseField(canBeNull=false)
-	private long offensivePlayerId;
+	private long playerId;
 
-	@DatabaseField(canBeNull=false)
-	private long defensivePlayerId;
-	
 	@DatabaseField(canBeNull=false)
 	private Date timestamp;
-
 	@DatabaseField(canBeNull=false)
 	private int throwType;
-
 	@DatabaseField(canBeNull=false)
 	private int throwResult;
 	
 	@DatabaseField
-	public boolean isDefensiveError = false;
-
+	public boolean isError = false;
 	@DatabaseField
 	private int errorScore = 0;
 	
 	@DatabaseField
 	public boolean isOwnGoal = false;
-
 	@DatabaseField
 	private int ownGoalScore= 0;
 	
@@ -57,22 +47,26 @@ public class Throw implements Comparable<Throw>{
 		
 	@DatabaseField
 	public boolean isDrinkHit = false;
+	@DatabaseField
+	public boolean isDrinkDropped = false;
 	
 	@DatabaseField
-	public boolean isDefensiveDrinkDropped = false;
+	public boolean isTrap = false;
+	
 	
 	@DatabaseField
 	public boolean isOnFire = false;
-
 	@DatabaseField
-	public boolean isDead = false;
+	public boolean isFiredOn = false;
+	
+	@DatabaseField
+	public boolean isShort = false;
 	
 	@DatabaseField
 	public boolean isBroken = false;
 	
 	@DatabaseField
 	private int initialOffensivePlayerScore = 0;
-
 	@DatabaseField
 	private int initialDefensivePlayerScore = 0;
 	
@@ -81,9 +75,9 @@ public class Throw implements Comparable<Throw>{
 	public Throw(int throwNumber, long gameId, long playerId, Date timestamp,
 			int throwType, int throwResult) {
 		super();
-		this.throwIdx = throwNumber;
+		this.throwNumber = throwNumber;
 		this.gameId = gameId;
-		this.offensivePlayerId = playerId;
+		this.playerId = playerId;
 		this.timestamp = timestamp;
 		this.throwType = throwType;
 		this.throwResult = throwResult;
@@ -92,9 +86,9 @@ public class Throw implements Comparable<Throw>{
 
 	public Throw(int throwNumber, long gameId, long playerId, Date timestamp) {
 		super();
-		this.throwIdx = throwNumber;
+		this.throwNumber = throwNumber;
 		this.gameId = gameId;
-		this.offensivePlayerId = playerId;
+		this.playerId = playerId;
 		this.timestamp = timestamp;
 	}
 	public static Dao<Throw, Long> getDao(Context context) throws SQLException{
@@ -138,13 +132,6 @@ public class Throw implements Comparable<Throw>{
 						break;
 					case ThrowType.BOTTLE:
 						inc[0] = 3;
-						break;
-					case ThrowType.TRAP:
-						inc[0] = -1;
-						break;
-					case ThrowType.TRAP_REDEEMED:
-						inc[0] = 0;
-						break;
 					default:
 						break;
 				}
@@ -163,19 +150,19 @@ public class Throw implements Comparable<Throw>{
 				break;
 		}
 		
-		if (isDefensiveDrinkDropped){
+		if (isDrinkDropped){
 			inc[1]-=1;
 		}
 		if (isDrinkHit){
 			inc[1]-=1;
 		}
-//		if (isTrap){
-//			inc[0]-=1;
-//		}
+		if (isTrap){
+			inc[0]-=1;
+		}
 		if (isOwnGoal){
 			inc[1]+= ownGoalScore;
 		}
-		if (isDefensiveError){
+		if (isError){
 			inc[0]+= errorScore;
 		}
 		if (isGoaltend){
@@ -200,7 +187,7 @@ public class Throw implements Comparable<Throw>{
 	}
 	public String getSpecialString(){
 		String s = "";
-		if(isDefensiveError){
+		if(isError){
 			s+="e"+String.valueOf(errorScore);
 		}
 		if (isOwnGoal){
@@ -212,19 +199,19 @@ public class Throw implements Comparable<Throw>{
 //		if (isOnFire){
 //			s+="f";
 //		}
-//		if (isFiredOn){
-//			s+="F";
-//		}
+		if (isFiredOn){
+			s+="F";
+		}
 		if (isBroken){
 			s+="*";
 		}
-//		if (isTrap){
-//			s+="^";
-//		}
-		if (isDead){
+		if (isTrap){
+			s+="^";
+		}
+		if (isShort){
 			s+="v";
 		}
-		if (isDefensiveDrinkDropped){
+		if (isDrinkDropped){
 			s+="d";
 		}
 		if (isDrinkHit){
@@ -410,11 +397,11 @@ public class Throw implements Comparable<Throw>{
 	}
 
 	public int getThrowIdx() {
-		return throwIdx;
+		return throwNumber;
 	}
 
 	public void setThrowIdx(int throwNumber) {
-		this.throwIdx = throwNumber;
+		this.throwNumber = throwNumber;
 	}
 
 	public long getGameId() {
@@ -426,11 +413,11 @@ public class Throw implements Comparable<Throw>{
 	}
 
 	public long getPlayerId() {
-		return offensivePlayerId;
+		return playerId;
 	}
 
 	public void setPlayerId(long playerId) {
-		this.offensivePlayerId = playerId;
+		this.playerId = playerId;
 	}
 
 	public Date getTimestamp() {
@@ -498,10 +485,10 @@ public class Throw implements Comparable<Throw>{
 	}
 
 	public int compareTo(Throw another) {
-		if (throwIdx<another.throwIdx){
+		if (throwNumber<another.throwNumber){
 			return -1;
 		}
-		else if(throwIdx==another.throwIdx){
+		else if(throwNumber==another.throwNumber){
 			return 0;
 		}
 		else{
@@ -516,9 +503,7 @@ public class Throw implements Comparable<Throw>{
 		return isP1Throw(t.getThrowIdx());
 	}
 	public boolean isP1Throw(){
-		return isP1Throw(throwIdx);
+		return isP1Throw(throwNumber);
 	}
-	
-
-	
 }
+
