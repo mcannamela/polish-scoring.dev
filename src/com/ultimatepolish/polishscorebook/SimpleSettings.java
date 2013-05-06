@@ -192,8 +192,8 @@ public class SimpleSettings extends MenuContainerActivity {
 	    	new Player("jon", "sukovich", "sukes appeal", true, false, 182, 63)
     	};
     	Dao<Session, Long> sessionDao=null;
-    	Session s1 = new Session("league", new Date());
-    	Session s2 = new Session("side_books", new Date());
+    	Session s1 = new Session("league", new Date(), 1, false);
+    	Session s2 = new Session("side_books", new Date(), 0, false);
     	Dao<Venue, Long> venueDao=null;
     	Venue v1 = new Venue("cogswell", true);
 		Venue v2 = new Venue("verndale", true);

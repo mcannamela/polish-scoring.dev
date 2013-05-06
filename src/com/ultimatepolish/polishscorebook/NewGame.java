@@ -3,6 +3,7 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,14 +36,14 @@ public class NewGame extends MenuContainerActivity {
 	int session_pos = 0;
 	int venue_pos = 1;
 	
-	ArrayList<Player> players = new ArrayList<Player>() ;
-	ArrayList<Session> sessions= new ArrayList<Session>();
-	ArrayList<Venue> venues= new ArrayList<Venue>();
+	List<Player> players = new ArrayList<Player>() ;
+	List<Session> sessions= new ArrayList<Session>();
+	List<Venue> venues= new ArrayList<Venue>();
 	
 	
-	ArrayList<String> playerNames = new ArrayList<String>();
-	ArrayList<String> sessionNames = new ArrayList<String>();
-	ArrayList<String> venueNames = new ArrayList<String>();
+	List<String> playerNames = new ArrayList<String>();
+	List<String> sessionNames = new ArrayList<String>();
+	List<String> venueNames = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +145,7 @@ public class NewGame extends MenuContainerActivity {
 		Long p2id = players.get(p2_pos).getId();
 		Long sid = sessions.get(session_pos).getId();
 		Long vid = venues.get(venue_pos).getId();
-		Game g = new Game(p1id, p2id, sid, vid);
+		Game g = new Game(p1id, p2id, sid, vid, false, true);
 		long gid; 
 		g.setDatePlayed(new Date());
 		

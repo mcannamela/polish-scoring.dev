@@ -17,9 +17,11 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Game {
 	@DatabaseField(generatedId=true)
 	private long id;
-	@DatabaseField(canBeNull=false)
+	
+	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private long firstPlayerId;
-	@DatabaseField(canBeNull=false)
+	
+	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private long secondPlayerId;
 	
 	@DatabaseField(canBeNull=false)
@@ -27,6 +29,7 @@ public class Game {
 	
 	@DatabaseField
 	private long sessionId;
+	
 	@DatabaseField
 	private long venueId;
 	
@@ -35,29 +38,45 @@ public class Game {
 	
 	@DatabaseField
 	private int firstPlayerScore;
+	
 	@DatabaseField
 	private int secondPlayerScore;
 
+	@DatabaseField
+	private boolean isTeam;
+	
+	@DatabaseField
+	private boolean isComplete = false;
+	
+	@DatabaseField
+	private boolean isTracked = true;
+	
 	public Game() {
 		super();
 	}
 
 	public Game(long firstPlayerId, long secondPlayerId, long sessionId,
-			long venueId, Date datePlayed) {
+			long venueId, boolean isTeam, boolean isTracked, Date datePlayed) {
 		super();
 		this.firstPlayerId = firstPlayerId;
 		this.secondPlayerId = secondPlayerId;
 		this.sessionId = sessionId;
 		this.venueId = venueId;
+		this.isTeam = isTeam;
+		this.isTracked = isTracked;
 		this.datePlayed = datePlayed;
+		
 	}
 	
-	public Game(long firstPlayerId, long secondPlayerId, long sessionId, long venueId) {
+	public Game(long firstPlayerId, long secondPlayerId, long sessionId,
+			long venueId, boolean isTeam, boolean isTracked) {
 		super();
 		this.firstPlayerId = firstPlayerId;
 		this.secondPlayerId = secondPlayerId;
 		this.sessionId = sessionId;
 		this.venueId = venueId;
+		this.isTeam = isTeam;
+		this.isTracked = isTracked;
 		this.datePlayed = new Date();
 	}
 
@@ -221,5 +240,21 @@ public class Game {
 		catch (SQLException e){
 			return null;
 		}
+	}
+	
+	public boolean getIsTeam() {
+		return isTeam;
+	}
+	
+	public boolean getIsComplete() {
+		return isComplete;
+	}
+
+	public void setIsComplete(boolean isComplete) {
+		this.isComplete = isComplete;
+	}
+	
+	public boolean getIsTracked() {
+		return isTracked;
 	}
 }
