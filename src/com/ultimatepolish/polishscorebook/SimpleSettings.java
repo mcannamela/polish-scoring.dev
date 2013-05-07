@@ -31,6 +31,7 @@ import com.dropbox.sync.android.DbxFileInfo;
 import com.dropbox.sync.android.DbxFileSystem;
 import com.dropbox.sync.android.DbxPath;
 import com.j256.ormlite.dao.Dao;
+import com.ultimatepolish.scorebookdb.DatabaseHelper;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
@@ -143,40 +144,9 @@ public class SimpleSettings extends MenuContainerActivity {
 	    }
 	}
 	public void clearTables(View view){
-    	Dao<Player, Long> pd;
-    	Dao<Game, Long> gd;
-    	Dao<Session, Long> sd;
-    	Dao<Throw, Long> td;
-    	Dao<Venue, Long> vd;
-    	try{
-    		pd = getHelper().getPlayerDao();
-    		gd = getHelper().getGameDao();
-    		sd = getHelper().getSessionDao();
-    		td = getHelper().getThrowDao();
-   		 	vd = getHelper().getVenueDao();
-   		 	for(Player x: pd){
-   		 		pd.delete(x);
-   		 	}
-   		 	for(Game x: gd){
-   		 		gd.delete(x);
-   		 	}
-   		 	for(Session x: sd){
-   		 		sd.delete(x);
-   		 	}
-   		 	for(Throw x: td){
-   		 		td.delete(x);
-   		 	}
-   		 	for(Venue x: vd){
-   				vd.delete(x);
-   			}
-   		 
-	   	}
-	   	catch (SQLException e){
-	   		Context context = getApplicationContext();
-	   		int duration = Toast.LENGTH_LONG;
-	   		Toast.makeText(context, e.getMessage(), duration).show();
-	   		Log.e(PolishScorebook.class.getName(), "Clearing tables failed", e);
-	   	}
+		DatabaseHelper h = getHelper();
+		h.dropAll();
+		h.createAll();
     }
 	public void doPopulateTest(View view){
     	Dao<Player, Long> playerDao=null;

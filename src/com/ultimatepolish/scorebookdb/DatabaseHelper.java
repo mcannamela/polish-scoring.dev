@@ -1,6 +1,7 @@
 package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,10 +14,6 @@ import com.j256.ormlite.table.TableUtils;
 import com.ultimatepolish.polishscorebook.R;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
-
-	/************************************************
-	 * Suggested Copy/Paste code. Everything from here to the done block.
-	 ************************************************/
 
 	private static final String DATABASE_NAME = "polish.db";
 	private static final int DATABASE_VERSION = 9;
@@ -31,50 +28,70 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<SessionMember, Long> sessionMemberDao;
 	private Dao<Throw, Long> throwDao;
 	private Dao<Venue, Long> venueDao;
+	
+	private ArrayList<Class> tableClasses = new ArrayList<Class>();
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
+		tableClasses.add( Player.class);
+		tableClasses.add( PlayerStats.class);
+		tableClasses.add( Team.class);
+		tableClasses.add( TeamStats.class);
+		tableClasses.add( Badge.class);
+		tableClasses.add( Game.class);
+		tableClasses.add( Session.class);
+		tableClasses.add( SessionMember.class);
+		tableClasses.add( Throw.class);
+		tableClasses.add( Venue.class);
 	}
 
-	/************************************************
-	 * Suggested Copy/Paste Done
-	 ************************************************/
 
 	@Override
 	public void onCreate(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource) {
 		try {
-			TableUtils.createTable(connectionSource, Player.class);
-			TableUtils.createTable(connectionSource, PlayerStats.class);
-			TableUtils.createTable(connectionSource, Team.class);
-			TableUtils.createTable(connectionSource, TeamStats.class);
-			TableUtils.createTable(connectionSource, Badge.class);
-			TableUtils.createTable(connectionSource, Game.class);
-			TableUtils.createTable(connectionSource, Session.class);
-			TableUtils.createTable(connectionSource, SessionMember.class);
-			TableUtils.createTable(connectionSource, Throw.class);
-			TableUtils.createTable(connectionSource, Venue.class);
+			createAll(connectionSource);
 		} catch (SQLException e) {
-			Log.e(DatabaseHelper.class.getName(), "Unable to create datbase", e);
+			Log.e(DatabaseHelper.class.getName(), "Unable to create database", e);
 		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource, int oldVer, int newVer) {
 		try {
-			TableUtils.dropTable(connectionSource, Player.class, true);
-			TableUtils.dropTable(connectionSource, PlayerStats.class, true);
-			TableUtils.dropTable(connectionSource, Team.class, true);
-			TableUtils.dropTable(connectionSource, TeamStats.class, true);
-			TableUtils.dropTable(connectionSource, Badge.class, true);
-			TableUtils.dropTable(connectionSource, Game.class, true);
-			TableUtils.dropTable(connectionSource, Session.class, true);
-			TableUtils.dropTable(connectionSource, SessionMember.class, true);
-			TableUtils.dropTable(connectionSource, Throw.class, true);
-			TableUtils.dropTable(connectionSource, Venue.class, true);
-			onCreate(sqliteDatabase, connectionSource);
+			dropAll(connectionSource);
+			createAll(connectionSource);
 		} catch (SQLException e) {
-			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + oldVer + " to new "
+			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + oldVer + " to "
 					+ newVer, e);
+		}
+	}
+	public void createAll(){
+		try{
+			createAll(getConnectionSource());
+		}
+		catch (SQLException e){
+			Log.e(DatabaseHelper.class.toString(), e.getMessage());
+			throw new RuntimeException("could not create tables",e);
+		}
+	}
+	public void dropAll(){
+		try{
+			dropAll(getConnectionSource());
+		}
+		catch (SQLException e){
+			Log.e(DatabaseHelper.class.toString(), e.getMessage());
+			throw new RuntimeException("could not drop tables",e);
+		}
+	}
+	protected void createAll(ConnectionSource connectionSource) throws SQLException{
+		for(Class c:tableClasses){
+			TableUtils.createTable(connectionSource, c);
+		}
+	}
+	
+	protected void dropAll(ConnectionSource connectionSource) throws SQLException{
+		for(Class c:tableClasses){
+			TableUtils.dropTable(connectionSource, c, true);
 		}
 	}
 
