@@ -91,6 +91,7 @@ public class Throw implements Comparable<Throw>{
 		this.gameId = gameId;
 		this.playerId = playerId;
 		this.timestamp = timestamp;
+		this.throwType = ThrowType.NOT_THROWN;
 	}
 	public static Dao<Throw, Long> getDao(Context context){
 		DatabaseHelper helper = new DatabaseHelper(context);
