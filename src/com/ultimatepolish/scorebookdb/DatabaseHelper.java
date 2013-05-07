@@ -16,7 +16,7 @@ import com.ultimatepolish.polishscorebook.R;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "polish.db";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 
 	private Dao<Player, Long> playerDao;
 	private Dao<PlayerStats, Long> playerStatsDao;
