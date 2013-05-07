@@ -1,5 +1,5 @@
 #
-# generated on 2013/04/02 09:41:05
+# generated on 2013/05/06 09:17:10
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -34,19 +34,121 @@ fieldName=throwsRightHanded
 fieldName=throwsLeftHanded
 # --field-end--
 # --field-start--
+fieldName=prefersRightSide
+# --field-end--
+# --field-start--
+fieldName=prefersLeftSide
+# --field-end--
+# --field-start--
 fieldName=height_cm
 # --field-end--
 # --field-start--
 fieldName=weight_kg
 # --field-end--
 # --field-start--
-fieldName=nGames
+fieldName=drawableId
+# --field-end--
+# --field-start--
+fieldName=isActive
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ultimatepolish.scorebookdb.PlayerStats
+tableName=playerstats
+# --table-fields-start--
+# --field-start--
+fieldName=playerId
+unique=true
 # --field-end--
 # --field-start--
 fieldName=nWins
 # --field-end--
 # --field-start--
 fieldName=nLosses
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ultimatepolish.scorebookdb.Team
+tableName=team
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=teamName
+columnName=teamName
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=firstPlayerId
+canBeNull=false
+uniqueCombo=true
+# --field-end--
+# --field-start--
+fieldName=secondPlayerId
+canBeNull=false
+uniqueCombo=true
+# --field-end--
+# --field-start--
+fieldName=nWins
+# --field-end--
+# --field-start--
+fieldName=nLosses
+# --field-end--
+# --field-start--
+fieldName=drawableId
+# --field-end--
+# --field-start--
+fieldName=isActive
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ultimatepolish.scorebookdb.TeamStats
+tableName=teamstats
+# --table-fields-start--
+# --field-start--
+fieldName=teamId
+unique=true
+# --field-end--
+# --field-start--
+fieldName=nWins
+# --field-end--
+# --field-start--
+fieldName=nLosses
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ultimatepolish.scorebookdb.Badge
+tableName=badge
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=playerId
+# --field-end--
+# --field-start--
+fieldName=isTeam
+# --field-end--
+# --field-start--
+fieldName=sessionId
+# --field-end--
+# --field-start--
+fieldName=badgeType
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=drawableId
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -62,10 +164,12 @@ generatedId=true
 # --field-start--
 fieldName=firstPlayerId
 canBeNull=false
+uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=secondPlayerId
 canBeNull=false
+uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=firstPlayerOnTop
@@ -86,6 +190,15 @@ fieldName=firstPlayerScore
 # --field-end--
 # --field-start--
 fieldName=secondPlayerScore
+# --field-end--
+# --field-start--
+fieldName=isTeam
+# --field-end--
+# --field-start--
+fieldName=isComplete
+# --field-end--
+# --field-start--
+fieldName=isTracked
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -110,8 +223,35 @@ canBeNull=false
 fieldName=endDate
 # --field-end--
 # --field-start--
-fieldName=isLeague
+fieldName=sessionType
 canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=isTeam
+# --field-end--
+# --field-start--
+fieldName=isActive
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ultimatepolish.scorebookdb.SessionMember
+tableName=sessionmember
+# --table-fields-start--
+# --field-start--
+fieldName=sessionId
+uniqueCombo=true
+# --field-end--
+# --field-start--
+fieldName=playerId
+uniqueCombo=true
+# --field-end--
+# --field-start--
+fieldName=playerSeed
+# --field-end--
+# --field-start--
+fieldName=playerRank
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -207,13 +347,25 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=name
-columnName=name
+fieldName=venueName
+columnName=venueName
 canBeNull=false
 unique=true
 # --field-end--
 # --field-start--
 fieldName=scoreKeptFromTop
+# --field-end--
+# --field-start--
+fieldName=longitude
+# --field-end--
+# --field-start--
+fieldName=latitude
+# --field-end--
+# --field-start--
+fieldName=zipCode
+# --field-end--
+# --field-start--
+fieldName=isActive
 # --field-end--
 # --table-fields-end--
 # --table-end--

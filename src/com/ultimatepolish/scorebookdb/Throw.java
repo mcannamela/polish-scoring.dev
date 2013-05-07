@@ -337,7 +337,7 @@ public class Throw implements Comparable<Throw>{
 			case ThrowType.STRIKE:
 				switch (throwResult){
 				case ThrowResult.DROP:
-					d = R.drawable.bxs_strike;
+					d = R.drawable.bxs_strike_catch;
 					break;
 				case ThrowResult.CATCH:
 				case ThrowResult.STALWART:
@@ -351,7 +351,7 @@ public class Throw implements Comparable<Throw>{
 					if (isOnFire) {
 						d = R.drawable.bxs_pole_fire;
 					} else {
-						d = R.drawable.bxs_pole;
+						d = R.drawable.bxs_pole_catch;
 					}
 					break;
 				case ThrowResult.CATCH:
@@ -368,7 +368,7 @@ public class Throw implements Comparable<Throw>{
 					if (isOnFire) {
 						d = R.drawable.bxs_cup_fire;
 					} else {
-						d = R.drawable.bxs_cup;
+						d = R.drawable.bxs_cup_catch;
 					}
 					break;
 				case ThrowResult.CATCH:
@@ -385,7 +385,7 @@ public class Throw implements Comparable<Throw>{
 						if (isOnFire) {
 							d = R.drawable.bxs_bottle_fire;
 						} else {
-							d = R.drawable.bxs_bottle;
+							d = R.drawable.bxs_bottle_catch;
 						}
 						break;
 					case ThrowResult.CATCH:
