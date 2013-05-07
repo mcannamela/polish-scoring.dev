@@ -45,7 +45,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		tableClasses.add( Venue.class);
 	}
 
-
 	@Override
 	public void onCreate(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource) {
 		try {
@@ -57,14 +56,37 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource, int oldVer, int newVer) {
+		switch (oldVer){
+			case 9:
+				upgrade_09_10(sqliteDatabase, connectionSource);
+			case 10:
+				break;
+			default:
+				try {
+					dropAll(connectionSource);
+					createAll(connectionSource);
+				} catch (SQLException e) {
+					Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + oldVer + " to "
+							+ newVer, e);
+				}
+		}
+		
+	}
+	
+	private void upgrade_09_10(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
+		//TODO: actual db migration goes here
 		try {
 			dropAll(connectionSource);
 			createAll(connectionSource);
 		} catch (SQLException e) {
-			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + oldVer + " to "
-					+ newVer, e);
+			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
+					+ 10, e);
 		}
 	}
+	
+	
+	
+	
 	public void createAll(){
 		try{
 			createAll(getConnectionSource());
