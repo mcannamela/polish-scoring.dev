@@ -2,7 +2,9 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -29,7 +31,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<Throw, Long> throwDao;
 	private Dao<Venue, Long> venueDao;
 	
-	private ArrayList<Class> tableClasses = new ArrayList<Class>();
+	private List<Class> tableClasses = new ArrayList<Class>();
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
@@ -47,6 +49,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource) {
+		Log.i("DatabaseHelper.onCreate()", "Attempting to create db");
 		try {
 			createAll(connectionSource);
 		} catch (SQLException e) {
@@ -55,10 +58,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource, int oldVer, int newVer) {
+	public void onUpgrade(final SQLiteDatabase sqliteDatabase, final ConnectionSource connectionSource, int oldVer, final int newVer) {
+		Log.i("DatabaseHelper.onUpgrade()", "Attempting to upgrade from version " + oldVer + " to version " + newVer);
+
+//		DatabaseUpgrader dbUp = new DatabaseUpgrader();
 		switch (oldVer){
 			case 9:
-				upgrade_09_10(sqliteDatabase, connectionSource);
+//				dbUp.increment_09(sqliteDatabase, oldVer, newVer, connectionSource);
+				increment_09(sqliteDatabase, connectionSource);
+				
 			case 10:
 				break;
 			default:
@@ -70,22 +78,21 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 							+ newVer, e);
 				}
 		}
-		
 	}
 	
-	private void upgrade_09_10(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
+	private void increment_09(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
 		//TODO: actual db migration goes here
 		try {
-			dropAll(connectionSource);
-			createAll(connectionSource);
+			// game table
+			Dao<Game, Long> gDao = getGameDao();
+			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
+			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isComplete BOOLEAN DEFAULT 0;");
+			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
 					+ 10, e);
 		}
 	}
-	
-	
-	
 	
 	public void createAll(){
 		try{
@@ -96,6 +103,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			throw new RuntimeException("could not create tables",e);
 		}
 	}
+	
 	public void dropAll(){
 		try{
 			dropAll(getConnectionSource());
@@ -105,6 +113,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			throw new RuntimeException("could not drop tables",e);
 		}
 	}
+	
 	protected void createAll(ConnectionSource connectionSource) throws SQLException{
 		for(Class c:tableClasses){
 			TableUtils.createTable(connectionSource, c);
@@ -123,35 +132,30 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return playerDao;
 	}
-	
 	public Dao<PlayerStats, Long> getPlayerStatsDao() throws SQLException {
 		if (playerStatsDao == null) {
 			playerStatsDao = getDao(PlayerStats.class);
 		}
 		return playerStatsDao;
 	}
-	
 	public Dao<Team, Long> getTeamDao() throws SQLException {
 		if (teamDao == null) {
 			teamDao = getDao(Team.class);
 		}
 		return teamDao;
 	}
-	
 	public Dao<TeamStats, Long> getTeamStatsDao() throws SQLException {
 		if (teamStatsDao == null) {
 			teamStatsDao = getDao(TeamStats.class);
 		}
 		return teamStatsDao;
 	}
-	
 	public Dao<Badge, Long> getBadgeDao() throws SQLException {
 		if (badgeDao == null) {
 			badgeDao = getDao(Badge.class);
 		}
 		return badgeDao;
 	}
-
 	public Dao<Game, Long> getGameDao() throws SQLException {
 		if (gameDao == null) {
 			gameDao = getDao(Game.class);
