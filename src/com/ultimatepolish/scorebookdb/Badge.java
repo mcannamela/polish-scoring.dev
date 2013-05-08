@@ -32,9 +32,6 @@ public class Badge{
 	@DatabaseField(canBeNull=false)
 	private int badgeType;
 	
-	@DatabaseField
-	private long drawableId;
-	
 	Badge(){}
 
 	public Badge(long playerId, boolean isTeam, long sessionId, int badgeType) {

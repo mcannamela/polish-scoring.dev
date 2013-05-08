@@ -10,6 +10,7 @@ import java.util.Locale;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -49,8 +50,8 @@ public class Player{
 	@DatabaseField
 	private int weight_kg;
 	
-	@DatabaseField
-	private long drawableId;
+	@DatabaseField(dataType = DataType.BYTE_ARRAY)
+	byte[] imageBytes;
 	
 	@DatabaseField
 	private boolean isActive = true;
@@ -219,12 +220,12 @@ public class Player{
 		this.weight_kg = weight_kg;
 	}
 
-	public long getDrawableId() {
-		return drawableId;
+	public byte[] getImageBytes() {
+		return imageBytes;
 	}
 
-	public void setDrawableId(long drawableId) {
-		this.drawableId = drawableId;
+	public void setImageBytes(byte[] imageBytes) {
+		this.imageBytes = imageBytes;
 	}
 	
 	public boolean getIsActive() {

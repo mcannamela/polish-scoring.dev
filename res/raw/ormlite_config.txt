@@ -46,7 +46,7 @@ fieldName=height_cm
 fieldName=weight_kg
 # --field-end--
 # --field-start--
-fieldName=drawableId
+fieldName=imageBytes
 # --field-end--
 # --field-start--
 fieldName=isActive
@@ -95,13 +95,7 @@ canBeNull=false
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=nWins
-# --field-end--
-# --field-start--
-fieldName=nLosses
-# --field-end--
-# --field-start--
-fieldName=drawableId
+fieldName=imageBytes
 # --field-end--
 # --field-start--
 fieldName=isActive
@@ -146,9 +140,6 @@ fieldName=sessionId
 # --field-start--
 fieldName=badgeType
 canBeNull=false
-# --field-end--
-# --field-start--
-fieldName=drawableId
 # --field-end--
 # --table-fields-end--
 # --table-end--
