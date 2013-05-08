@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -30,14 +31,8 @@ public class Team{
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private long secondPlayerId;
 	
-	@DatabaseField
-	private int  nWins = 0;
-	
-	@DatabaseField
-	private int  nLosses = 0;
-	
-	@DatabaseField
-	private long drawableId;
+	@DatabaseField(dataType = DataType.BYTE_ARRAY)
+	byte[] imageBytes;
 	
 	@DatabaseField
 	private boolean isActive = true;
@@ -143,28 +138,12 @@ public class Team{
 		this.teamName = teamName;
 	}
 
-	public int getnWins() {
-		return nWins;
+	public byte[] getImageBytes() {
+		return imageBytes;
 	}
 
-	public void setnWins(int nWins) {
-		this.nWins = nWins;
-	}
-
-	public int getnLosses() {
-		return nLosses;
-	}
-
-	public void setnLosses(int nLosses) {
-		this.nLosses = nLosses;
-	}
-	
-	public long getDrawableId() {
-		return drawableId;
-	}
-
-	public void setDrawableId(long drawableId) {
-		this.drawableId = drawableId;
+	public void setImageBytes(byte[] imageBytes) {
+		this.imageBytes = imageBytes;
 	}
 	
 	public boolean getIsActive() {

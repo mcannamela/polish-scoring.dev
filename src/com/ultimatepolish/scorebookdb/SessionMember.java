@@ -13,16 +13,16 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class SessionMember {
-	@DatabaseField(uniqueCombo=true)
+	@DatabaseField(canBeNull=false,uniqueCombo=true)
 	private long sessionId;
 	
-	@DatabaseField(uniqueCombo=true)
+	@DatabaseField(canBeNull=false,uniqueCombo=true)
 	private long playerId; // could be a team
 	
-	@DatabaseField
+	@DatabaseField(canBeNull=false)
 	private int playerSeed;
 	
-	@DatabaseField
+	@DatabaseField(canBeNull=false)
 	private int playerRank;
 	
 	// would be nice to force both seed and rank to be unique for a given session
