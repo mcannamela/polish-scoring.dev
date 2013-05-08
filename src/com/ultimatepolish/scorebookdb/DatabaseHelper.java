@@ -88,6 +88,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
 			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isComplete BOOLEAN DEFAULT 0;");
 			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
+			
+			// player table
+			Dao<Player, Long> pDao = getPlayerDao();
+			pDao.executeRaw("ALTER TABLE player RENAME TO temp;");
+			TableUtils.createTable(connectionSource, Player.class);
+			pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg) " +
+					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg FROM temp");
+			pDao.executeRaw("DROP TABLE temp");
+
+			// session table
+			
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
 					+ 10, e);
