@@ -216,15 +216,15 @@ fieldName=sessionName
 canBeNull=false
 # --field-end--
 # --field-start--
+fieldName=sessionType
+canBeNull=false
+# --field-end--
+# --field-start--
 fieldName=startDate
 canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=endDate
-# --field-end--
-# --field-start--
-fieldName=sessionType
-canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=isTeam
