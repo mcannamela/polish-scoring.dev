@@ -103,13 +103,38 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN sessionType INT DEFAULT 0;");
 			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
 			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isActive BOOLEAN DEFAULT 1;");
-			sDao.executeRaw("ALTER TABLE session RENAME TO session_temp;");
+			sDao.executeRaw("ALTER TABLE session RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Session.class);
 			sDao.executeRaw("INSERT INTO session(id, sessionName, sessionType, startDate, endDate, isTeam, isActive) " +
-					"SELECT id, sessionName, sessionType, startDate, endDate, isTeam, isActive FROM session_temp;");
-			sDao.executeRaw("DROP TABLE session_temp;");
+					"SELECT id, sessionName, sessionType, startDate, endDate, isTeam, isActive FROM temp;");
+			sDao.executeRaw("DROP TABLE temp;");
 			
 			// venue table
+			Dao<Venue, Long> vDao = getVenueDao();
+			vDao.executeRaw("ALTER TABLE `venue` ADD COLUMN longitude LONG;");
+			vDao.executeRaw("ALTER TABLE `venue` ADD COLUMN latitude LONG;");
+			vDao.executeRaw("ALTER TABLE `venue` ADD COLUMN zipCode LONG;");
+			vDao.executeRaw("ALTER TABLE `venue` ADD COLUMN isActive BOOLEAN DEFAULT 1;");
+			vDao.executeRaw("ALTER TABLE venue RENAME TO temp;");
+			TableUtils.createTable(connectionSource, Venue.class);
+			vDao.executeRaw("INSERT INTO venue(id, venueName, scoreKeptFromTop, longitude, latitude, zipCode, isActive) " +
+					"SELECT id, name, scoreKeptFromTop, longitude, latitude, zipCode, isActive FROM temp;");
+			vDao.executeRaw("DROP TABLE temp;");
+			
+			// new tables
+			// if createAll() is modified to only create when the table doesnt exist, 
+			// this could be replaced with a simple call to createAll and wouldnt remove
+			// items from tableClasses (although i dont think that causes any problems).
+			tableClasses.clear();
+			tableClasses.add( PlayerStats.class);
+			tableClasses.add( Team.class);
+			tableClasses.add( TeamStats.class);
+			tableClasses.add( Badge.class);
+			tableClasses.add( SessionMember.class);
+			
+			for(Class c:tableClasses){
+				TableUtils.createTable(connectionSource, c);
+			}
 			
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
@@ -139,6 +164,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	
 	protected void createAll(ConnectionSource connectionSource) throws SQLException{
 		for(Class c:tableClasses){
+			// change to CreateTableIfNotExists?
 			TableUtils.createTable(connectionSource, c);
 		}
 	}
