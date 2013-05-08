@@ -86,18 +86,30 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			// game table
 			Dao<Game, Long> gDao = getGameDao();
 			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
-			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isComplete BOOLEAN DEFAULT 0;");
+			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isComplete BOOLEAN DEFAULT 1;");
 			gDao.executeRaw("ALTER TABLE `game` ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
 			
 			// player table
 			Dao<Player, Long> pDao = getPlayerDao();
+			pDao.executeRaw("ALTER TABLE `player` ADD COLUMN isActive BOOLEAN DEFAULT 1;");
 			pDao.executeRaw("ALTER TABLE player RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Player.class);
-			pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg) " +
-					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg FROM temp");
-			pDao.executeRaw("DROP TABLE temp");
+			pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive) " +
+					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive FROM temp;");
+			pDao.executeRaw("DROP TABLE temp;");
 
 			// session table
+			Dao<Session, Long> sDao = getSessionDao();
+			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN sessionType INT DEFAULT 0;");
+			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
+			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isActive BOOLEAN DEFAULT 1;");
+			sDao.executeRaw("ALTER TABLE session RENAME TO session_temp;");
+			TableUtils.createTable(connectionSource, Session.class);
+			sDao.executeRaw("INSERT INTO session(id, sessionName, sessionType, startDate, endDate, isTeam, isActive) " +
+					"SELECT id, sessionName, sessionType, startDate, endDate, isTeam, isActive FROM session_temp;");
+			sDao.executeRaw("DROP TABLE session_temp;");
+			
+			// venue table
 			
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "

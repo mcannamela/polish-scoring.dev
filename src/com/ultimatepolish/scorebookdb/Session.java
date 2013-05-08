@@ -20,14 +20,14 @@ public class Session {
 	private String sessionName;
 	
 	@DatabaseField(canBeNull=false)
+	public int sessionType;
+	
+	@DatabaseField(canBeNull=false)
 	private Date startDate;
 	
 	@DatabaseField(canBeNull=true)
 	private Date endDate;
-	
-	@DatabaseField(canBeNull=false)
-	public int sessionType;
-	
+		
 	@DatabaseField
 	private boolean isTeam = false;
 	
