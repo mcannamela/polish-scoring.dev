@@ -21,5 +21,23 @@
         android:layout_alignBaseline="@+id/textView_sessionId"
         android:hint="sessionName"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/textView_sessionType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/textView_sessionName"
+        android:layout_alignBaseline="@+id/textView_sessionId"
+        android:hint="sessionType"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/textView_sessionTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignBaseline="@+id/textView_sessionId"
+        android:hint="Team"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

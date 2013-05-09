@@ -100,7 +100,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 			// session table
 			Dao<Session, Long> sDao = getSessionDao();
-			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN sessionType INT DEFAULT 0;");
+			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN sessionType INT DEFAULT 1;");
 			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
 			sDao.executeRaw("ALTER TABLE `session` ADD COLUMN isActive BOOLEAN DEFAULT 1;");
 			sDao.executeRaw("ALTER TABLE session RENAME TO temp;");

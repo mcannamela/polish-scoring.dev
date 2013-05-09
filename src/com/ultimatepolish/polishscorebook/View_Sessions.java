@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.SessionType;
 
 public class View_Sessions extends MenuContainerActivity {
 	private LinkedHashMap<String, ViewHolderHeader_Session> sHash = new LinkedHashMap<String, ViewHolderHeader_Session>();
@@ -98,9 +99,16 @@ public class View_Sessions extends MenuContainerActivity {
         try{
         	sessionDao = getHelper().getSessionDao();
         	for (Session s: sessionDao) {
-        		addSession("Active", 
+        		String isTeam = "Singles";
+        		if (s.getIsTeam()) {
+        			isTeam = "Doubles";
+        		}
+
+        		addSession(s.getIsActive(), 
         				String.valueOf(s.getId()), 
-        				s.getSessionName()
+        				s.getSessionName(),
+        				SessionType.typeString[s.getSessionType()],
+        				isTeam
         				);
         	}
     	}
@@ -148,8 +156,14 @@ public class View_Sessions extends MenuContainerActivity {
     	statusList.add(vhh_Session);
     	sHash.put(statusName, vhh_Session);
     }
-    private void addSession(String sortBy, String sessionId, String sessionName){
+    private void addSession(boolean isActive, String sessionId, String sessionName, String sessionType, String sessionTeam){
     	//find the index of the session header
+    	String sortBy;
+    	if (isActive) {
+    		sortBy = "Active";
+    	} else {
+    		sortBy = "Inactive";
+    	}
     	ViewHolderHeader_Session statusInfo = sHash.get(sortBy);
 	    ArrayList<ViewHolder_Session> sessionList = statusInfo.getSessionList();
 	    
@@ -157,6 +171,8 @@ public class View_Sessions extends MenuContainerActivity {
 	    ViewHolder_Session sessionInfo = new ViewHolder_Session();
 	    sessionInfo.setId(sessionId);
 	    sessionInfo.setName(sessionName);
+	    sessionInfo.setType(sessionType);
+	    sessionInfo.setTeam(sessionTeam);
 	    sessionList.add(sessionInfo);
 		statusInfo.setSessionList(sessionList);
 	}
