@@ -46,10 +46,10 @@ public class NewSession extends MenuContainerActivity {
 		
 		
 		List<String> sessionTypes = new ArrayList<String>();
-		sessionTypes.add("League");
-		sessionTypes.add("Ladder");
-		sessionTypes.add("Single elimination tournament");
-		sessionTypes.add("Double elimination tournament");
+		sessionTypes.add(SessionType.typeString[SessionType.LEAGUE]);
+		sessionTypes.add(SessionType.typeString[SessionType.LADDER]);
+		sessionTypes.add(SessionType.typeString[SessionType.SNGL_ELIM]);
+		sessionTypes.add(SessionType.typeString[SessionType.DBL_ELIM]);
 		ArrayAdapter<String> sAdapter = new ArrayAdapter<String>(this, 
 				android.R.layout.simple_spinner_dropdown_item,
 				sessionTypes);

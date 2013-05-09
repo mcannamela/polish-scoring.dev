@@ -1,5 +1,5 @@
 #
-# generated on 2013/05/06 09:17:10
+# generated on 2013/05/09 10:23:19
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -47,6 +47,7 @@ fieldName=weight_kg
 # --field-end--
 # --field-start--
 fieldName=imageBytes
+dataPersister=BYTE_ARRAY
 # --field-end--
 # --field-start--
 fieldName=isActive
@@ -96,6 +97,7 @@ uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=imageBytes
+dataPersister=BYTE_ARRAY
 # --field-end--
 # --field-start--
 fieldName=isActive
@@ -232,17 +234,21 @@ tableName=sessionmember
 # --table-fields-start--
 # --field-start--
 fieldName=sessionId
+canBeNull=false
 uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=playerId
+canBeNull=false
 uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=playerSeed
+canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=playerRank
+canBeNull=false
 # --field-end--
 # --table-fields-end--
 # --table-end--

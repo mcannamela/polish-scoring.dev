@@ -1,6 +1,7 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -41,15 +42,23 @@ public class ListAdapter_Session extends BaseExpandableListAdapter {
       
      TextView sessionId = (TextView) view.findViewById(R.id.textView_sessionId);
      sessionId.setText(sessionInfo.getId().trim());
+     
      TextView name = (TextView) view.findViewById(R.id.textView_sessionName);
      name.setText(sessionInfo.getName().trim());
+     
+     TextView type = (TextView) view.findViewById(R.id.textView_sessionType);
+     type.setText(sessionInfo.getType().trim());
+     
+     TextView team = (TextView) view.findViewById(R.id.textView_sessionTeam);
+     team.setText(sessionInfo.getTeam().trim());
+     
      
      return view;
     }
     @Override
     public int getChildrenCount(int groupPosition) {
       
-     ArrayList<ViewHolder_Session> sessionList = statusList.get(groupPosition).getSessionList();
+     List<ViewHolder_Session> sessionList = statusList.get(groupPosition).getSessionList();
      return sessionList.size();
     
     }

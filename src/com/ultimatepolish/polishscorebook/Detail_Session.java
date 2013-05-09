@@ -75,24 +75,7 @@ public class Detail_Session extends MenuContainerActivity {
 		sId.setText(String.valueOf(s.getId()));
 		
 		TextView sType = (TextView) findViewById(R.id.sDet_type);
-		switch (s.getSessionType()){
-		case SessionType.OPEN:
-			sType.setText("Open session");
-			break;
-		case SessionType.LEAGUE:
-			sType.setText("League");
-			break;
-		case SessionType.LADDER:
-			sType.setText("Ladder");
-			break;
-		case SessionType.SNGL_ELIM:
-			sType.setText("Single-elimination tournament");
-			break;
-		case SessionType.DBL_ELIM:
-			sType.setText("Double-elimination tournament");
-			break;
-		}
-		
+		sType.setText(SessionType.typeString[s.getSessionType()]);
 		
 		TextView sStartDate = (TextView) findViewById(R.id.sDet_startDate);
 		sStartDate.setText("Start date: " + String.valueOf(s.getStartDate()));

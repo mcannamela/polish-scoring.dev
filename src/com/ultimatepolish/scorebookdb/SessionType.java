@@ -7,4 +7,7 @@ public final class SessionType {
 	//leave some room for other non-tourney types to be added later
 	public static final int SNGL_ELIM = 10;
 	public static final int DBL_ELIM = 11;
+
+    public static final String[] typeString = {"Open", "League", "Ladder", "", "", "", "", "", "", "",
+    	"Single-elimination Tournament", "Double-elimination Tournament"};
 }
