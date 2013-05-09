@@ -12,37 +12,46 @@
         android:id="@+id/editText_sessionName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/datePicker_sessionStartDate"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/textView_sessionStartDate"
         android:layout_marginTop="36dp"
-        android:ems="10"
+        android:ems="15"
         android:hint="SessionName (required)" />
 
     <Button
         android:id="@+id/button_createSession"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/editText_sessionName"
-        android:layout_toRightOf="@+id/textView_sessionStartDate"
+        android:layout_alignTop="@id/editText_sessionName"
+        android:layout_alignParentRight="true"
         android:onClick="createNewSession"
         android:text="@string/create" />
-
-    <TextView
-        android:id="@+id/textView_sessionStartDate"
-        android:layout_width="wrap_content"
+    
+    <Spinner
+         android:id="@+id/newSession_sessionType"
+         android:layout_alignParentLeft="true"
+         android:layout_below="@id/editText_sessionName"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginTop="20dp"
+         android:layout_marginBottom="20dp" />
+    
+    <CheckBox 
+    	android:id="@+id/newSession_isTeam"
+    	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editText_sessionName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Session Start Date" />
-
-    <DatePicker
-        android:id="@+id/datePicker_sessionStartDate"
-        android:layout_width="wrap_content"
+    	android:layout_below="@id/newSession_sessionType"
+    	android:layout_alignParentLeft="true"
+    	android:layout_marginTop="20dp"
+    	android:text="Teams" />
+    
+    <CheckBox 
+    	android:id="@+id/newSession_isActive"
+    	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView_sessionStartDate"
-        android:layout_marginTop="18dp" />
+    	android:layout_below="@id/newSession_isTeam"
+    	android:layout_alignParentLeft="true"
+    	android:layout_marginTop="20dp"
+    	android:text="Active"
+    	android:visibility="gone" />"
 
 </RelativeLayout>

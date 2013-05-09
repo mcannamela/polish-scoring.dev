@@ -36,7 +36,7 @@ public class Session {
 	
 	public Session(){}
 
-	public Session(String sessionName, Date startDate, int sessionType, boolean isTeam) {
+	public Session(String sessionName, int sessionType, Date startDate, boolean isTeam) {
 		super();
 		this.sessionName = sessionName;
 		this.startDate = startDate;
