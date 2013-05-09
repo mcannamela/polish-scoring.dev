@@ -1,7 +1,9 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
@@ -10,12 +12,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.SessionType;
 
 public class NewSession extends MenuContainerActivity {
 	Long sId;
@@ -23,7 +29,9 @@ public class NewSession extends MenuContainerActivity {
 	Dao<Session, Long> sDao;
 	
 	TextView name;
-//	DatePicker dp;
+	Spinner sessionTypeSpinner;
+	CheckBox isTeamCB;
+	CheckBox isActiveCB;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +39,22 @@ public class NewSession extends MenuContainerActivity {
 		setContentView(R.layout.activity_new_session);
 		
 		name = (TextView) findViewById(R.id.editText_sessionName);
-//		dp = (DatePicker) findViewById(R.id.datePicker_sessionStartDate);
-		Button createButton = (Button) findViewById(R.id.button_createSession);
+		Button createButton = (Button) findViewById(R.id.button_createSession);		
+		sessionTypeSpinner = (Spinner) findViewById(R.id.newSession_sessionType);
+		isTeamCB = (CheckBox) findViewById(R.id.newSession_isTeam);
+		isActiveCB = (CheckBox) findViewById(R.id.newSession_isActive);
+		
+		
+		List<String> sessionTypes = new ArrayList<String>();
+		sessionTypes.add("League");
+		sessionTypes.add("Ladder");
+		sessionTypes.add("Single elimination tournament");
+		sessionTypes.add("Double elimination tournament");
+		ArrayAdapter<String> sAdapter = new ArrayAdapter<String>(this, 
+				android.R.layout.simple_spinner_dropdown_item,
+				sessionTypes);
+		sAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		sessionTypeSpinner.setAdapter(sAdapter);
 		
 		Intent intent = getIntent();
 		sId = intent.getLongExtra("SID", -1);
@@ -42,6 +64,10 @@ public class NewSession extends MenuContainerActivity {
 				s = sDao.queryForId(sId);
 				createButton.setText("Modify");
 				name.setText(s.getSessionName());
+				sessionTypeSpinner.setVisibility(View.GONE);
+				isTeamCB.setVisibility(View.GONE);
+				isActiveCB.setVisibility(View.VISIBLE);
+				isActiveCB.setChecked(s.getIsActive());
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -56,24 +82,57 @@ public class NewSession extends MenuContainerActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
 	public void createNewSession(View view) {
 		Context context = getApplicationContext();
 		Session session= null;
     	String sessionName = null;
-    	Date startDate = null;
+    	int sessionType = 0;
+    	Date startDate;
+    	Boolean isTeam;
+    	Boolean isActive = true;
     	
+    	// get the session name
     	String st;
     	st = name.getText().toString().trim().toLowerCase(Locale.US);
     	if (!st.isEmpty()){
     		sessionName = st;
     	}
     	
-//    	GregorianCalendar gc = new GregorianCalendar(dp.getYear(), dp.getMonth(), dp.getDayOfMonth());
-//    	startDate = gc.getTime();
+    	// get the session type
+    	switch (sessionTypeSpinner.getSelectedItemPosition()) {
+    	case 0:
+    		// is league
+    		sessionType = SessionType.LEAGUE;
+    		break;
+    	case 1:
+    		// is ladder
+    		sessionType = SessionType.LADDER;
+    		break;
+    	case 2:
+    		// is single elimination tourny
+    		sessionType = SessionType.SNGL_ELIM;
+    		break;
+    	case 3:
+    		// is double elimination tourny
+    		sessionType = SessionType.DBL_ELIM;
+    		break;
+    	}
+    	
+    	// get the start date    	
     	startDate = new Date();
     	
+    	// get isTeam
+    	isTeam = isTeamCB.isChecked();
+    	
+    	// get isActive
+    	isActive = isActiveCB.isChecked();
+    	
+    	// make the new session or modify an existing one
     	if (sId != -1) {
     		s.setSessionName(sessionName);
+    		s.setIsActive(isActive);
+    		
     		try {
 				sDao.update(s);
 				Toast.makeText(context, "Session modified.", Toast.LENGTH_SHORT).show();
@@ -85,7 +144,7 @@ public class NewSession extends MenuContainerActivity {
 				Toast.makeText(context, "Could not modify session.", Toast.LENGTH_SHORT).show();
 			}
     	} else {
-    		session = new Session(sessionName, startDate, 1, false);
+    		session = new Session(sessionName, sessionType, startDate, isTeam);
         	
         	try{
         		Dao<Session, Long> dao = getHelper().getSessionDao();
