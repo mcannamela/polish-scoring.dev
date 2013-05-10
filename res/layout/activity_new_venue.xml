@@ -22,25 +22,33 @@
         <requestFocus />
     </EditText>
 
+    <Button
+        android:id="@+id/button_createVenue"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create"
+        android:onClick="createNewVenue" />
+    
     <CheckBox
         android:id="@+id/checkBox_scoreKeptFromTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText_venueName"
-        android:layout_below="@+id/editText_venueName"
-        android:layout_marginLeft="14dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/editText_venueName"
         android:layout_marginTop="32dp"
         android:checked="true"
-        android:text="Score kept from top?" />
-
-    <Button
-        android:id="@+id/button_createVenue"
-        android:layout_width="wrap_content"
+        android:text="Score from top" />
+    
+    <CheckBox 
+    	android:id="@+id/newVenue_isActive"
+    	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/editText_venueName"
-        android:layout_toRightOf="@+id/editText_venueName"
-        android:layout_marginLeft="70dp"
-        android:text="@string/create"
-        android:onClick="createNewVenue" />
+    	android:layout_below="@id/checkBox_scoreKeptFromTop"
+    	android:layout_alignParentLeft="true"
+    	android:layout_marginTop="20dp"
+    	android:text="Active"
+    	android:visibility="gone" />"
 
 </RelativeLayout>

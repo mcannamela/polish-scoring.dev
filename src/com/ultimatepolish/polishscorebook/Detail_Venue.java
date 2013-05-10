@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,9 +70,16 @@ public class Detail_Venue extends MenuContainerActivity {
 		
 		TextView pFromTop = (TextView) findViewById(R.id.vDet_fromTop);
 		if (v.scoreKeptFromTop) {
-			pFromTop.setText("Score kept from top");
+			pFromTop.setText("Scored from top");
 		} else {
-			pFromTop.setText("Score kept from bottom");
+			pFromTop.setText("Scored from bottom");
+		}
+		
+		TextView vIsActive = (TextView) findViewById(R.id.vDet_isActive);
+		if (v.getIsActive()) {
+			vIsActive.setText("This venue is active.");
+		} else {
+			vIsActive.setText("This venue is not active.");
 		}
 	}
 }

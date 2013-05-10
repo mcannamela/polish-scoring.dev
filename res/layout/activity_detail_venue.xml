@@ -24,7 +24,14 @@
     <TextView
         android:id="@+id/vDet_fromTop"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/vDet_name"
+        android:layout_below="@id/vDet_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    
+    <TextView
+        android:id="@+id/vDet_isActive"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/vDet_fromTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     

@@ -3,6 +3,7 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,8 +21,10 @@ import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Venue;
 
 public class View_Venues extends MenuContainerActivity {
+	private static final String LOGTAG = "View_Venues";
+	
 	private LinkedHashMap<String, ViewHolderHeader_Venue> sHash = new LinkedHashMap<String, ViewHolderHeader_Venue>();
-	private ArrayList<ViewHolderHeader_Venue> statusList = new ArrayList<ViewHolderHeader_Venue>();
+	private List<ViewHolderHeader_Venue> statusList = new ArrayList<ViewHolderHeader_Venue>();
 	private ListAdapter_Venue venueAdapter;
 	private ExpandableListView elv;
 	
@@ -98,7 +101,7 @@ public class View_Venues extends MenuContainerActivity {
         try{
         	venueDao = getHelper().getVenueDao();
         	for (Venue v: venueDao) {
-        		addVenue("Active", 
+        		addVenue(v.getIsActive(), 
         				String.valueOf(v.getId()), 
         				v.getName()
         				);
@@ -148,16 +151,36 @@ public class View_Venues extends MenuContainerActivity {
     	statusList.add(vhh_Venue);
     	sHash.put(statusName, vhh_Venue);
     }
-    private void addVenue(String sort, String venueId, String venueName){
+    private void addVenue(Boolean isActive, String venueId, String venueName){
     	//find the index of the session header
-    	ViewHolderHeader_Venue statusInfo = sHash.get(sort);
-	    ArrayList<ViewHolder_Venue> venueList = statusInfo.getVenueList();
+    	String sortBy;
+    	if (isActive) {
+    		sortBy = "Active";
+    	} else {
+    		sortBy = "Inactive";
+    	}
+    	ViewHolderHeader_Venue statusInfo = sHash.get(sortBy);
+    	try {
+    		List<ViewHolder_Venue> venueList = statusInfo.getVenueList();
 	    
-	    //create a new child and add that to the group
-	    ViewHolder_Venue venueInfo = new ViewHolder_Venue();
-	    venueInfo.setId(venueId);
-	    venueInfo.setName(venueName);
-	    venueList.add(venueInfo);
-		statusInfo.setVenueList(venueList);
+		    //create a new child and add that to the group
+		    ViewHolder_Venue venueInfo = new ViewHolder_Venue();
+		    venueInfo.setId(venueId);
+		    venueInfo.setName(venueName);
+		    venueList.add(venueInfo);
+			statusInfo.setVenueList(venueList);
+    	} catch(NullPointerException e) {
+    		loge("The header " + sortBy + " does not exist", e);
+    	}
 	}
+    
+    public void log(String msg){
+  		Log.i(LOGTAG, msg);
+  	}
+  	public void logd(String msg){
+  		Log.d(LOGTAG, msg);
+  	}
+  	public void loge(String msg, Exception e){
+  		Log.e(LOGTAG, msg + ": " + e.getMessage());
+  	}
 }
