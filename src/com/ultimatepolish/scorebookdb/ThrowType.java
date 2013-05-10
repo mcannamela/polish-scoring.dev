@@ -13,4 +13,5 @@ public final class ThrowType {
 	public static final int TRAP = 9;
 	public static final int TRAP_REDEEMED = 10;
 	public static final int NOT_THROWN = 11;
+	public static final int FIRED_ON = 12;
 }
