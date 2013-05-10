@@ -1,6 +1,6 @@
 package com.ultimatepolish.polishscorebook;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,16 +11,16 @@ import android.widget.TextView;
 
 public class ListAdapter_Venue extends BaseExpandableListAdapter {
 	private Context context;
-	private ArrayList<ViewHolderHeader_Venue> statusList;
+	private List<ViewHolderHeader_Venue> statusList;
  
-	public ListAdapter_Venue(Context context, ArrayList<ViewHolderHeader_Venue> statusList) {
+	public ListAdapter_Venue(Context context, List<ViewHolderHeader_Venue> statusList) {
     	this.context = context;
     	this.statusList = statusList;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-     ArrayList<ViewHolder_Venue> venueList = statusList.get(groupPosition).getVenueList();
+     List<ViewHolder_Venue> venueList = statusList.get(groupPosition).getVenueList();
      return venueList.get(childPosition);
     }
 	
@@ -49,7 +49,7 @@ public class ListAdapter_Venue extends BaseExpandableListAdapter {
     @Override
     public int getChildrenCount(int groupPosition) {
       
-     ArrayList<ViewHolder_Venue> venueList = statusList.get(groupPosition).getVenueList();
+     List<ViewHolder_Venue> venueList = statusList.get(groupPosition).getVenueList();
      return venueList.size();
     
     }

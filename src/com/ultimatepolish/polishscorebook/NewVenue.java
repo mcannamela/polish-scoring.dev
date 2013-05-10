@@ -26,6 +26,7 @@ public class NewVenue extends MenuContainerActivity {
 	
 	TextView name;
 	CheckBox sfTop;
+	CheckBox isActiveCB;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class NewVenue extends MenuContainerActivity {
 		name = (TextView) findViewById(R.id.editText_venueName);
 		sfTop = (CheckBox) findViewById(R.id.checkBox_scoreKeptFromTop);
 		Button createButton = (Button) findViewById(R.id.button_createVenue);
+		isActiveCB = (CheckBox) findViewById(R.id.newVenue_isActive);
 		
 		Intent intent = getIntent();
 		vId = intent.getLongExtra("VID", -1);
@@ -44,11 +46,9 @@ public class NewVenue extends MenuContainerActivity {
 				v = vDao.queryForId(vId);
 				createButton.setText("Modify");
 				name.setText(v.getName());
-				if (v.scoreKeptFromTop == true) {
-					sfTop.setChecked(true);
-				} else {
-					sfTop.setChecked(false);
-				}
+				sfTop.setChecked(v.scoreKeptFromTop);
+				isActiveCB.setVisibility(View.VISIBLE);
+				isActiveCB.setChecked(v.getIsActive());
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -78,6 +78,7 @@ public class NewVenue extends MenuContainerActivity {
     	if (vId != -1) {
     		v.setName(venueName);
     		v.setScoreFromTop(sfTop.isChecked());
+    		v.setIsActive(isActiveCB.isChecked());
     		try {
 				vDao.update(v);
 				Toast.makeText(context, "Venue modified.", Toast.LENGTH_SHORT).show();
