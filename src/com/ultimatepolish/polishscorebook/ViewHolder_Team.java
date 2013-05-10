@@ -2,34 +2,27 @@ package com.ultimatepolish.polishscorebook;
 
 public class ViewHolder_Team {
 	public String id;
-	public String name;
-	public String p1name;
-	public String p2name;
+	public String teamName;
+	public String playerNames;
     
     public String getId(){
     	return id;
     }
-    public String getNickName(){
-    	return name;
+    public String getTeamName(){
+    	return teamName;
     }
-    public String getP1Name(){
-    	return p1name;
-    }
-    public String getP2Name(){
-    	return p2name;
+    public String getPlayerNames(){
+    	return playerNames;
     }
     
     public void setId(String teamId){
     	this.id = teamId;
     }
-    public void setName(String teamName){
-    	this.name = teamName;
+    public void setTeamName(String teamName){
+    	this.teamName = teamName;
     }
-    public void setP1Name(String p1Name){
-    	this.p1name = p1Name;
-    }
-    public void setP2Name(String p2Name){
-    	this.p2name = p2Name;
+    public void setPlayerNames(String playerNames){
+    	this.playerNames = playerNames;
     }
 
 }
