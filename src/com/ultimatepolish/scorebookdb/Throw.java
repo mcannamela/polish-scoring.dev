@@ -84,7 +84,6 @@ public class Throw implements Comparable<Throw>{
 		this.throwResult = throwResult;
 	}
 	
-
 	public Throw(int throwNumber, long gameId, long playerId, Date timestamp) {
 		super();
 		this.throwNumber = throwNumber;

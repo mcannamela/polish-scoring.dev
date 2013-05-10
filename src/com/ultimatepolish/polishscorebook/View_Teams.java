@@ -132,13 +132,13 @@ public class View_Teams extends MenuContainerActivity {
 	    //get the child info
    		ViewHolder_Team teamInfo =  statusInfo.getTeamList().get(childPosition);
    		//display it or do something with it
-//   		Toast.makeText(getBaseContext(), "Selected " + teamInfo.getName(), Toast.LENGTH_SHORT).show();
+   		Toast.makeText(getBaseContext(), "Selected " + teamInfo.getTeamName(), Toast.LENGTH_SHORT).show();
     	
    		// load the game in progress screen
-//   		Long pId  = Long.valueOf(teamInfo.getId());
-//		Intent intent = new Intent(getApplicationContext(), Detail_Team.class);
-//        intent.putExtra("PID", pId);
-//        startActivity(intent);
+   		Long tId  = Long.valueOf(teamInfo.getId());
+		Intent intent = new Intent(getApplicationContext(), Detail_Team.class);
+        intent.putExtra("TID", tId);
+        startActivity(intent);
     	return false;
     	}
     };
@@ -165,18 +165,22 @@ public class View_Teams extends MenuContainerActivity {
     	if (isActive) {
     		sortBy = "Active";
     	} else {
-    		sortBy = "Inactive";
+    		sortBy = "Retired";
     	}
     	ViewHolderHeader_Team statusInfo = sHash.get(sortBy);
-	    List<ViewHolder_Team> teamList = statusInfo.getTeamList();
-	    
-	    //create a new child and add that to the group
-	    ViewHolder_Team teamInfo = new ViewHolder_Team();
-	    teamInfo.setId(teamId);
-	    teamInfo.setTeamName(teamName);
-	    teamInfo.setPlayerNames(teamPlayers);
-	    teamList.add(teamInfo);
-		statusInfo.setTeamList(teamList);
+    	try {
+		    List<ViewHolder_Team> teamList = statusInfo.getTeamList();
+		    
+		    //create a new child and add that to the group
+		    ViewHolder_Team teamInfo = new ViewHolder_Team();
+		    teamInfo.setId(teamId);
+		    teamInfo.setTeamName(teamName);
+		    teamInfo.setPlayerNames(teamPlayers);
+		    teamList.add(teamInfo);
+			statusInfo.setTeamList(teamList);
+    	} catch(NullPointerException e) {
+    		loge("The header " + sortBy + " does not exist", e);
+    	}
 	}
     
     public void log(String msg){
@@ -186,6 +190,6 @@ public class View_Teams extends MenuContainerActivity {
   		Log.d(LOGTAG, msg);
   	}
   	public void loge(String msg, Exception e){
-  		Log.e(LOGTAG, msg+":"+e.getMessage());
+  		Log.e(LOGTAG, msg + ": " + e.getMessage());
   	}
 }

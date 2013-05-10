@@ -24,6 +24,15 @@
         <requestFocus />
     </EditText>
 
+    <Button
+        android:id="@+id/button_createTeam"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="createNewTeam"
+        android:text="@string/create" />
+    
     <Spinner
         android:id="@+id/spinner_player1"
         android:layout_width="wrap_content"
@@ -40,15 +49,14 @@
         android:layout_below="@+id/spinner_player1"
         android:layout_marginLeft="40dp" />
 
-    <Button
-        android:id="@+id/button_createTeam"
-        android:layout_below="@+id/spinner_player2"
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
+    <CheckBox 
+    	android:id="@+id/newTeam_isActive"
+    	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:onClick="createNewTeam"
-        android:text="@string/create"
-        android:layout_marginLeft="40dp" />
+    	android:layout_below="@id/spinner_player2"
+    	android:layout_alignParentLeft="true"
+    	android:layout_marginTop="20dp"
+    	android:text="Active"
+    	android:visibility="gone" />"
     
 </RelativeLayout>

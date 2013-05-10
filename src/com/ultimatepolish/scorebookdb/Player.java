@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
@@ -15,7 +16,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
-public class Player{
+public class Player implements Comparable<Player>{
 	public static final String FIRST_NAME = "firstName";
 	public static final String LAST_NAME = "lastName";
 	public static final String NICK_NAME = "nickName";
@@ -234,5 +235,28 @@ public class Player{
 
 	public void setIsActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+	
+	public int compareTo(Player another) {
+		if (id < another.id){
+			return -1;
+		}
+		else if(id == another.id){
+			return 0;
+		}
+		else{
+			return 1;
+		}
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof Player))
+            return false;
+		Player another = (Player) o;
+		if (id == another.id){
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
