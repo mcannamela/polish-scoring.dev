@@ -1,10 +1,11 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ViewHolderHeader_Game {
 	private String name;
-	private ArrayList<ViewHolder_Game> gameList = new ArrayList<ViewHolder_Game>();;
+	private List<ViewHolder_Game> gameList = new ArrayList<ViewHolder_Game>();;
 	  
 	public String getName() {
 		return name;
@@ -12,10 +13,10 @@ public class ViewHolderHeader_Game {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public ArrayList<ViewHolder_Game> getGameList() {
+	public List<ViewHolder_Game> getGameList() {
 		return gameList;
 	}
-	public void setGameList(ArrayList<ViewHolder_Game> gameList) {
+	public void setGameList(List<ViewHolder_Game> gameList) {
 		this.gameList = gameList;
 	}
 }

@@ -1,6 +1,6 @@
 package com.ultimatepolish.polishscorebook;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,16 +11,16 @@ import android.widget.TextView;
 
 public class ListAdapter_Team extends BaseExpandableListAdapter {
 	private Context context;
-	private ArrayList<ViewHolderHeader_Team> statusList;
+	private List<ViewHolderHeader_Team> statusList;
  
-	public ListAdapter_Team(Context context, ArrayList<ViewHolderHeader_Team> statusList) {
+	public ListAdapter_Team(Context context, List<ViewHolderHeader_Team> statusList) {
     	this.context = context;
     	this.statusList = statusList;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-     ArrayList<ViewHolder_Team> teamList = statusList.get(groupPosition).getTeamList();
+     List<ViewHolder_Team> teamList = statusList.get(groupPosition).getTeamList();
      return teamList.get(childPosition);
     }
 	
@@ -41,17 +41,19 @@ public class ListAdapter_Team extends BaseExpandableListAdapter {
       
      TextView teamId = (TextView) view.findViewById(R.id.textView_teamId);
      teamId.setText(teamInfo.getId().trim());
+     
      TextView name = (TextView) view.findViewById(R.id.textView_name);
-//     name.setText(teamInfo.getName().trim());
-     TextView nickName = (TextView) view.findViewById(R.id.textView_nickName);
-     nickName.setText(teamInfo.getNickName().trim());
+     name.setText(teamInfo.getTeamName().trim());
+     
+     TextView nickName = (TextView) view.findViewById(R.id.textView_players);
+     nickName.setText(teamInfo.getPlayerNames().trim());
      
      return view;
     }
     @Override
     public int getChildrenCount(int groupPosition) {
       
-     ArrayList<ViewHolder_Team> teamList = statusList.get(groupPosition).getTeamList();
+     List<ViewHolder_Team> teamList = statusList.get(groupPosition).getTeamList();
      return teamList.size();
     
     }

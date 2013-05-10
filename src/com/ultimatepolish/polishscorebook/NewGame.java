@@ -36,10 +36,9 @@ public class NewGame extends MenuContainerActivity {
 	int session_pos = 0;
 	int venue_pos = 1;
 	
-	List<Player> players = new ArrayList<Player>() ;
+	List<Player> players = new ArrayList<Player>();
 	List<Session> sessions= new ArrayList<Session>();
 	List<Venue> venues= new ArrayList<Venue>();
-	
 	
 	List<String> playerNames = new ArrayList<String>();
 	List<String> sessionNames = new ArrayList<String>();

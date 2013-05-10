@@ -19,12 +19,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.Player;
+import com.ultimatepolish.scorebookdb.Team;
 
 public class NewTeam extends MenuContainerActivity {
 	Long tId;
-//	Team t;
-//	Dao<Team, Long> tDao;
+	Team t;
+	Dao<Team, Long> tDao;
 	
 	TextView name;
 	Spinner p1;
@@ -53,19 +55,22 @@ public class NewTeam extends MenuContainerActivity {
 		Intent intent = getIntent();
 		tId = intent.getLongExtra("TID", -1);
 		if (tId != -1){
-//			try{
-//				tDao = Team.getDao(getApplicationContext());
-//				t = tDao.queryForId(tId);
+			try{
+				Context context = getApplicationContext();
+				tDao = Team.getDao(context);
+				t = tDao.queryForId(tId);
 				createButton.setText("Modify");
-//				name.setText(t.getName());
-//				p1 set to player one
-//				p2 set to player two
-//			}
-//			catch (SQLException e){
-//				Toast.makeText(getApplicationContext(), 
-//						e.getMessage(), 
-//						Toast.LENGTH_LONG).show();
-//			}
+				name.setText(t.getTeamName());
+				p1_pos = (int) t.getPlayers(context)[0].getId();
+				p2_pos = (int) t.getPlayers(context)[1].getId();
+				p1.setSelection(p1_pos);
+				p2.setSelection(p2_pos);
+			}
+			catch (SQLException e){
+				Toast.makeText(getApplicationContext(), 
+						e.getMessage(), 
+						Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 	@Override
@@ -76,46 +81,47 @@ public class NewTeam extends MenuContainerActivity {
 	}
 	public void createNewTeam(View view) {
 		Context context = getApplicationContext();
-//		Team newTeam = null;
+		Team newTeam = null;
 		String teamName = null;
-		Player[] p = null;
+		long[] pIds = new long[2];
     	
     	
     	String s = name.getText().toString().trim().toLowerCase(Locale.US);
     	if (!s.isEmpty()){
     		teamName = new String(s);
     	}
+    	pIds[0] = players.get(p1_pos).getId();
+    	pIds[1] = players.get(p2_pos).getId();
     	
-//    	p[0] = pId from spinner p1
-//    	p[1] = pId from spinner p2
 //    	check that they are different players.
     	
-//    	if (tId != -1) {
-//    		t.setName(teamName);
-//    		t.setPlayers(p);
-//    		try {
-//				tDao.update(t);
-//				Toast.makeText(context, "Team modified.", Toast.LENGTH_SHORT).show();
-//				finish();
-//			} catch (SQLException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				Toast.makeText(context, "Could not modify team.", Toast.LENGTH_SHORT).show();
-//			}
-//    		
-//    	} else {
-//	    	newTeam = new Team(teamName, p);
+    	if (tId != -1) {
+    		t.setTeamName(teamName);
+//    		t.setImageBytes(imageBytes);
+//    		t.setIsActive(isActive);
+    		try {
+				tDao.update(t);
+				Toast.makeText(context, "Team modified.", Toast.LENGTH_SHORT).show();
+				finish();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Toast.makeText(context, "Could not modify team.", Toast.LENGTH_SHORT).show();
+			}
+    		
+    	} else {
+	    	newTeam = new Team(teamName, pIds);
 	    	
-//	    	try{
-//	    		Dao<Team, Long> dao = getHelper().getTeamDao();
-//		   		dao.create(newTeam);
-//		   		Toast.makeText(context, "Team created!", Toast.LENGTH_SHORT).show();
-		   		Toast.makeText(context, "Teams not available yet!", Toast.LENGTH_SHORT).show();
+	    	try{
+	    		Dao<Team, Long> dao = getHelper().getTeamDao();
+		   		dao.create(newTeam);
+		   		Toast.makeText(context, "Team created!", Toast.LENGTH_SHORT).show();
+		   		
 		   		finish();
-//			   	}
-//			 catch (SQLException e){
-//				 Log.e(PolishScorebook.class.getName(), "Could not create player.", e);
-//				 boolean player_exists = false;
+			   	}
+			 catch (SQLException e){
+				 Log.e(PolishScorebook.class.getName(), "Could not create team.", e);
+//				 boolean team_exists = false;
 //				 try{
 //					 player_exists = newPlayer.exists(context);
 //					 if (player_exists){
@@ -129,8 +135,8 @@ public class NewTeam extends MenuContainerActivity {
 //					 Toast.makeText(context, ee.getMessage(), Toast.LENGTH_LONG).show();
 //				   		Log.e(PolishScorebook.class.getName(), "Could not test for existence of player", ee);
 //				 }
-//			 }
-//    	}
+			 }
+    	}
     }
 	private OnItemSelectedListener mPlayerOneSelectedHandler = new OnItemSelectedListener() {
 		public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {

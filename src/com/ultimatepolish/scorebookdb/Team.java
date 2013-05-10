@@ -48,6 +48,13 @@ public class Team{
 		this.secondPlayerId = secondPlayerId;
 	}
 	
+	public Team(  String teamName, long[] playerIds) {
+		super();
+		this.teamName = teamName;
+		this.firstPlayerId = playerIds[0];
+		this.secondPlayerId = playerIds[1];
+	}
+	
 	public static Dao<Team, Long> getDao(Context context) throws SQLException{
 		DatabaseHelper helper = new DatabaseHelper(context);
 		Dao<Team, Long> d = helper.getTeamDao();
@@ -133,9 +140,17 @@ public class Team{
 	public String getTeamName() {
 		return teamName;
 	}
-
+	
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
+	}
+	
+	public long getFirstPlayerId() {
+		return firstPlayerId;
+	}
+	
+	public long getSecondPlayerId() {
+		return secondPlayerId;
 	}
 
 	public byte[] getImageBytes() {

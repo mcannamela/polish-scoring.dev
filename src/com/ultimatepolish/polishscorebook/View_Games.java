@@ -3,6 +3,7 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +28,7 @@ public class View_Games extends MenuContainerActivity {
 	private static final String LOGTAG = "View_Games";
 	
 	private LinkedHashMap<String, ViewHolderHeader_Game> sHash = new LinkedHashMap<String, ViewHolderHeader_Game>();
-	private ArrayList<ViewHolderHeader_Game> sessionList = new ArrayList<ViewHolderHeader_Game>();
+	private List<ViewHolderHeader_Game> sessionList = new ArrayList<ViewHolderHeader_Game>();
 	private ListAdapter_Game gameAdapter;
 	private ExpandableListView elv;
 	
@@ -114,7 +115,7 @@ public class View_Games extends MenuContainerActivity {
     	
         try{
         	Dao<Session, Long> sessionDao = Session.getDao(context);
-        	Dao<Game, Long> gameDao  = Game.getDao(context);
+        	Dao<Game, Long> gameDao = Game.getDao(context);
         	Dao<Player, Long> playerDao = Player.getDao(context);
         	
         	log("refreshGamesListing() - adding sessions");
@@ -211,7 +212,7 @@ public class View_Games extends MenuContainerActivity {
     	log("addGame() - adding game "+ gameId);
     	//find the index of the session header
     	ViewHolderHeader_Game sessionInfo = sHash.get(sort);
-	    ArrayList<ViewHolder_Game> gameList = sessionInfo.getGameList();
+	    List<ViewHolder_Game> gameList = sessionInfo.getGameList();
 	    
 	    //create a new child and add that to the group
 	    ViewHolder_Game gameInfo = new ViewHolder_Game();

@@ -1,11 +1,15 @@
 package com.ultimatepolish.polishscorebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -13,9 +17,15 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
+import com.ultimatepolish.scorebookdb.Player;
+import com.ultimatepolish.scorebookdb.Team;
+
 public class View_Teams extends MenuContainerActivity {
+	private static final String LOGTAG = "View_Teams";
+	
 	private LinkedHashMap<String, ViewHolderHeader_Team> sHash = new LinkedHashMap<String, ViewHolderHeader_Team>();
-	private ArrayList<ViewHolderHeader_Team> statusList = new ArrayList<ViewHolderHeader_Team>();
+	private List<ViewHolderHeader_Team> statusList = new ArrayList<ViewHolderHeader_Team>();
 	private ListAdapter_Team teamAdapter;
 	private ExpandableListView elv;
 	
@@ -87,23 +97,29 @@ public class View_Teams extends MenuContainerActivity {
         addStatus("Active");
         addStatus("Retired");
         
+        Context context = getApplicationContext();
+        Player[] p = new Player[2];
+        
         // add all the teams
-//    	Dao<Team, Long> teamDao = null;
-//        try{
-//        	teamDao = getHelper().getTeamDao();
-//        	for (Team p: teamDao) {
-//        		addTeam("Active", 
-//        				String.valueOf(p.getId()), 
-//        				p.getFirstName() + " " + p.getLastName(), 
-//        				"(" + p.getNickName() + ")"
-//        				);
-//        	}
-//    	}
-//        catch (SQLException e){
-//    		Context context = getApplicationContext();
-//    		Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-//    		Log.e(View_Teams.class.getName(), "Retrieval of teams failed", e);
-//        }
+        try{
+        	Dao<Team, Long> teamDao = Team.getDao(context);
+        	Dao<Player, Long> playerDao = Player.getDao(context);
+        	
+        	for (Team t: teamDao) {
+        		p[0] = playerDao.queryForId(t.getFirstPlayerId());
+        		p[1] = playerDao.queryForId(t.getSecondPlayerId());
+
+        		addTeam(t.getIsActive(), 
+        				String.valueOf(t.getId()),
+        				t.getTeamName(),
+        				"(" + p[0].getNickName()
+        				+ " and " + p[1].getNickName() + ")"
+        				);
+        	}
+        }
+    	catch (SQLException e){
+    		loge("Retrieval of teams failed", e);
+        }
         
     	expandAll();
     }
@@ -143,18 +159,33 @@ public class View_Teams extends MenuContainerActivity {
     	statusList.add(vhh_Team);
     	sHash.put(statusName, vhh_Team);
     }
-    private void addTeam(String sort, String teamId, String teamName, String teamP1, String teamP2){
+    private void addTeam(boolean isActive, String teamId, String teamName, String teamPlayers){
     	//find the index of the session header
-    	ViewHolderHeader_Team statusInfo = sHash.get(sort);
-	    ArrayList<ViewHolder_Team> teamList = statusInfo.getTeamList();
+    	String sortBy;
+    	if (isActive) {
+    		sortBy = "Active";
+    	} else {
+    		sortBy = "Inactive";
+    	}
+    	ViewHolderHeader_Team statusInfo = sHash.get(sortBy);
+	    List<ViewHolder_Team> teamList = statusInfo.getTeamList();
 	    
 	    //create a new child and add that to the group
 	    ViewHolder_Team teamInfo = new ViewHolder_Team();
 	    teamInfo.setId(teamId);
-	    teamInfo.setName(teamName);
-	    teamInfo.setP1Name(teamP1);
-	    teamInfo.setP2Name(teamP2);
+	    teamInfo.setTeamName(teamName);
+	    teamInfo.setPlayerNames(teamPlayers);
 	    teamList.add(teamInfo);
 		statusInfo.setTeamList(teamList);
 	}
+    
+    public void log(String msg){
+  		Log.i(LOGTAG, msg);
+  	}
+  	public void logd(String msg){
+  		Log.d(LOGTAG, msg);
+  	}
+  	public void loge(String msg, Exception e){
+  		Log.e(LOGTAG, msg+":"+e.getMessage());
+  	}
 }

@@ -1,30 +1,27 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import com.ultimatepolish.scorebookdb.Game;
-import com.ultimatepolish.scorebookdb.Player;
-
 public class ListAdapter_Game extends BaseExpandableListAdapter {
 	private Context context;
-	private ArrayList<ViewHolderHeader_Game> sessionList;
+	private List<ViewHolderHeader_Game> sessionList;
     
-    public ListAdapter_Game(Context context, ArrayList<ViewHolderHeader_Game> sessionList) {
+    public ListAdapter_Game(Context context, List<ViewHolderHeader_Game> sessionList) {
     	this.context = context;
     	this.sessionList = sessionList;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-     ArrayList<ViewHolder_Game> gameList = sessionList.get(groupPosition).getGameList();
+     List<ViewHolder_Game> gameList = sessionList.get(groupPosition).getGameList();
      return gameList.get(childPosition);
     }
 
@@ -57,7 +54,7 @@ public class ListAdapter_Game extends BaseExpandableListAdapter {
     @Override
     public int getChildrenCount(int groupPosition) {
       
-     ArrayList<ViewHolder_Game> gameList = sessionList.get(groupPosition).getGameList();
+     List<ViewHolder_Game> gameList = sessionList.get(groupPosition).getGameList();
      return gameList.size();
     
     }
