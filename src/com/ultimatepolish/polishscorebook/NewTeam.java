@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ public class NewTeam extends MenuContainerActivity {
 	Spinner p2;
 	int p1_pos = 0;
 	int p2_pos = 1;
+	CheckBox isActiveCB;
 	
 	List<Player> players = new ArrayList<Player>();
 	List<String> playerNames = new ArrayList<String>();
@@ -46,6 +48,7 @@ public class NewTeam extends MenuContainerActivity {
 		p1 = (Spinner) findViewById(R.id.spinner_player1);
 		p2 = (Spinner) findViewById(R.id.spinner_player2);
 		Button createButton = (Button) findViewById(R.id.button_createTeam);
+		isActiveCB = (CheckBox) findViewById(R.id.newTeam_isActive);
 		
 		refreshSpinners();
 		
@@ -61,10 +64,15 @@ public class NewTeam extends MenuContainerActivity {
 				t = tDao.queryForId(tId);
 				createButton.setText("Modify");
 				name.setText(t.getTeamName());
-				p1_pos = (int) t.getPlayers(context)[0].getId();
-				p2_pos = (int) t.getPlayers(context)[1].getId();
-				p1.setSelection(p1_pos);
-				p2.setSelection(p2_pos);
+				
+//				p1_pos = players.indexOf(t.getPlayers(context)[0]);
+//				p2_pos = players.indexOf(t.getPlayers(context)[1]);
+//				p1.setSelection(p1_pos);
+//				p2.setSelection(p2_pos);
+				p1.setVisibility(View.GONE);
+				p2.setVisibility(View.GONE);
+				isActiveCB.setVisibility(View.VISIBLE);
+				isActiveCB.setChecked(t.getIsActive());
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -73,12 +81,14 @@ public class NewTeam extends MenuContainerActivity {
 			}
 		}
 	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
 	public void createNewTeam(View view) {
 		Context context = getApplicationContext();
 		Team newTeam = null;
@@ -98,7 +108,7 @@ public class NewTeam extends MenuContainerActivity {
     	if (tId != -1) {
     		t.setTeamName(teamName);
 //    		t.setImageBytes(imageBytes);
-//    		t.setIsActive(isActive);
+    		t.setIsActive(isActiveCB.isChecked());
     		try {
 				tDao.update(t);
 				Toast.makeText(context, "Team modified.", Toast.LENGTH_SHORT).show();
