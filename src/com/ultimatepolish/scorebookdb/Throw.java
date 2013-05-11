@@ -1,10 +1,16 @@
 package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
+import android.widget.ImageView;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
@@ -121,27 +127,32 @@ public class Throw implements Comparable<Throw>{
                 }
 		return d;
 	}
+
 	public HashMap<String, Object> getQueryMap(){
         HashMap<String,Object> m = new HashMap<String,Object>();
         m.put(Throw.THROW_INDEX, getThrowIdx());
         m.put(Throw.GAME_ID, getGameId());
         return m;
-}
+	}
+
 	public void setInitialScores(Throw previousThrow){
 		int[] scores = previousThrow.getFinalScores();
 		setInitialDefensivePlayerScore(scores[0]);
 		setInitialOffensivePlayerScore(scores[1]);
 	}
+
 	public void setInitialScores(){
 		setInitialDefensivePlayerScore(0);
 		setInitialOffensivePlayerScore(0);
 	}
+
 	public int[] getFinalScores(){
 		int[] diff = getScoreDifferentials();
 		int[] finalScores = {initialOffensivePlayerScore + diff[0], 
 				initialDefensivePlayerScore + diff [1]};
 		return finalScores;
 	}
+
 	private int[] getScoreDifferentials(){
 		int[] diffs = {0,0};
 		switch (throwResult){
@@ -250,6 +261,7 @@ public class Throw implements Comparable<Throw>{
 		
 		return diffs;
 	}
+
 	private boolean isDropScoreBlocked(){
 		boolean isBlocked = false;
 		int oScore = initialOffensivePlayerScore;
@@ -259,138 +271,133 @@ public class Throw implements Comparable<Throw>{
 		}
 		return isBlocked;
 	}
+	
 	public String getSpecialString(){
 		String s = "";
-		if(isDefensiveError){
-			s+="e"+String.valueOf(errorScore);
+		
+		if (isLineFault){
+			s += "lf.";
 		}
-		if (isOwnGoal){
-			s+="o"+String.valueOf(ownGoalScore);
-		}
-		if (isGoaltend){
-			s+="g"+String.valueOf(goaltendScore);
-		}
-//		if (isOnFire){
-//			s+="f";
-//		}
-//		if (isFiredOn){
-//			s+="F";
-//		}
-		if (isBroken){
-			s+="*";
-		}
-//		if (isTrap){
-//			s+="^";
-//		}
-		if (isDead){
-			s+="v";
-		}
-		if (isDefensiveDrinkDropped){
-			s+="d";
-		}
+		
 		if (isDrinkHit){
-			s+="d";
+			s += "d.";
 		}
+		
+		if (isGoaltend){
+			s += "gt.";
+		}
+		
+		int og = 0;
+		// technically drink drops are -1 for player instead of +1 for opponent,
+		// but subtracting the value for display purposes would be more confusing
+		// this is really displaying the resulting differential due to og
+		if (isOffensiveDrinkDropped) {og += 1;}
+		if (isOffensivePoleKnocked) {og += 2;} 
+		if (isOffensiveBottleKnocked) {og += 3;}
+		if (isOffensiveBreakError) {og += 20;}
+		if (og > 0){
+			s += "og" + String.valueOf(og) + '.';
+		}
+		
+		int err = 0;
+		// same as for og
+		if (isDefensiveDrinkDropped) {err += 1;}
+		if (isDefensivePoleKnocked) {err += 2;} 
+		if (isDefensiveBottleKnocked) {err += 3;}
+		if (isDefensiveBreakError) {err += 20;}
+		if (err > 0){
+			s += "e" + String.valueOf(err) + '.';
+		}
+				
 		if (s.length()==0){
 			s = "--";
+		} else {
+			// pop the last '.' off the end of the string
+			s = s.substring(0, s.length()-2);
 		}
 		return s;
 	}
-	public int getThrowDrawableId(){
-		int d = R.drawable.bxs_notthrown;
-		switch(throwType){
-			case ThrowType.BALL_HIGH:
-				if (isOnFire) {
-					d = R.drawable.bxs_high_fire;
-				} else {
-					d = R.drawable.bxs_high;
-				}
-				break;
-			case ThrowType.BALL_LEFT:
-				if (isOnFire) {
-					d = R.drawable.bxs_left_fire;
-				} else {
-					d = R.drawable.bxs_left;
-				}
-				break;
-			case ThrowType.BALL_RIGHT:
-				if (isOnFire) {
-					d = R.drawable.bxs_right_fire;
-				} else {
-					d = R.drawable.bxs_right;
-				}
-				break;
-			case ThrowType.BALL_LOW:
-				if (isOnFire) {
-					d = R.drawable.bxs_low_fire;
-				} else {
-					d = R.drawable.bxs_low;
-				}
-				break;
-			case ThrowType.STRIKE:
-				switch (throwResult){
-				case ThrowResult.DROP:
-					d = R.drawable.bxs_strike_drop;
-					break;
-				case ThrowResult.CATCH:
-				case ThrowResult.STALWART:
-					d = R.drawable.bxs_strike_catch;
-					break;
-				}
-				break;
-			case ThrowType.POLE:
-				switch (throwResult){
-				case ThrowResult.DROP:
-					if (isOnFire) {
-						d = R.drawable.bxs_pole_fire;
-					} else {
-						d = R.drawable.bxs_pole_drop;
-					}
-					break;
-				case ThrowResult.CATCH:
-					d = R.drawable.bxs_pole_catch;
-					break;
-				case ThrowResult.STALWART:
-					d = R.drawable.bxs_pole_stalwart;
-					break;
-				}
-				break;
-			case ThrowType.CUP:
-				switch (throwResult){
-				case ThrowResult.DROP:
-					if (isOnFire) {
-						d = R.drawable.bxs_cup_fire;
-					} else {
-						d = R.drawable.bxs_cup_drop;
-					}
-					break;
-				case ThrowResult.CATCH:
-					d = R.drawable.bxs_cup_catch;
-					break;
-				case ThrowResult.STALWART:
-					d = R.drawable.bxs_cup_stalwart;
-					break;
-				}
-				break;
-			case ThrowType.BOTTLE:
-				switch (throwResult){
-					case ThrowResult.DROP:
-						if (isOnFire) {
-							d = R.drawable.bxs_bottle_fire;
-						} else {
-							d = R.drawable.bxs_bottle_drop;
-						}
-						break;
-					case ThrowResult.CATCH:
-						d = R.drawable.bxs_bottle_catch;
-						break;
-					case ThrowResult.STALWART:
-						d = R.drawable.bxs_bottle_stalwart;
-						break;
-				}
-				break;
+
+	public void setThrowDrawable(ImageView iv){
+		List<Drawable> boxIconLayers = new ArrayList<Drawable>();
+		
+		switch (throwType) {
+		case ThrowType.BALL_HIGH:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_high));
+			break;
+		case ThrowType.BALL_RIGHT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_right));
+			break;
+		case ThrowType.BALL_LOW:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_low));
+			break;
+		case ThrowType.BALL_LEFT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_left));
+			break;
+		case ThrowType.STRIKE:
+			if (throwResult == ThrowResult.CATCH) {
+				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
+			}
+			break;
+		case ThrowType.POLE:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
+			break;
+		case ThrowType.CUP:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_cup));
+			break;
+		case ThrowType.BOTTLE:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_bottle));
+			break;
+		case ThrowType.TRAP:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_trap));
+			break;
+		case ThrowType.TRAP_REDEEMED:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_trap));
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_drop));
+			break;
+		case ThrowType.SHORT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_short));
+			break;
+		case ThrowType.FIRED_ON:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_firedon));
+			break;
 		}
-		return d;
+		
+		switch (throwResult) {
+		case ThrowResult.DROP:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_drop));
+			break;
+		case ThrowResult.STALWART:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_stalwart));
+			break;
+		case ThrowResult.BROKEN:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_break));
+			break;
+		}
+		
+		switch (deadType) {
+		case DeadType.HIGH:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_dead_high));
+			break;
+		case DeadType.RIGHT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_dead_right));
+			break;
+		case DeadType.LOW:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_dead_low));
+			break;
+		case DeadType.LEFT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_dead_left));
+			break;
+		}
+		
+		if (isOnFire) {
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_fire));
+		}
+		if (isTipped) {
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_tipped));
+		}
+		
+		iv.setImageDrawable(new LayerDrawable(boxIconLayers.toArray(new Drawable[0])));
 	}
 	
 	public boolean getIsValid() {

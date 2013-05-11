@@ -557,29 +557,29 @@ public class GameInProgress extends MenuContainerActivity
 		}		
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-		t.isError = isError();
+//		t.isError = isError();
 		t.isGoaltend = isGoaltend();
-		t.isOwnGoal = isOwnGoal();
-		if (t.isError){
-			t.setErrorScore(getErrorScore());
-		}
-		if (t.isOwnGoal){
-			t.setOwnGoalScore(getOwnGoalScore());
-		}
-		if (t.isGoaltend){
-			t.setGoaltendScore(getGoaltendScore());
-		}
+//		t.isOwnGoal = isOwnGoal();
+//		if (t.isError){
+//			t.setErrorScore(getErrorScore());
+//		}
+//		if (t.isOwnGoal){
+//			t.setOwnGoalScore(getOwnGoalScore());
+//		}
+//		if (t.isGoaltend){
+//			t.setGoaltendScore(getGoaltendScore());
+//		}
 		
 		
-		t.isShort = isShort();
-		t.isTrap=isTrap();
-		t.isBroken = isBroken();
+//		t.isShort = isShort();
+//		t.isTrap=isTrap();
+//		t.isBroken = isBroken();
 		
-		t.isDrinkDropped = isDrinkDrop();
-		t.isDrinkHit = isDrinkHit();
-		
-		t.isOnFire=isOnFire();
-		t.isFiredOn=isFiredOn();
+//		t.isDrinkDropped = isDrinkDrop();
+//		t.isDrinkHit = isDrinkHit();
+//		
+//		t.isOnFire=isOnFire();
+//		t.isFiredOn=isFiredOn();
 	}
 	//-------------------------------------------------------------
 	
@@ -594,20 +594,20 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setSpecialMarks(Throw t){
-		setIsError(t.isError);
-		setIsOwnGoal(t.isOwnGoal);
-		setIsGoaltend(t.isGoaltend);
-		setErrorScore(t.getErrorScore());
-		setOwnGoalScore(t.getOwnGoalScore());
-		setGoaltendScore(t.getGoaltendScore());
+//		setIsError(t.isError);
+//		setIsOwnGoal(t.isOwnGoal);
+//		setIsGoaltend(t.isGoaltend);
+//		setErrorScore(t.getErrorScore());
+//		setOwnGoalScore(t.getOwnGoalScore());
+//		setGoaltendScore(t.getGoaltendScore());
 		
-		setIsShort(t.isShort);
-		setIsTrap(t.isTrap);
-		setIsBroken(t.isBroken);
-		setIsDrinkHit(t.isDrinkHit);
-		setIsDrinkDropped(t.isDrinkDropped);
-		setIsOnFire(t.isOnFire);
-		setIsFiredOn(t.isFiredOn);
+//		setIsShort(t.isShort);
+//		setIsTrap(t.isTrap);
+//		setIsBroken(t.isBroken);
+//		setIsDrinkHit(t.isDrinkHit);
+//		setIsDrinkDropped(t.isDrinkDropped);
+//		setIsOnFire(t.isOnFire);
+//		setIsFiredOn(t.isFiredOn);
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
