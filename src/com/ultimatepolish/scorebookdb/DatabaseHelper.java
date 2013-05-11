@@ -126,20 +126,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					"SELECT id, name, scoreKeptFromTop, longitude, latitude, zipCode, isActive FROM temp;");
 			vDao.executeRaw("DROP TABLE temp;");
 			
-			// new tables
-			// if createAll() is modified to only create when the table doesnt exist, 
-			// this could be replaced with a simple call to createAll and wouldnt remove
-			// items from tableClasses (although i dont think that causes any problems).
-			tableClasses.clear();
-			tableClasses.add( PlayerStats.class);
-			tableClasses.add( Team.class);
-			tableClasses.add( TeamStats.class);
-			tableClasses.add( Badge.class);
-			tableClasses.add( SessionMember.class);
-			
-			for(Class c:tableClasses){
-				TableUtils.createTable(connectionSource, c);
-			}
+			createAll();
 			
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
