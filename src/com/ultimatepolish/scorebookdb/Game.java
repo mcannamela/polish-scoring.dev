@@ -166,15 +166,17 @@ public class Game {
 		return throwArray;
 	}
 	public Throw makeNewThrow(int throwNumber){
-		long playerId;
+		long offensivePlayerId, defensivePlayerId;
 		if (throwNumber%2 == 0){
-			playerId=getFirstPlayerId();
+			offensivePlayerId = getFirstPlayerId();
+			defensivePlayerId = getSecondPlayerId();
 		}
 		else{
-			playerId=getSecondPlayerId();
+			offensivePlayerId = getSecondPlayerId();
+			defensivePlayerId = getFirstPlayerId();
 		}
 		Date timestamp = new Date(System.currentTimeMillis());
-		Throw t = new Throw (throwNumber, getId(), playerId, timestamp);
+		Throw t = new Throw (throwNumber, getId(), offensivePlayerId, defensivePlayerId, timestamp);
 		
 		return t;
 	}

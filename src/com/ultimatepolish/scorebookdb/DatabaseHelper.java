@@ -18,7 +18,7 @@ import com.ultimatepolish.polishscorebook.R;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "polish.db";
-	private static final int DATABASE_VERSION = 10;
+	private static final int DATABASE_VERSION = 11;
 
 	private Dao<Player, Long> playerDao;
 	private Dao<PlayerStats, Long> playerStatsDao;
@@ -150,11 +150,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 //			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
 //			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isComplete BOOLEAN DEFAULT 1;");
 //			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
-			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
-			TableUtils.createTable(connectionSource, Throw.class);
-			tDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive) " +
-					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive FROM temp;");
-			tDao.executeRaw("DROP TABLE temp;");
+			
+//			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
+//			TableUtils.createTable(connectionSource, Throw.class);
+//			tDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive) " +
+//					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive FROM temp;");
+//			tDao.executeRaw("DROP TABLE temp;");
 			
 
 		} catch (SQLException e) {

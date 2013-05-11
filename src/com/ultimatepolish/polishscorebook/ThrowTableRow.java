@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TableRow;
@@ -161,14 +162,14 @@ public class ThrowTableRow extends TableRow {
 		getInningView().setText(inning);
 	}
 	protected void updateP1Text(Throw t){		
-		getP1ThrowView().setImageDrawable(getResources().getDrawable(t.getThrowDrawableId()));
+		t.setThrowDrawable(getP1ThrowView());
 		getP1SpecialView().setText(t.getSpecialString());
 		
 		int sc[]  = t.getFinalScores();
 		updateScoreText(sc[0], sc[1]);
 	}
 	protected void updateP2Text(Throw t){
-		getP2ThrowView().setImageDrawable(getResources().getDrawable(t.getThrowDrawableId()));
+		t.setThrowDrawable(getP2ThrowView());
 		getP2SpecialView().setText(t.getSpecialString());
 		
 		int sc[]  = t.getFinalScores();
