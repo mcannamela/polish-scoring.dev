@@ -146,72 +146,107 @@ public class Throw implements Comparable<Throw>{
 		int[] diffs = {0,0};
 		switch (throwResult){
 		case ThrowResult.NA:
-			break;
-		case ThrowResult.CATCH:
+			if (throwType == ThrowType.TRAP) {
+				diffs[0] = -1;
+			}
 			break;
 		case ThrowResult.DROP:
-			switch (throwType){
-				case ThrowType.STRIKE:
-					if (!isDropScoreBlocked()){
-						diffs[0]=1;
-					}
-					break;
-				case ThrowType.POLE: 
-				case ThrowType.CUP:
-					diffs[0] = 2;
-					break;
-				case ThrowType.BOTTLE:
-					diffs[0] = 3;
-					break;
-				case ThrowType.TRAP:
-					diffs[0] = -1;
-					break;
-				case ThrowType.TRAP_REDEEMED:
-					diffs[0] = 0;
-					break;
-				default:
-					break;
+			if (!isLineFault) {
+				switch (throwType){
+					case ThrowType.STRIKE:
+						if (!isDropScoreBlocked() && deadType == 0){
+							diffs[0] = 1;
+						}
+						break;
+					case ThrowType.POLE: 
+					case ThrowType.CUP:
+						if (!isTipped) {
+							diffs[0] = 2;
+							if (isGoaltend) {
+								// if goaltended, an extra point for dropping disc
+								diffs[0] += 1;
+							}
+						}
+						break;
+					case ThrowType.BOTTLE:
+						if (!isTipped) {
+							diffs[0] = 3;
+							if (isGoaltend) {
+								// if goaltended, an extra point for dropping disc
+								diffs[0] += 1;
+							}
+						}
+						break;
+					default:
+						break;
+				}
+			}
+			break;
+		case ThrowResult.CATCH:
+			if (!isLineFault) {
+				switch (throwType){
+					case ThrowType.POLE: 
+					case ThrowType.CUP:
+						if (!isTipped) {
+							if (isGoaltend) {
+								// if goaltended, award points for hit
+								diffs[0] = 2;
+							}
+						}
+						break;
+					case ThrowType.BOTTLE:
+						if (!isTipped) {
+							if (isGoaltend) {
+								// if goaltended, award points for hit
+								diffs[0] = 3;
+							}
+						}
+						break;
+					default:
+						break;
+				}
 			}
 			break;
 		case ThrowResult.STALWART:
-			switch(throwType){
-				case ThrowType.POLE: 
-				case ThrowType.CUP:
-				case ThrowType.BOTTLE: 
-					diffs[1] = 1;
-					break;
-				default:
-					break;
-			}
+			diffs[1] = 1;
 			break;
 		case ThrowResult.BROKEN:
-			diffs[0] = 20;
+			if (!isLineFault) {
+				diffs[0] = 20;
+			}
+			break;
+		default:
 			break;
 		}
 		
-		if (isDefensiveDrinkDropped){
-			diffs[1]-=1;
-		}
+		// extra points for other modifiers
 		if (isDrinkHit){
-			diffs[1]-=1;
+			diffs[1] -= 1;
 		}
-//		if (isTrap){
-//			inc[0]-=1;
-//		}
-//		if (isOwnGoal){
-//			diffs[1]+= ownGoalScore;
-//		}
-//		if (isDefensiveError){
-//			diffs[0]+= errorScore;
-//		}
-//		if (isGoaltend){
-//			diffs[0]+= goaltendScore;
-//		}
-//		
-//		if (isBroken){
-//			diffs[0] = 20;
-//			diffs[1] = 0;
-//		}
+		if (isOffensiveDrinkDropped){
+			diffs[0] -= 1;
+		}
+		if (isOffensivePoleKnocked){
+			diffs[1] += 2;
+		}
+		if (isOffensiveBottleKnocked){
+			diffs[1] += 3;
+		}
+		if (isOffensiveBreakError){
+			diffs[1] += 20;
+		}
+		if (isDefensiveDrinkDropped){
+			diffs[1] -= 1;
+		}
+		if (isDefensivePoleKnocked){
+			diffs[0] += 2;
+		}
+		if (isDefensiveBottleKnocked){
+			diffs[0] += 3;
+		}
+		if (isDefensiveBreakError){
+			diffs[0] += 20;
+		}
 		
 		return diffs;
 	}
@@ -372,14 +407,15 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.BALL_LOW:
 		case ThrowType.BALL_LEFT:
 		case ThrowType.STRIKE:
-			// check modifiers
 			if (deadType != 0 && isDrinkHit){
+				// drinkHit must be on a live throw
 				valid = false;
 			} else if (isGoaltend || isTipped) {
+				// goaltending and tipped dont make sense for these throwTypes
 				valid = false;
 			}
 			
-			// check throw result
+			// throwResult much be a drop or catch
 			switch (throwResult) {
 			case ThrowResult.DROP:
 			case ThrowResult.CATCH:
@@ -395,12 +431,28 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.CUP:
 		case ThrowType.BOTTLE:
 			if (isDrinkHit) {
+				// drink hits have to be direct
 				valid = false;
 			} else if (isTipped && isGoaltend) {
+				// cant be tipped if throw was goaltended
 				valid = false;
 			} else if (deadType != 0 && isGoaltend) {
+				// it isnt goaltending if throw is dead
 				valid = false;
 			} else if (throwResult == ThrowResult.NA) {
+				// one of the normal results must apply
+				valid = false;
+			} else if (isTipped && throwResult == ThrowResult.STALWART) {
+				// can't stalwart on a tip
+				valid = false;
+			} else if (isGoaltend && throwResult == ThrowResult.STALWART) {
+				// can't stalwart and goaltend
+				valid = false;
+			} else if (isTipped && throwResult == ThrowResult.BROKEN) {
+				// can't break on a tip
+				valid = false;
+			} else if (isGoaltend && throwResult == ThrowResult.BROKEN) {
+				// can't break and goaltend
 				valid = false;
 			}
 			
@@ -409,17 +461,19 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.TRAP:
 		case ThrowType.TRAP_REDEEMED:
 		case ThrowType.SHORT:
-			// check modifiers
 			if (isGoaltend || isTipped || isDrinkHit) {
+				// these modifiers dont apply to these throwTypes
 				valid = false;
 			} else if (throwResult != ThrowResult.NA) {
+				// only NA result applies here
 				valid = false;
 			}
 			
 			break;
 		case ThrowType.FIRED_ON:
-			// check modifiers
-			if (isGoaltend || isTipped || isDrinkHit || deadType != 0) {
+			// fired_on is a dummy throw, so modifiers dont count and result must be NA
+			// errors could potentially happen while returning the disc, so those are allowed
+			if (isLineFault || isGoaltend || isTipped || isDrinkHit || deadType != 0) {
 				valid = false;
 			} else if (throwResult != ThrowResult.NA) {
 				valid = false;
