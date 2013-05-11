@@ -46,6 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		tableClasses.add( Throw.class);
 		tableClasses.add( Venue.class);
 	}
+	
 
 	@Override
 	public void onCreate(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource) {
@@ -85,9 +86,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		try {
 			// game table
 			Dao<Game, Long> gDao = getGameDao();
-			gDao.executeRaw("ALTER TABLE game ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
-			gDao.executeRaw("ALTER TABLE game ADD COLUMN isComplete BOOLEAN DEFAULT 1;");
-			gDao.executeRaw("ALTER TABLE game ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
+			String addGameColumn = "ALTER TABLE game ADD COLUMN ";
+			gDao.executeRaw(addGameColumn+"isTeam BOOLEAN DEFAULT 0;");
+			gDao.executeRaw(addGameColumn+"isComplete BOOLEAN DEFAULT 1;");
+			gDao.executeRaw(addGameColumn+"isTracked BOOLEAN DEFAULT 1;");
 			
 			// player table
 			Dao<Player, Long> pDao = getPlayerDao();
@@ -100,10 +102,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 			// session table
 			Dao<Session, Long> sDao = getSessionDao();
-			sDao.executeRaw("ALTER TABLE session ADD COLUMN sessionType INT DEFAULT 1;");
+			String addSessionColumn = "ALTER TABLE session ADD COLUMN ";
+			sDao.executeRaw(addSessionColumn+"sessionType INT DEFAULT 1;");
 			sDao.executeRaw("UPDATE session SET sessionType = 0 WHERE sessionName = 'side_books';");
-			sDao.executeRaw("ALTER TABLE session ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
-			sDao.executeRaw("ALTER TABLE session ADD COLUMN isActive BOOLEAN DEFAULT 1;");
+			sDao.executeRaw(addSessionColumn+"isTeam BOOLEAN DEFAULT 0;");
+			sDao.executeRaw(addSessionColumn+"isActive BOOLEAN DEFAULT 1;");
 			sDao.executeRaw("ALTER TABLE session RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Session.class);
 			sDao.executeRaw("INSERT INTO session(id, sessionName, sessionType, startDate, endDate, isTeam, isActive) " +
@@ -112,10 +115,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			
 			// venue table
 			Dao<Venue, Long> vDao = getVenueDao();
-			vDao.executeRaw("ALTER TABLE venue ADD COLUMN longitude LONG;");
-			vDao.executeRaw("ALTER TABLE venue ADD COLUMN latitude LONG;");
-			vDao.executeRaw("ALTER TABLE venue ADD COLUMN zipCode LONG;");
-			vDao.executeRaw("ALTER TABLE venue ADD COLUMN isActive BOOLEAN DEFAULT 1;");
+			String addVenueColumn ="ALTER TABLE venue ADD COLUMN "; 
+			vDao.executeRaw(addVenueColumn+"longitude LONG;");
+			vDao.executeRaw(addVenueColumn+"latitude LONG;");
+			vDao.executeRaw(addVenueColumn+"zipCode LONG;");
+			vDao.executeRaw(addVenueColumn+"isActive BOOLEAN DEFAULT 1;");
 			vDao.executeRaw("ALTER TABLE venue RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Venue.class);
 			vDao.executeRaw("INSERT INTO venue(id, venueName, scoreKeptFromTop, longitude, latitude, zipCode, isActive) " +
@@ -140,7 +144,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
 					+ 10, e);
-		}
+		} 
 	}
 	
 	public void createAll(){
@@ -165,8 +169,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	
 	protected void createAll(ConnectionSource connectionSource) throws SQLException{
 		for(Class c:tableClasses){
-			// change to CreateTableIfNotExists?
-			TableUtils.createTable(connectionSource, c);
+			TableUtils.createTableIfNotExists(connectionSource, c);
 		}
 	}
 	
