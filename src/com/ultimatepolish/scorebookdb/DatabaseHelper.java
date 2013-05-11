@@ -68,6 +68,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 				increment_09(sqliteDatabase, connectionSource);
 				
 			case 10:
+				increment_10(sqliteDatabase, connectionSource);
 				break;
 			default:
 				try {
@@ -81,7 +82,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 	
 	private void increment_09(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
-		//TODO: actual db migration goes here
 		try {
 			// game table
 			Dao<Game, Long> gDao = getGameDao();
@@ -137,6 +137,26 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 				TableUtils.createTable(connectionSource, c);
 			}
 			
+		} catch (SQLException e) {
+			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
+					+ 10, e);
+		}
+	}
+	
+	private void increment_10(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
+		try {
+			// throw table
+			Dao<Throw, Long> tDao = getThrowDao();
+//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
+//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isComplete BOOLEAN DEFAULT 1;");
+//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
+			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
+			TableUtils.createTable(connectionSource, Throw.class);
+			tDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive) " +
+					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive FROM temp;");
+			tDao.executeRaw("DROP TABLE temp;");
+			
+
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
 					+ 10, e);

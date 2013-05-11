@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
@@ -13,102 +12,121 @@ import com.ultimatepolish.polishscorebook.R;
 
 public class Throw implements Comparable<Throw>{
 	public static final String GAME_ID = "gameId";
-	public static final String THROW_NUMBER = "throwNumber";
+	public static final String THROW_INDEX = "throwIdx";
+
 	@DatabaseField(generatedId=true)
 	private long id;
 	
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private int throwNumber;
+	private int throwIdx;
+
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private long gameId;
-	@DatabaseField(canBeNull=false)
-	private long playerId;
 
 	@DatabaseField(canBeNull=false)
+	private long offensivePlayerId;
+
+	@DatabaseField(canBeNull=false)
+	private long defensivePlayerId;
+	
+	@DatabaseField(canBeNull=false)
 	private Date timestamp;
+
 	@DatabaseField(canBeNull=false)
 	private int throwType;
+
 	@DatabaseField(canBeNull=false)
 	private int throwResult;
+
+	@DatabaseField
+	private int deadType = 0;
 	
 	@DatabaseField
-	public boolean isError = false;
-	@DatabaseField
-	private int errorScore = 0;
-	
-	@DatabaseField
-	public boolean isOwnGoal = false;
-	@DatabaseField
-	private int ownGoalScore= 0;
+	public boolean isTipped = false;
 	
 	@DatabaseField
 	public boolean isGoaltend = false;
-	@DatabaseField
-	private int goaltendScore= 0;
 		
 	@DatabaseField
 	public boolean isDrinkHit = false;
-	@DatabaseField
-	public boolean isDrinkDropped = false;
-	
-	@DatabaseField
-	public boolean isTrap = false;
-	
 	
 	@DatabaseField
 	public boolean isOnFire = false;
+
 	@DatabaseField
-	public boolean isFiredOn = false;
+	public boolean isLineFault = false;
 	
 	@DatabaseField
-	public boolean isShort = false;
+	public boolean isOffensiveDrinkDropped = false;
 	
 	@DatabaseField
-	public boolean isBroken = false;
+	public boolean isOffensivePoleKnocked = false;
+	
+	@DatabaseField
+	public boolean isOffensiveBottleKnocked = false;
+	
+	@DatabaseField
+	public boolean isOffensiveBreakError = false;
+	
+	@DatabaseField
+	public boolean isDefensiveDrinkDropped = false;
+	
+	@DatabaseField
+	public boolean isDefensivePoleKnocked = false;
+	
+	@DatabaseField
+	public boolean isDefensiveBottleKnocked = false;
+	
+	@DatabaseField
+	public boolean isDefensiveBreakError = false;
 	
 	@DatabaseField
 	private int initialOffensivePlayerScore = 0;
+
 	@DatabaseField
 	private int initialDefensivePlayerScore = 0;
 	
 	Throw(){}
 	
-	public Throw(int throwNumber, long gameId, long playerId, Date timestamp,
+	public Throw(int throwIdx, long gameId, long offensivePlayerId, long defensivePlayerId, Date timestamp,
 			int throwType, int throwResult) {
 		super();
-		this.throwNumber = throwNumber;
+		this.throwIdx = throwIdx;
 		this.gameId = gameId;
-		this.playerId = playerId;
+		this.offensivePlayerId = offensivePlayerId;
+		this.defensivePlayerId = defensivePlayerId;
 		this.timestamp = timestamp;
 		this.throwType = throwType;
 		this.throwResult = throwResult;
 	}
 	
-	public Throw(int throwNumber, long gameId, long playerId, Date timestamp) {
+	public Throw(int throwIdx, long gameId, long offensivePlayerId, long defensivePlayerId, Date timestamp) {
 		super();
-		this.throwNumber = throwNumber;
+		this.throwIdx = throwIdx;
 		this.gameId = gameId;
-		this.playerId = playerId;
+		this.offensivePlayerId = offensivePlayerId;
+		this.defensivePlayerId = defensivePlayerId;
 		this.timestamp = timestamp;
-		this.throwType = ThrowType.NOT_THROWN;
+        this.throwType = ThrowType.NOT_THROWN;
 	}
-	public static Dao<Throw, Long> getDao(Context context){
+	
+    public static Dao<Throw, Long> getDao(Context context){
 		DatabaseHelper helper = new DatabaseHelper(context);
 		Dao<Throw, Long> d = null;
-		try {
-			d = helper.getThrowDao();
-		}
-		catch (SQLException e){
-			throw new RuntimeException("couldn't get dao: ", e);
-		}
+                try {
+                        d = helper.getThrowDao();
+                }
+                catch (SQLException e){
+                        throw new RuntimeException("Couldn't get dao: ", e);
+                }
 		return d;
 	}
 	public HashMap<String, Object> getQueryMap(){
-		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put(Throw.THROW_NUMBER, getThrowIdx());
-		m.put(Throw.GAME_ID, getGameId());
-		return m;
-	}
+        HashMap<String,Object> m = new HashMap<String,Object>();
+        m.put(Throw.THROW_INDEX, getThrowIdx());
+        m.put(Throw.GAME_ID, getGameId());
+        return m;
+}
 	public void setInitialScores(Throw previousThrow){
 		int[] scores = previousThrow.getFinalScores();
 		setInitialDefensivePlayerScore(scores[0]);
@@ -119,75 +137,83 @@ public class Throw implements Comparable<Throw>{
 		setInitialOffensivePlayerScore(0);
 	}
 	public int[] getFinalScores(){
-		int[] inc = getScoreIncrements();
-		int[] finalScores = {initialOffensivePlayerScore, 
-				initialDefensivePlayerScore};
-		for (int i=0;i<2;i++){
-			finalScores[i]+=inc[i];
-		}
+		int[] diff = getScoreDifferentials();
+		int[] finalScores = {initialOffensivePlayerScore + diff[0], 
+				initialDefensivePlayerScore + diff [1]};
 		return finalScores;
 	}
-	private int[] getScoreIncrements(){
-		int[] inc = {0,0};
+	private int[] getScoreDifferentials(){
+		int[] diffs = {0,0};
 		switch (throwResult){
-			case ThrowResult.CATCH:
-				break;
-			case ThrowResult.DROP:
-				switch (throwType){
-					case ThrowType.STRIKE:
-						if (!isDropScoreBlocked()){
-							inc[0]=1;
-						}
-						break;
-					case ThrowType.POLE: 
-					case ThrowType.CUP:
-						inc[0] = 2;
-						break;
-					case ThrowType.BOTTLE:
-						inc[0] = 3;
-					default:
-						break;
-				}
-				break;
-			case ThrowResult.STALWART:
-				switch(throwType){
-					case ThrowType.POLE: 
-					case ThrowType.CUP:
-					case ThrowType.BOTTLE: 
-						inc[1] = 1;
-						break;
-					default:
-						break;
-				}
-				
-				break;
+		case ThrowResult.NA:
+			break;
+		case ThrowResult.CATCH:
+			break;
+		case ThrowResult.DROP:
+			switch (throwType){
+				case ThrowType.STRIKE:
+					if (!isDropScoreBlocked()){
+						diffs[0]=1;
+					}
+					break;
+				case ThrowType.POLE: 
+				case ThrowType.CUP:
+					diffs[0] = 2;
+					break;
+				case ThrowType.BOTTLE:
+					diffs[0] = 3;
+					break;
+				case ThrowType.TRAP:
+					diffs[0] = -1;
+					break;
+				case ThrowType.TRAP_REDEEMED:
+					diffs[0] = 0;
+					break;
+				default:
+					break;
+			}
+			break;
+		case ThrowResult.STALWART:
+			switch(throwType){
+				case ThrowType.POLE: 
+				case ThrowType.CUP:
+				case ThrowType.BOTTLE: 
+					diffs[1] = 1;
+					break;
+				default:
+					break;
+			}
+			break;
+		case ThrowResult.BROKEN:
+			diffs[0] = 20;
+			break;
 		}
 		
-		if (isDrinkDropped){
-			inc[1]-=1;
+		if (isDefensiveDrinkDropped){
+			diffs[1]-=1;
 		}
 		if (isDrinkHit){
-			inc[1]-=1;
+			diffs[1]-=1;
 		}
-		if (isTrap){
-			inc[0]-=1;
-		}
-		if (isOwnGoal){
-			inc[1]+= ownGoalScore;
-		}
-		if (isError){
-			inc[0]+= errorScore;
-		}
-		if (isGoaltend){
-			inc[0]+= goaltendScore;
-		}
+//		if (isTrap){
+//			inc[0]-=1;
+//		}
+//		if (isOwnGoal){
+//			diffs[1]+= ownGoalScore;
+//		}
+//		if (isDefensiveError){
+//			diffs[0]+= errorScore;
+//		}
+//		if (isGoaltend){
+//			diffs[0]+= goaltendScore;
+//		}
+//		
+//		if (isBroken){
+//			diffs[0] = 20;
+//			diffs[1] = 0;
+//		}
 		
-		if (isBroken){
-			inc[0] = 20;
-			inc[1] = 0;
-		}
-		
-		return inc;
+		return diffs;
 	}
 	private boolean isDropScoreBlocked(){
 		boolean isBlocked = false;
@@ -200,7 +226,7 @@ public class Throw implements Comparable<Throw>{
 	}
 	public String getSpecialString(){
 		String s = "";
-		if(isError){
+		if(isDefensiveError){
 			s+="e"+String.valueOf(errorScore);
 		}
 		if (isOwnGoal){
@@ -212,19 +238,19 @@ public class Throw implements Comparable<Throw>{
 //		if (isOnFire){
 //			s+="f";
 //		}
-		if (isFiredOn){
-			s+="F";
-		}
+//		if (isFiredOn){
+//			s+="F";
+//		}
 		if (isBroken){
 			s+="*";
 		}
-		if (isTrap){
-			s+="^";
-		}
-		if (isShort){
+//		if (isTrap){
+//			s+="^";
+//		}
+		if (isDead){
 			s+="v";
 		}
-		if (isDrinkDropped){
+		if (isDefensiveDrinkDropped){
 			s+="d";
 		}
 		if (isDrinkHit){
@@ -235,74 +261,6 @@ public class Throw implements Comparable<Throw>{
 		}
 		return s;
 	}
-//	public String getThrowString(){
-//		String s = "";
-//		switch(throwType){
-//			case ThrowType.BALL_HIGH:
-//				s = "^";
-//				break;
-//			case ThrowType.BALL_LEFT:
-//				s = "<";
-//				break;
-//			case ThrowType.BALL_RIGHT:
-//				s = ">";
-//				break;
-//			case ThrowType.BALL_LOW:
-//				s = "v";
-//				break;
-//			case ThrowType.STRIKE:
-//				switch (throwResult){
-//				case ThrowResult.DROP:
-//					s = "o";
-//					break;
-//				case ThrowResult.CATCH:
-//				case ThrowResult.STALWART:
-//					s = "\u00b7";
-//					break;
-//				}
-//				break;
-//			case ThrowType.POLE:
-//				switch (throwResult){
-//				case ThrowResult.DROP:
-//					s = "\u03a6";
-//					break;
-//				case ThrowResult.CATCH:
-//					s = "|";
-//					break;
-//				case ThrowResult.STALWART:
-//					s = "+";
-//					break;
-//				}
-//				break;
-//			case ThrowType.CUP:
-//				switch (throwResult){
-//				case ThrowResult.DROP:
-//					s = "\u00a9";
-//					break;
-//				case ThrowResult.CATCH:
-//					s = "\u20b5";
-//					break;
-//				case ThrowResult.STALWART:
-//					s = "\u20b5"+"+";
-//					break;
-//				}
-//				break;
-//			case ThrowType.BOTTLE:
-//				switch (throwResult){
-//					case ThrowResult.DROP:
-//						s = "@";
-//						break;
-//					case ThrowResult.CATCH:
-//						s = "\u0394";
-//						break;
-//					case ThrowResult.STALWART:
-//						s = "\u0394"+"+";
-//						break;
-//				}
-//				break;
-//		}
-//		return s;
-//	}
 	public int getThrowDrawableId(){
 		int d = R.drawable.bxs_notthrown;
 		switch(throwType){
@@ -400,45 +358,103 @@ public class Throw implements Comparable<Throw>{
 		return d;
 	}
 	
+	public boolean getIsValid() {
+		boolean valid = true;
+		
+		switch (throwType) {
+		case ThrowType.BALL_HIGH:
+		case ThrowType.BALL_RIGHT:
+		case ThrowType.BALL_LOW:
+		case ThrowType.BALL_LEFT:
+		case ThrowType.STRIKE:
+			// check modifiers
+			if (deadType != 0 && isDrinkHit){
+				valid = false;
+			} else if (isGoaltend || isTipped) {
+				valid = false;
+			}
+			
+			// check throw result
+			switch (throwResult) {
+			case ThrowResult.DROP:
+			case ThrowResult.CATCH:
+				break;
+			default:
+				valid = false;
+				break;
+			}
+			
+			break;
+			
+		case ThrowType.POLE:
+		case ThrowType.CUP:
+		case ThrowType.BOTTLE:
+			if (isDrinkHit) {
+				valid = false;
+			} else if (isTipped && isGoaltend) {
+				valid = false;
+			} else if (deadType != 0 && isGoaltend) {
+				valid = false;
+			} else if (throwResult == ThrowResult.NA) {
+				valid = false;
+			}
+			
+			break;
+			
+		case ThrowType.TRAP:
+		case ThrowType.TRAP_REDEEMED:
+		case ThrowType.SHORT:
+			// check modifiers
+			if (isGoaltend || isTipped || isDrinkHit) {
+				valid = false;
+			} else if (throwResult != ThrowResult.NA) {
+				valid = false;
+			}
+			
+			break;
+		case ThrowType.FIRED_ON:
+			// check modifiers
+			if (isGoaltend || isTipped || isDrinkHit || deadType != 0) {
+				valid = false;
+			} else if (throwResult != ThrowResult.NA) {
+				valid = false;
+			}
+			
+			break;
+		}
+		return valid;
+	}
 	
 	public long getId() {
 		return id;
 	}
-
+	
 	public void setId(long id) {
-		this.id = id;
+        this.id = id;
 	}
 
 	public int getThrowIdx() {
-		return throwNumber;
+		return throwIdx;
 	}
 
-	public void setThrowIdx(int throwNumber) {
-		this.throwNumber = throwNumber;
+	public void setThrowIdx(int throwIdx) {
+        this.throwIdx = throwIdx;
 	}
-
+	
 	public long getGameId() {
 		return gameId;
 	}
 
-	public void setGameId(long gameId) {
-		this.gameId = gameId;
+	public long getOffensivePlayerId() {
+		return offensivePlayerId;
 	}
 
-	public long getPlayerId() {
-		return playerId;
-	}
-
-	public void setPlayerId(long playerId) {
-		this.playerId = playerId;
+	public long getDefensivePlayerId() {
+		return defensivePlayerId;
 	}
 
 	public Date getTimestamp() {
 		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public int getThrowType() {
@@ -456,31 +472,15 @@ public class Throw implements Comparable<Throw>{
 	public void setThrowResult(int throwResult) {
 		this.throwResult = throwResult;
 	}
-
-	public int getErrorScore() {
-		return errorScore;
+	
+	public int getDeadType() {
+		return deadType;
 	}
 
-	public void setErrorScore(int errorScore) {
-		this.errorScore = errorScore;
+	public void setDeadType(int deadType) {
+		this.deadType = deadType;
 	}
-
-	public int getOwnGoalScore() {
-		return ownGoalScore;
-	}
-
-	public void setOwnGoalScore(int ownGoalScore) {
-		this.ownGoalScore = ownGoalScore;
-	}
-
-	public int getGoaltendScore() {
-		return goaltendScore;
-	}
-
-	public void setGoaltendScore(int goaltendScore) {
-		this.goaltendScore = goaltendScore;
-	}
-
+	
 	public int getInitialOffensivePlayerScore() {
 		return initialOffensivePlayerScore;
 	}
@@ -498,10 +498,10 @@ public class Throw implements Comparable<Throw>{
 	}
 
 	public int compareTo(Throw another) {
-		if (throwNumber<another.throwNumber){
+		if (throwIdx<another.throwIdx){
 			return -1;
 		}
-		else if(throwNumber==another.throwNumber){
+		else if(throwIdx==another.throwIdx){
 			return 0;
 		}
 		else{
@@ -509,14 +509,13 @@ public class Throw implements Comparable<Throw>{
 		}
 	}
 
-	public static boolean isP1Throw(int throwNr) {
-		return throwNr%2==0;
+	public static boolean isP1Throw(int throwIdx) {
+		return throwIdx%2==0;
 	}
 	public static boolean isP1Throw(Throw t){
 		return isP1Throw(t.getThrowIdx());
 	}
 	public boolean isP1Throw(){
-		return isP1Throw(throwNumber);
-	}
+		return isP1Throw(throwIdx);
+	}	
 }
-
