@@ -361,6 +361,11 @@ public class Throw implements Comparable<Throw>{
 	public boolean getIsValid() {
 		boolean valid = true;
 		
+		if (isOnFire) {
+			if (throwResult != ThrowResult.NA && throwResult != ThrowResult.BROKEN) {
+				valid = false;
+			}
+		}
 		switch (throwType) {
 		case ThrowType.BALL_HIGH:
 		case ThrowType.BALL_RIGHT:
