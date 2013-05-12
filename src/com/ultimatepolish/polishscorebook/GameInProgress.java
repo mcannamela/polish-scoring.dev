@@ -169,35 +169,60 @@ public class GameInProgress extends MenuContainerActivity
 		log("buttonPressed(): " + view.getContentDescription() + " was pressed");
 		int buttonId = view.getId();
 		
-		switch (buttonId) {
-			case R.id.gip_button_high:
-				currentThrowType = ThrowType.BALL_HIGH;
-				break;
-			case R.id.gip_button_low:
-				currentThrowType = ThrowType.BALL_LOW;
-				break;
-			case R.id.gip_button_left:
-				currentThrowType = ThrowType.BALL_LEFT;
-				break;
-			case R.id.gip_button_right:
-				currentThrowType = ThrowType.BALL_RIGHT;
-				break;
-			case R.id.gip_button_strike:
-				currentThrowType = ThrowType.STRIKE;
+		if (currentThrowType == ThrowType.TRAP) {
+			switch (buttonId) {
+			case R.id.gip_button_trap:
+				currentThrowType = ThrowType.NOT_THROWN;
 				break;
 			case R.id.gip_button_bottle:
-				currentThrowType = ThrowType.BOTTLE;
-				break;
 			case R.id.gip_button_pole:
-				currentThrowType = ThrowType.POLE;
-				break;
 			case R.id.gip_button_cup:
-				currentThrowType = ThrowType.CUP;
+				currentThrowType = ThrowType.TRAP_REDEEMED;
+				confirmThrow();
 				break;
+			default:
+				confirmThrow();
+				break;
+			}
+		} else {
+			switch (buttonId) {
+				case R.id.gip_button_high:
+					currentThrowType = ThrowType.BALL_HIGH;
+					break;
+				case R.id.gip_button_low:
+					currentThrowType = ThrowType.BALL_LOW;
+					break;
+				case R.id.gip_button_left:
+					currentThrowType = ThrowType.BALL_LEFT;
+					break;
+				case R.id.gip_button_right:
+					currentThrowType = ThrowType.BALL_RIGHT;
+					break;
+				case R.id.gip_button_trap:
+					currentThrowType = ThrowType.TRAP;
+					break;
+				case R.id.gip_button_short:
+					currentThrowType = ThrowType.SHORT;
+					break;
+				case R.id.gip_button_strike:
+					currentThrowType = ThrowType.STRIKE;
+					break;
+				case R.id.gip_button_bottle:
+					currentThrowType = ThrowType.BOTTLE;
+					break;
+				case R.id.gip_button_pole:
+					currentThrowType = ThrowType.POLE;
+					break;
+				case R.id.gip_button_cup:
+					currentThrowType = ThrowType.CUP;
+					break;
+			}
+			
+			if (currentThrowType != ThrowType.TRAP) {
+//				updateActiveThrow();			
+				confirmThrow();
+			}
 		}
-		
-//		updateActiveThrow();
-		confirmThrow();
 	}
 	//==================================================
 	
@@ -781,7 +806,5 @@ public class GameInProgress extends MenuContainerActivity
 		if (throwType == currentThrowType) {btn.setPressed(true);}
 		else {btn.setPressed(false);}
 	}
-	
-	
-	
+
 }
