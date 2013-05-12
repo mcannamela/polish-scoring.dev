@@ -141,8 +141,7 @@ public class GameInProgress extends MenuContainerActivity
 				default:
 					break;
 			}
-			
-			buttonPressed(view);
+			updateActiveThrow();
             return true;
         }
 	};
@@ -593,9 +592,9 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void applyUIThrowResultToThrow(Throw t){
 		
-		if (t.getThrowResult() == ThrowResult.BROKEN) {
-			// it stays broken
-		} else if (t.isOnFire) {
+		if (currentThrowResult == ThrowResult.BROKEN) {
+			t.setThrowResult(ThrowResult.BROKEN);
+		} else if (isOnFire) {
 			t.setThrowResult(ThrowResult.NA);
 		} else {
 			switch (resultNp.getValue()) { 
@@ -624,9 +623,7 @@ public class GameInProgress extends MenuContainerActivity
 //			t.setOwnGoalScore(getOwnGoalScore());
 //		}
 		
-//		t.isShort = isShort();
-//		t.isTrap=isTrap();
-//		t.isBroken = isBroken();
+		t.setDeadType(currentDeadType);
 		
 //		t.isDrinkDropped = isDrinkDrop();
 //		t.isDrinkHit = isDrinkHit();
