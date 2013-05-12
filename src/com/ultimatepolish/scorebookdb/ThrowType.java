@@ -14,4 +14,7 @@ public final class ThrowType {
 	public static final int TRAP_REDEEMED = 10;
 	public static final int NOT_THROWN = 11;
 	public static final int FIRED_ON = 12;
+	
+	public static final String[] typeString = {"Bottle", "Cup", "Pole", "Strike", "High", "Right",
+		"Low", "Left", "Short", "Trap", "Redeemed Trap", "Not thrown", "Fired on"};
 }
