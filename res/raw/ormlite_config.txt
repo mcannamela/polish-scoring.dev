@@ -1,5 +1,5 @@
 #
-# generated on 2013/05/09 10:23:19
+# generated on 2013/05/11 10:22:42
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -262,7 +262,7 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=throwNumber
+fieldName=throwIdx
 canBeNull=false
 uniqueCombo=true
 # --field-end--
@@ -272,7 +272,11 @@ canBeNull=false
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=playerId
+fieldName=offensivePlayerId
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=defensivePlayerId
 canBeNull=false
 # --field-end--
 # --field-start--
@@ -288,43 +292,46 @@ fieldName=throwResult
 canBeNull=false
 # --field-end--
 # --field-start--
-fieldName=isError
+fieldName=deadType
 # --field-end--
 # --field-start--
-fieldName=errorScore
-# --field-end--
-# --field-start--
-fieldName=isOwnGoal
-# --field-end--
-# --field-start--
-fieldName=ownGoalScore
+fieldName=isTipped
 # --field-end--
 # --field-start--
 fieldName=isGoaltend
 # --field-end--
 # --field-start--
-fieldName=goaltendScore
-# --field-end--
-# --field-start--
 fieldName=isDrinkHit
-# --field-end--
-# --field-start--
-fieldName=isDrinkDropped
-# --field-end--
-# --field-start--
-fieldName=isTrap
 # --field-end--
 # --field-start--
 fieldName=isOnFire
 # --field-end--
 # --field-start--
-fieldName=isFiredOn
+fieldName=isLineFault
 # --field-end--
 # --field-start--
-fieldName=isShort
+fieldName=isOffensiveDrinkDropped
 # --field-end--
 # --field-start--
-fieldName=isBroken
+fieldName=isOffensivePoleKnocked
+# --field-end--
+# --field-start--
+fieldName=isOffensiveBottleKnocked
+# --field-end--
+# --field-start--
+fieldName=isOffensiveBreakError
+# --field-end--
+# --field-start--
+fieldName=isDefensiveDrinkDropped
+# --field-end--
+# --field-start--
+fieldName=isDefensivePoleKnocked
+# --field-end--
+# --field-start--
+fieldName=isDefensiveBottleKnocked
+# --field-end--
+# --field-start--
+fieldName=isDefensiveBreakError
 # --field-end--
 # --field-start--
 fieldName=initialOffensivePlayerScore

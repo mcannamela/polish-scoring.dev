@@ -97,11 +97,11 @@ public class Game {
 		switch (idx%2){
 		    //first player is on offense
 			case 0:
-				isValid= isValid && (t.getPlayerId()==firstPlayerId);
+				isValid= isValid && (t.getOffensivePlayerId()==firstPlayerId);
 				break;
 		    //second player is on defense
 			case 1:
-				isValid= isValid && (t.getPlayerId()==secondPlayerId);
+				isValid= isValid && (t.getOffensivePlayerId()==secondPlayerId);
 				break;
 			default:
 				throw new RuntimeException("invalid index "+idx);
@@ -166,15 +166,17 @@ public class Game {
 		return throwArray;
 	}
 	public Throw makeNewThrow(int throwNumber){
-		long playerId;
+		long offensivePlayerId, defensivePlayerId;
 		if (throwNumber%2 == 0){
-			playerId=getFirstPlayerId();
+			offensivePlayerId = getFirstPlayerId();
+			defensivePlayerId = getSecondPlayerId();
 		}
 		else{
-			playerId=getSecondPlayerId();
+			offensivePlayerId = getSecondPlayerId();
+			defensivePlayerId = getFirstPlayerId();
 		}
 		Date timestamp = new Date(System.currentTimeMillis());
-		Throw t = new Throw (throwNumber, getId(), playerId, timestamp);
+		Throw t = new Throw (throwNumber, getId(), offensivePlayerId, defensivePlayerId, timestamp);
 		
 		return t;
 	}

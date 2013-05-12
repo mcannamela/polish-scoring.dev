@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.ActiveGame;
+import com.ultimatepolish.scorebookdb.DeadType;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
@@ -60,6 +61,12 @@ public class GameInProgress extends MenuContainerActivity
 	Dao<Throw, Long>tDao; 
 
 	int currentThrowType = ThrowType.NOT_THROWN;
+	int currentThrowResult = ThrowResult.NA;
+	int currentDeadType = DeadType.ALIVE;
+	boolean isTipped;
+	boolean isOnFire;
+	NumberPicker resultNp;
+	
 	
 	// LISTENERS ==================================================
 	private OnCheckedChangeListener checkboxChangedListener = new OnCheckedChangeListener(){
@@ -82,25 +89,56 @@ public class GameInProgress extends MenuContainerActivity
 			
 			switch (buttonId) {
 				case R.id.gip_button_strike:
-					if (isDrinkHit() == false) {
-						setIsDrinkHit(true);
+					isTipped = !isTipped;
+					break;
+				case R.id.gip_button_pole:
+				case R.id.gip_button_cup:
+				case R.id.gip_button_bottle:
+					if (currentThrowResult == ThrowResult.BROKEN) {
+						switch (resultNp.getValue()) { 
+						case 0:
+							currentThrowResult = ThrowResult.DROP;
+							break;
+						case 1:
+							currentThrowResult = ThrowResult.CATCH;
+							break;
+						case 2:
+							currentThrowResult = ThrowResult.STALWART;
+							break;
+						}
 					} else {
-						setIsDrinkHit(false);
+						currentThrowResult = ThrowResult.BROKEN;
 					}
 					break;
-				case R.id.gip_button_bottle:
-					if (isBroken() == false) {
-						setIsBroken(true);
+				case R.id.gip_button_high:
+					if (currentDeadType == DeadType.HIGH) {
+						currentDeadType = DeadType.ALIVE;
 					} else {
-						setIsBroken(false);
+						currentDeadType = DeadType.HIGH;
+					}
+					break;
+				case R.id.gip_button_right:
+					if (currentDeadType == DeadType.RIGHT) {
+						currentDeadType = DeadType.ALIVE;
+					} else {
+						currentDeadType = DeadType.RIGHT;
+					}
+					break;
+				case R.id.gip_button_low:
+					if (currentDeadType == DeadType.LOW) {
+						currentDeadType = DeadType.ALIVE;
+					} else {
+						currentDeadType = DeadType.LOW;
+					}
+					break;
+				case R.id.gip_button_left:
+					if (currentDeadType == DeadType.LEFT) {
+						currentDeadType = DeadType.ALIVE;
+					} else {
+						currentDeadType = DeadType.LEFT;
 					}
 					break;
 				default:
-					if (isShort() == false) {
-						setIsShort(true);
-					} else {
-						setIsShort(false);
-					}
 					break;
 			}
 			
@@ -354,17 +392,17 @@ public class GameInProgress extends MenuContainerActivity
 		NumberPicker np;
 		
 		// catch type numberpicker
-		np = (NumberPicker) findViewById(R.id.numPicker_catch);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		resultNp = (NumberPicker) findViewById(R.id.numPicker_catch);
+		resultNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		String[] catchText = new String[3];
 		catchText[0] = getString(R.string.gip_drop);
 		catchText[1] = getString(R.string.gip_catch);
 		catchText[2] = getString(R.string.gip_stalwart);
-		np.setMinValue(0);
-		np.setMaxValue(2);
-		np.setValue(1);
-		np.setDisplayedValues(catchText);
-		np.setOnValueChangedListener(numberPickerChangeListener); 
+		resultNp.setMinValue(0);
+		resultNp.setMaxValue(2);
+		resultNp.setValue(1);
+		resultNp.setDisplayedValues(catchText);
+		resultNp.setOnValueChangedListener(numberPickerChangeListener); 
 		
 		// error numberpicker
 		np = (NumberPicker) findViewById(R.id.numPicker_errorScore);
@@ -380,21 +418,9 @@ public class GameInProgress extends MenuContainerActivity
 		np.setMaxValue(3);
 		np.setOnValueChangedListener(numberPickerChangeListener);
 		
-		// goaltend numberpicker
-		np = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		np.setMinValue(2);
-		np.setMaxValue(3);
-		np.setOnValueChangedListener(numberPickerChangeListener);	
 	}
 	private void initListeners(){
 		CheckBox cb;
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_broken);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_drinkDrop);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
@@ -402,22 +428,10 @@ public class GameInProgress extends MenuContainerActivity
 		cb = (CheckBox) findViewById(R.id.checkBox_error);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
-		cb = (CheckBox) findViewById(R.id.checkBox_firedOn);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
 		cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
-		cb = (CheckBox) findViewById(R.id.checkBox_onFire);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
 		cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_short);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_trap);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		View view;
@@ -433,7 +447,19 @@ public class GameInProgress extends MenuContainerActivity
 		view = findViewById(R.id.gip_button_low);
 		view.setOnLongClickListener(mLongClickListener);
 		
+		view = findViewById(R.id.gip_button_trap);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_short);
+		view.setOnLongClickListener(mLongClickListener);
+		
 		view = findViewById(R.id.gip_button_strike);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_pole);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_cup);
 		view.setOnLongClickListener(mLongClickListener);
 		
 		view = findViewById(R.id.gip_button_bottle);
@@ -541,45 +567,47 @@ public class GameInProgress extends MenuContainerActivity
 		t.setThrowType(currentThrowType);
 	}
 	private void applyUIThrowResultToThrow(Throw t){
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
-		switch (np.getValue()) { 
-		case 0:
-			t.setThrowResult(ThrowResult.DROP);
-			break;
-		case 1:
-			t.setThrowResult(ThrowResult.CATCH);
-			break;
-		case 2:
-			t.setThrowResult(ThrowResult.STALWART);
-			break;
-		default:
-			// TODO: error handling? 
-		}		
+		
+		if (t.getThrowResult() == ThrowResult.BROKEN) {
+			// it stays broken
+		} else if (t.isOnFire) {
+			t.setThrowResult(ThrowResult.NA);
+		} else {
+			switch (resultNp.getValue()) { 
+			case 0:
+				t.setThrowResult(ThrowResult.DROP);
+				break;
+			case 1:
+				t.setThrowResult(ThrowResult.CATCH);
+				break;
+			case 2:
+				t.setThrowResult(ThrowResult.STALWART);
+				break;
+			default:
+				// TODO: error handling? 
+			}
+		}
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-		t.isError = isError();
+		t.isDefensiveDrinkDropped = isError();
 		t.isGoaltend = isGoaltend();
-		t.isOwnGoal = isOwnGoal();
-		if (t.isError){
-			t.setErrorScore(getErrorScore());
-		}
-		if (t.isOwnGoal){
-			t.setOwnGoalScore(getOwnGoalScore());
-		}
-		if (t.isGoaltend){
-			t.setGoaltendScore(getGoaltendScore());
-		}
+		t.isOffensiveDrinkDropped = isOwnGoal();
+//		if (t.isError){
+//			t.setErrorScore(getErrorScore());
+//		}
+//		if (t.isOwnGoal){
+//			t.setOwnGoalScore(getOwnGoalScore());
+//		}
 		
+//		t.isShort = isShort();
+//		t.isTrap=isTrap();
+//		t.isBroken = isBroken();
 		
-		t.isShort = isShort();
-		t.isTrap=isTrap();
-		t.isBroken = isBroken();
-		
-		t.isDrinkDropped = isDrinkDrop();
-		t.isDrinkHit = isDrinkHit();
-		
-		t.isOnFire=isOnFire();
-		t.isFiredOn=isFiredOn();
+//		t.isDrinkDropped = isDrinkDrop();
+//		t.isDrinkHit = isDrinkHit();
+//		
+//		t.isOnFire=isOnFire();
+//		t.isFiredOn=isFiredOn();
 	}
 	//-------------------------------------------------------------
 	
@@ -594,20 +622,20 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setSpecialMarks(Throw t){
-		setIsError(t.isError);
-		setIsOwnGoal(t.isOwnGoal);
-		setIsGoaltend(t.isGoaltend);
-		setErrorScore(t.getErrorScore());
-		setOwnGoalScore(t.getOwnGoalScore());
-		setGoaltendScore(t.getGoaltendScore());
+//		setIsError(t.isError);
+//		setIsOwnGoal(t.isOwnGoal);
+//		setIsGoaltend(t.isGoaltend);
+//		setErrorScore(t.getErrorScore());
+//		setOwnGoalScore(t.getOwnGoalScore());
+//		setGoaltendScore(t.getGoaltendScore());
 		
-		setIsShort(t.isShort);
-		setIsTrap(t.isTrap);
-		setIsBroken(t.isBroken);
-		setIsDrinkHit(t.isDrinkHit);
-		setIsDrinkDropped(t.isDrinkDropped);
-		setIsOnFire(t.isOnFire);
-		setIsFiredOn(t.isFiredOn);
+//		setIsShort(t.isShort);
+//		setIsTrap(t.isTrap);
+//		setIsBroken(t.isBroken);
+//		setIsDrinkHit(t.isDrinkHit);
+//		setIsDrinkDropped(t.isDrinkDropped);
+//		setIsOnFire(t.isOnFire);
+//		setIsFiredOn(t.isFiredOn);
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
@@ -712,6 +740,10 @@ public class GameInProgress extends MenuContainerActivity
 		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
 		return cb.isChecked();
 	}
+	boolean isDrinkHit(){
+		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
+		return cb.isChecked();
+	}
 	boolean isGoaltend(){
 		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
 		return cb.isChecked();
@@ -724,61 +756,9 @@ public class GameInProgress extends MenuContainerActivity
 		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
 		return np.getValue();
 	}
-	int getGoaltendScore(){
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
-		return np.getValue();
-	}
-	boolean isShort(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_short);
-		return cb.isChecked();
-	}
-	boolean isTrap(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_trap);
-		return cb.isChecked();
-	}
-	boolean isBroken(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_broken);
-		return cb.isChecked();
-	}
-	boolean isFiredOn(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_firedOn);
-		return cb.isChecked();
-	}
-	boolean isOnFire(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_onFire);
-		return cb.isChecked();
-	}
-	boolean isDrinkHit(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
-		return cb.isChecked();
-	}
-	boolean isDrinkDrop(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_drinkDrop);
-		return cb.isChecked();
-	}
-
-	private void setIsFiredOn(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_firedOn)).setChecked(b);
-	}
-	private void setIsOnFire(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_onFire)).setChecked(b);
-	}
-	private void setIsDrinkDropped(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_drinkDrop)).setChecked(b);
-	}
 	private void setIsDrinkHit(boolean b) {
 		((CheckBox) findViewById(R.id.checkBox_drinkHit)).setChecked(b);
 	}
-	private void setIsBroken(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_broken)).setChecked(b);
-	}
-	private void setIsTrap(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_trap)).setChecked(b);
-	}
-	private void setIsShort(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_short)).setChecked(b);
-	}
-	
 	private void setIsGoaltend(boolean b) {
 		((CheckBox) findViewById(R.id.checkBox_goaltend)).setChecked(b);
 	}
@@ -787,10 +767,6 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setIsError(boolean b) {
 		((CheckBox) findViewById(R.id.checkBox_error)).setChecked(b);
-	}
-	private void setGoaltendScore(int score) {
-		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
-		p.setValue(score);
 	}
 	private void setOwnGoalScore(int score) {
 		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
@@ -802,7 +778,6 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setThrowButtonState(int throwType, int id) {
 		View btn = findViewById(id);
-//		ImageButton btn = view;
 		if (throwType == currentThrowType) {btn.setPressed(true);}
 		else {btn.setPressed(false);}
 	}
