@@ -380,21 +380,9 @@ public class GameInProgress extends MenuContainerActivity
 		np.setMaxValue(3);
 		np.setOnValueChangedListener(numberPickerChangeListener);
 		
-		// goaltend numberpicker
-		np = (NumberPicker) findViewById(R.id.numPicker_goaltendScore);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		np.setMinValue(2);
-		np.setMaxValue(3);
-		np.setOnValueChangedListener(numberPickerChangeListener);	
 	}
 	private void initListeners(){
 		CheckBox cb;
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_broken);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_drinkDrop);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
@@ -402,22 +390,10 @@ public class GameInProgress extends MenuContainerActivity
 		cb = (CheckBox) findViewById(R.id.checkBox_error);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
-		cb = (CheckBox) findViewById(R.id.checkBox_firedOn);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
 		cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
-		cb = (CheckBox) findViewById(R.id.checkBox_onFire);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
 		cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_short);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_trap);
 		cb.setOnCheckedChangeListener(checkboxChangedListener);
 		
 		View view;
@@ -433,7 +409,19 @@ public class GameInProgress extends MenuContainerActivity
 		view = findViewById(R.id.gip_button_low);
 		view.setOnLongClickListener(mLongClickListener);
 		
+		view = findViewById(R.id.gip_button_trap);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_short);
+		view.setOnLongClickListener(mLongClickListener);
+		
 		view = findViewById(R.id.gip_button_strike);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_pole);
+		view.setOnLongClickListener(mLongClickListener);
+		
+		view = findViewById(R.id.gip_button_cup);
 		view.setOnLongClickListener(mLongClickListener);
 		
 		view = findViewById(R.id.gip_button_bottle);
