@@ -77,6 +77,12 @@ public class GameInProgress extends MenuContainerActivity
 
     private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
 		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
+			if (currentThrowResult == ThrowResult.BROKEN) {
+				// if the numberpicker changed, unset broken status so that
+				// updateActiveThrow can change the result. Otherwise the
+				// numberpicker is ignored.
+				currentThrowResult = ThrowResult.CATCH;
+			}
 			updateActiveThrow();
 		}
 	};
@@ -588,6 +594,27 @@ public class GameInProgress extends MenuContainerActivity
 	}
     
 	private void applyUIThrowTypeToThrow(Throw t){
+		// some error checking
+		switch (currentThrowType) {
+		case ThrowType.BALL_HIGH:
+		case ThrowType.BALL_RIGHT:
+		case ThrowType.BALL_LOW:
+		case ThrowType.BALL_LEFT:
+		case ThrowType.STRIKE:
+			if (currentThrowResult != ThrowResult.DROP && 
+				currentThrowResult != ThrowResult.CATCH) {
+				currentThrowResult = ThrowResult.CATCH;
+			}
+			break;
+		case ThrowType.TRAP:
+		case ThrowType.TRAP_REDEEMED:
+		case ThrowType.SHORT:
+		case ThrowType.FIRED_ON:
+			currentThrowResult = ThrowResult.NA;
+			break;
+		default:
+				break;	
+		}
 		t.setThrowType(currentThrowType);
 	}
 	private void applyUIThrowResultToThrow(Throw t){
