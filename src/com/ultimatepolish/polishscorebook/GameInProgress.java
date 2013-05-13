@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,6 +19,7 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -160,8 +160,6 @@ public class GameInProgress extends MenuContainerActivity
 		}
     }
 	
-	
-	
 	public void onThrowClicked(int local_throw_idx){
 		int global_throw_idx = ThrowTableFragment.localThrowIdxToGlobal(vp.getCurrentItem(), local_throw_idx);
 		if (global_throw_idx > ag.nThrows() - 1) {
@@ -229,6 +227,19 @@ public class GameInProgress extends MenuContainerActivity
 			}
 		}
 	}
+
+	public void errorButtonPressed(View view){
+		log("errorButtonPressed(): " + view.getContentDescription() + " was pressed");
+		int buttonId = view.getId();
+		
+		if (buttonId == R.id.gip_ownGoal) {
+			OwnGoalDialog();
+		} else if (buttonId == R.id.gip_playerError) {
+			PlayerErrorDialog();
+		}
+		
+	}
+
 	//==================================================
 	
 //############################### INNER CLASSES ############################
@@ -296,7 +307,53 @@ public class GameInProgress extends MenuContainerActivity
 	        }
 	    }
 	}
+    
+    private void OwnGoalDialog() {
 
+    	 AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
+    	 helpBuilder.setTitle("Own Goal");
+//    	 helpBuilder.setMessage("Select the own goals:");
+    	 
+    	 LayoutInflater inflater = getLayoutInflater();
+    	 View checkboxLayout = inflater.inflate(R.layout.owngoal_layout, null);
+    	 helpBuilder.setView(checkboxLayout);
+    	 
+    	 helpBuilder.setPositiveButton("Ok",
+    	   new DialogInterface.OnClickListener() {
+
+    	    public void onClick(DialogInterface dialog, int which) {
+    	     // Do nothing but close the dialog
+    	    }
+    	   });
+    	 
+    	// Remember, create doesn't show the dialog
+    	 AlertDialog helpDialog = helpBuilder.create();
+    	 helpDialog.show();
+    }
+    
+    private void PlayerErrorDialog() {
+
+   	 AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
+   	 helpBuilder.setTitle("Defensive Error");
+//   	 helpBuilder.setMessage("Select the errors:");
+   	 
+   	 LayoutInflater inflater = getLayoutInflater();
+   	 View checkboxLayout = inflater.inflate(R.layout.error_layout, null);
+   	 helpBuilder.setView(checkboxLayout);
+   	 
+   	 helpBuilder.setPositiveButton("Ok",
+   	   new DialogInterface.OnClickListener() {
+
+   	    public void onClick(DialogInterface dialog, int which) {
+   	     // Do nothing but close the dialog
+   	    }
+   	   });
+   	 
+   	// Remember, create doesn't show the dialog
+   	 AlertDialog helpDialog = helpBuilder.create();
+   	 helpDialog.show();
+   }
+   
     public static class GentlemensDialogFragment extends DialogFragment{
     	@Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -418,9 +475,6 @@ public class GameInProgress extends MenuContainerActivity
 		tv.setTextSize(ThrowTableRow.tableTextSize);
 	}
 	private void initNumPickers(){
-		// set ranges and text for the number pickers
-		NumberPicker np;
-		
 		// catch type numberpicker
 		resultNp = (NumberPicker) findViewById(R.id.numPicker_catch);
 		resultNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -434,36 +488,8 @@ public class GameInProgress extends MenuContainerActivity
 		resultNp.setDisplayedValues(catchText);
 		resultNp.setOnValueChangedListener(numberPickerChangeListener); 
 		
-		// error numberpicker
-		np = (NumberPicker) findViewById(R.id.numPicker_errorScore);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		np.setMinValue(0);
-		np.setMaxValue(3);
-		np.setOnValueChangedListener(numberPickerChangeListener);
-		
-		// own goal numberpicker
-		np = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
-		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		np.setMinValue(2); 
-		np.setMaxValue(3);
-		np.setOnValueChangedListener(numberPickerChangeListener);
-		
 	}
 	private void initListeners(){
-		CheckBox cb;
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_error);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
-		cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
-		cb.setOnCheckedChangeListener(checkboxChangedListener);
-		
 		View view;
 		view = findViewById(R.id.gip_button_high);
 		view.setOnLongClickListener(mLongClickListener);
@@ -640,9 +666,9 @@ public class GameInProgress extends MenuContainerActivity
 		}
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-		t.isDefensiveDrinkDropped = isError();
-		t.isGoaltend = isGoaltend();
-		t.isOffensiveDrinkDropped = isOwnGoal();
+//		t.isDefensiveDrinkDropped = isError();
+//		t.isGoaltend = isGoaltend();
+//		t.isOffensiveDrinkDropped = isOwnGoal();
 		t.isTipped = isTipped;
 //		if (t.isError){
 //			t.setErrorScore(getErrorScore());
@@ -763,9 +789,11 @@ public class GameInProgress extends MenuContainerActivity
 	public void log(String msg){
 		Log.i(LOGTAG, msg);
 	}
+	
 	public void logd(String msg){
 		Log.d(LOGTAG, msg);
 	}
+	
 	public void loge(String msg, Exception e){
 		Log.e(LOGTAG, msg+": "+e.getMessage());
 	}
@@ -774,6 +802,7 @@ public class GameInProgress extends MenuContainerActivity
 	int getPageIdxMax() {
 		return ag.nThrows() / (2*ThrowTableFragment.N_ROWS);
 	}	
+	
 	int getPageIdx(int throwIdx) {
 		if (throwIdx > ag.nThrows()) {
 			throwIdx = ag.nThrows();
@@ -783,58 +812,14 @@ public class GameInProgress extends MenuContainerActivity
 		log("getPageIdx(int): Index is " + pidx + ".");
 		return pidx;
 	}
+	
 	int getPageIdx() {
 		return getPageIdx(ag.nThrows());
 	}
 	
-	boolean isError(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_error);
-		return cb.isChecked();
-	}
-	boolean isOwnGoal(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_ownGoal);
-		return cb.isChecked();
-	}
-	boolean isDrinkHit(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_drinkHit);
-		return cb.isChecked();
-	}
-	boolean isGoaltend(){
-		CheckBox cb = (CheckBox) findViewById(R.id.checkBox_goaltend);
-		return cb.isChecked();
-	}
-	int getErrorScore(){
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_errorScore);
-		return np.getValue();
-	}
-	int getOwnGoalScore(){
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
-		return np.getValue();
-	}
-	private void setIsDrinkHit(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_drinkHit)).setChecked(b);
-	}
-	private void setIsGoaltend(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_goaltend)).setChecked(b);
-	}
-	private void setIsOwnGoal(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_ownGoal)).setChecked(b);
-	}
-	private void setIsError(boolean b) {
-		((CheckBox) findViewById(R.id.checkBox_error)).setChecked(b);
-	}
-	private void setOwnGoalScore(int score) {
-		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_ownGoalScore);
-		p.setValue(score);
-	}
-	private void setErrorScore(int score) {
-		NumberPicker p = (NumberPicker) findViewById(R.id.numPicker_errorScore);
-		p.setValue(score);
-	}
 	private void setThrowButtonState(int throwType, int id) {
 		View btn = findViewById(id);
 		if (throwType == currentThrowType) {btn.setPressed(true);}
 		else {btn.setPressed(false);}
 	}
-
 }
