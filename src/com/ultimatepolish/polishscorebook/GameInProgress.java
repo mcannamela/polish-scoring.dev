@@ -643,6 +643,7 @@ public class GameInProgress extends MenuContainerActivity
 		t.isDefensiveDrinkDropped = isError();
 		t.isGoaltend = isGoaltend();
 		t.isOffensiveDrinkDropped = isOwnGoal();
+		t.isTipped = isTipped;
 //		if (t.isError){
 //			t.setErrorScore(getErrorScore());
 //		}
@@ -671,6 +672,9 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setSpecialMarks(Throw t){
+		currentDeadType = t.getDeadType();
+		isTipped = t.isTipped;
+		
 //		setIsError(t.isError);
 //		setIsOwnGoal(t.isOwnGoal);
 //		setIsGoaltend(t.isGoaltend);
@@ -713,9 +717,11 @@ public class GameInProgress extends MenuContainerActivity
 			np.setValue(2);
 			break;
 		default:
+			np.setValue(1);
+			break;
 			// TODO: error handling? 
-		}		
-		
+		}
+		currentThrowResult = t.getThrowResult();
 	}
 	//===================================================================
 	

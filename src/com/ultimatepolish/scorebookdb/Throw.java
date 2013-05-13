@@ -322,6 +322,20 @@ public class Throw implements Comparable<Throw>{
 		List<Drawable> boxIconLayers = new ArrayList<Drawable>();
 		
 		switch (throwType) {
+		case ThrowType.BOTTLE:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_bottle));
+			break;
+		case ThrowType.CUP:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_cup));
+			break;
+		case ThrowType.POLE:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
+			break;
+		case ThrowType.STRIKE:
+			if (throwResult == ThrowResult.CATCH) {
+				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
+			}
+			break;
 		case ThrowType.BALL_HIGH:
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_high));
 			break;
@@ -334,19 +348,8 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.BALL_LEFT:
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_left));
 			break;
-		case ThrowType.STRIKE:
-			if (throwResult == ThrowResult.CATCH) {
-				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
-			}
-			break;
-		case ThrowType.POLE:
-			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
-			break;
-		case ThrowType.CUP:
-			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_cup));
-			break;
-		case ThrowType.BOTTLE:
-			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_bottle));
+		case ThrowType.SHORT:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_short));
 			break;
 		case ThrowType.TRAP:
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_trap));
@@ -355,11 +358,14 @@ public class Throw implements Comparable<Throw>{
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_trap));
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_drop));
 			break;
-		case ThrowType.SHORT:
-			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_short));
+		case ThrowType.NOT_THROWN:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_notthrown));
 			break;
 		case ThrowType.FIRED_ON:
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_firedon));
+			break;
+		default:
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_oops));
 			break;
 		}
 		
