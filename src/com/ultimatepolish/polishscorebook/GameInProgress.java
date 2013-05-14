@@ -185,6 +185,7 @@ public class GameInProgress extends MenuContainerActivity
 			switch (buttonId) {
 			case R.id.gip_button_trap:
 				currentThrowType = ThrowType.NOT_THROWN;
+				currentThrowResult = getThrowResultFromNP();
 				break;
 			case R.id.gip_button_bottle:
 			case R.id.gip_button_pole:
@@ -647,6 +648,9 @@ public class GameInProgress extends MenuContainerActivity
     	applyUISpecialMarksToThrow(t);
 	}
 	private void applyUIThrowTypeToThrow(Throw t){
+		t.setThrowType(currentThrowType);
+	}
+	private void applyUIThrowResultToThrow(Throw t){
 		// some error checking
 		switch (currentThrowType) {
 		case ThrowType.BALL_HIGH:
@@ -657,6 +661,7 @@ public class GameInProgress extends MenuContainerActivity
 			if (currentThrowResult != ThrowResult.DROP && 
 				currentThrowResult != ThrowResult.CATCH) {
 				currentThrowResult = ThrowResult.CATCH;
+				setThrowResultToNP(ThrowResult.CATCH);
 			}
 			break;
 		case ThrowType.TRAP:
@@ -668,13 +673,14 @@ public class GameInProgress extends MenuContainerActivity
 		default:
 				break;	
 		}
-		t.setThrowType(currentThrowType);
-	}
-	private void applyUIThrowResultToThrow(Throw t){
+		
+		if (currentIsOnFire) {
+			currentThrowResult = ThrowResult.NA;
+		}
 		
 		if (currentThrowResult == ThrowResult.BROKEN) {
 			t.setThrowResult(ThrowResult.BROKEN);
-		} else if (currentIsOnFire) {
+		} else if (currentThrowResult == ThrowResult.NA) {
 			t.setThrowResult(ThrowResult.NA);
 		} else {
 			switch (resultNp.getValue()) { 
