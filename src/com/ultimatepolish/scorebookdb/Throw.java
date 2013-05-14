@@ -321,6 +321,9 @@ public class Throw implements Comparable<Throw>{
 	public void setThrowDrawable(ImageView iv){
 		List<Drawable> boxIconLayers = new ArrayList<Drawable>();
 		
+		if (!getIsValid()) {
+			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_badthrow));
+		}
 		switch (throwType) {
 		case ThrowType.BOTTLE:
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_bottle));
@@ -412,6 +415,7 @@ public class Throw implements Comparable<Throw>{
 		if (isOnFire) {
 			if (throwResult != ThrowResult.NA && throwResult != ThrowResult.BROKEN) {
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Throw result must be NA or Broken");
 			}
 		}
 		switch (throwType) {
@@ -421,20 +425,20 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.BALL_LEFT:
 		case ThrowType.STRIKE:
 			if (deadType != 0 && isDrinkHit){
-				// drinkHit must be on a live throw
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), drinkHit must be on a live throw");
 			} else if (isGoaltend || isTipped) {
-				// goaltending and tipped dont make sense for these throwTypes
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Goaltending and tipped dont make sense for SHRLL throw types");
 			}
 			
-			// throwResult much be a drop or catch
 			switch (throwResult) {
 			case ThrowResult.DROP:
 			case ThrowResult.CATCH:
 				break;
 			default:
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Result for SHRLL throws must be a drop or catch");
 				break;
 			}
 			
@@ -444,29 +448,29 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.CUP:
 		case ThrowType.BOTTLE:
 			if (isDrinkHit) {
-				// drink hits have to be direct
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), drink hits cant occur with PCB hits");
 			} else if (isTipped && isGoaltend) {
-				// cant be tipped if throw was goaltended
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), PCB throws cant be tipped and goaltended simultaneously");
 			} else if (deadType != 0 && isGoaltend) {
-				// it isnt goaltending if throw is dead
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Dead throws cannot be goaltended");
 			} else if (throwResult == ThrowResult.NA) {
-				// one of the normal results must apply
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), PCB throws cannot have NA result");
 			} else if (isTipped && throwResult == ThrowResult.STALWART) {
-				// can't stalwart on a tip
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Not possible to stalwart on a tip");
 			} else if (isGoaltend && throwResult == ThrowResult.STALWART) {
-				// can't stalwart and goaltend
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Not possible to stalwart and goaltend");
 			} else if (isTipped && throwResult == ThrowResult.BROKEN) {
-				// can't break on a tip
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Cannot break on a tip");
 			} else if (isGoaltend && throwResult == ThrowResult.BROKEN) {
-				// can't break and goaltend
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Cannot break on a goaltend");
 			}
 			
 			break;
@@ -475,11 +479,11 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.TRAP_REDEEMED:
 		case ThrowType.SHORT:
 			if (isGoaltend || isTipped || isDrinkHit) {
-				// these modifiers dont apply to these throwTypes
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Goaltend, tip, and drinkHit dont apply to trap or short");
 			} else if (throwResult != ThrowResult.NA) {
-				// only NA result applies here
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Trap and short can only have NA result");
 			}
 			
 			break;
@@ -488,8 +492,10 @@ public class Throw implements Comparable<Throw>{
 			// errors could potentially happen while returning the disc, so those are allowed
 			if (isLineFault || isGoaltend || isTipped || isDrinkHit || deadType != 0) {
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Fired-on cannot be modified");
 			} else if (throwResult != ThrowResult.NA) {
 				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Fired-on must have NA result");
 			}
 			
 			break;
