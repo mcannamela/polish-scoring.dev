@@ -102,22 +102,27 @@ public class GameInProgress extends MenuContainerActivity
 					currentIsTipped = !currentIsTipped;
 					break;
 				case R.id.gip_button_pole:
-				case R.id.gip_button_cup:
-				case R.id.gip_button_bottle:
+					currentThrowType = ThrowType.POLE;
 					if (currentThrowResult == ThrowResult.BROKEN) {
-						switch (resultNp.getValue()) { 
-						case 0:
-							currentThrowResult = ThrowResult.DROP;
-							break;
-						case 1:
-							currentThrowResult = ThrowResult.CATCH;
-							break;
-						case 2:
-							currentThrowResult = ThrowResult.STALWART;
-							break;
-						}
+						currentThrowResult = getThrowResultFromNP();
 					} else {
-						currentThrowResult = ThrowResult.BROKEN;
+						currentThrowResult = ThrowResult.BROKEN;						
+					}
+					break;
+				case R.id.gip_button_cup:
+					currentThrowType = ThrowType.CUP;
+					if (currentThrowResult == ThrowResult.BROKEN) {
+						currentThrowResult = getThrowResultFromNP();
+					} else {
+						currentThrowResult = ThrowResult.BROKEN;						
+					}
+					break;
+				case R.id.gip_button_bottle:
+					currentThrowType = ThrowType.BOTTLE;
+					if (currentThrowResult == ThrowResult.BROKEN) {
+						currentThrowResult = getThrowResultFromNP();
+					} else {
+						currentThrowResult = ThrowResult.BROKEN;						
 					}
 					break;
 				case R.id.gip_button_high:
@@ -825,6 +830,35 @@ public class GameInProgress extends MenuContainerActivity
 		Log.e(LOGTAG, msg+": "+e.getMessage());
 	}
 
+	public int getThrowResultFromNP() {
+		int theResult = 0;
+		switch (resultNp.getValue()) { 
+		case 0:
+			theResult = ThrowResult.DROP;
+			break;
+		case 1:
+			theResult = ThrowResult.CATCH;
+			break;
+		case 2:
+			theResult = ThrowResult.STALWART;
+			break;
+		}
+		return theResult;
+	}
+	
+	public void setThrowResultToNP(int result) {
+		switch (result) { 
+		case ThrowResult.DROP:
+			resultNp.setValue(0);
+			break;
+		case ThrowResult.CATCH:
+			resultNp.setValue(1);
+			break;
+		case ThrowResult.STALWART:
+			resultNp.setValue(2);
+			break;
+		}
+	}
 	
 	int getPageIdxMax() {
 		return ag.nThrows() / (2*ThrowTableFragment.N_ROWS);
