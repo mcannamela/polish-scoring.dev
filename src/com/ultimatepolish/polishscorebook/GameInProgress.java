@@ -19,11 +19,9 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.NumberPicker;
@@ -63,8 +61,14 @@ public class GameInProgress extends MenuContainerActivity
 	int currentThrowType = ThrowType.NOT_THROWN;
 	int currentThrowResult = ThrowResult.NA;
 	int currentDeadType = DeadType.ALIVE;
-	boolean isTipped;
-	boolean isOnFire;
+	boolean currentIsTipped;
+	boolean currentIsOnFire;
+	
+	// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
+	boolean[] currentOwnGoals = {false, false, false, false, false};
+	// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
+	boolean[] currentDefErrors = {false, false, false, false, false, false};
+	
 	NumberPicker resultNp;
 	
 	
@@ -95,7 +99,7 @@ public class GameInProgress extends MenuContainerActivity
 			
 			switch (buttonId) {
 				case R.id.gip_button_strike:
-					isTipped = !isTipped;
+					currentIsTipped = !currentIsTipped;
 					break;
 				case R.id.gip_button_pole:
 				case R.id.gip_button_cup:
@@ -308,50 +312,69 @@ public class GameInProgress extends MenuContainerActivity
 	    }
 	}
     
-    private void OwnGoalDialog() {
+    public void OwnGoalDialog() {   	
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Own Goal")
+			.setMultiChoiceItems(R.array.owngoals, currentOwnGoals, 
+					new DialogInterface.OnMultiChoiceClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+					if (isChecked) {
+	                       // If the user checked the item, add it to the selected items
+	                       currentOwnGoals[which] = true;
+	                   } else { 
+	                	   currentOwnGoals[which] = false;
+	                   }
+				}
+			})
+			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	               @Override
+	               public void onClick(DialogInterface dialog, int id) {
 
-    	 AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
-    	 helpBuilder.setTitle("Own Goal");
-//    	 helpBuilder.setMessage("Select the own goals:");
-    	 
-    	 LayoutInflater inflater = getLayoutInflater();
-    	 View checkboxLayout = inflater.inflate(R.layout.owngoal_layout, null);
-    	 helpBuilder.setView(checkboxLayout);
-    	 
-    	 helpBuilder.setPositiveButton("Ok",
-    	   new DialogInterface.OnClickListener() {
-
-    	    public void onClick(DialogInterface dialog, int which) {
-    	     // Do nothing but close the dialog
-    	    }
-    	   });
-    	 
-    	// Remember, create doesn't show the dialog
-    	 AlertDialog helpDialog = helpBuilder.create();
-    	 helpDialog.show();
+	               }
+	           })
+	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	               @Override
+	               public void onClick(DialogInterface dialog, int id) {
+	                   
+	               }
+	           });
+    	AlertDialog dialog = builder.create();
+    	dialog.show();
+    	
     }
     
     private void PlayerErrorDialog() {
-
-   	 AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
-   	 helpBuilder.setTitle("Defensive Error");
-//   	 helpBuilder.setMessage("Select the errors:");
-   	 
-   	 LayoutInflater inflater = getLayoutInflater();
-   	 View checkboxLayout = inflater.inflate(R.layout.error_layout, null);
-   	 helpBuilder.setView(checkboxLayout);
-   	 
-   	 helpBuilder.setPositiveButton("Ok",
-   	   new DialogInterface.OnClickListener() {
-
-   	    public void onClick(DialogInterface dialog, int which) {
-   	     // Do nothing but close the dialog
-   	    }
-   	   });
-   	 
-   	// Remember, create doesn't show the dialog
-   	 AlertDialog helpDialog = helpBuilder.create();
-   	 helpDialog.show();
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Defensive Error")
+			.setMultiChoiceItems(R.array.defErrors, currentDefErrors, 
+					new DialogInterface.OnMultiChoiceClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+					if (isChecked) {
+	                       // If the user checked the item, add it to the selected items
+	                       currentDefErrors[which] = true;
+	                   } else { 
+	                	   currentDefErrors[which] = false;
+	                   }
+				}
+			})
+			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	               @Override
+	               public void onClick(DialogInterface dialog, int id) {
+	                   
+	               }
+	           })
+	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	               @Override
+	               public void onClick(DialogInterface dialog, int id) {
+	                   
+	               }
+	           });
+    	AlertDialog dialog = builder.create();
+    	dialog.show();
    }
    
     public static class GentlemensDialogFragment extends DialogFragment{
@@ -618,7 +641,6 @@ public class GameInProgress extends MenuContainerActivity
     	applyUIThrowResultToThrow(t);
     	applyUISpecialMarksToThrow(t);
 	}
-    
 	private void applyUIThrowTypeToThrow(Throw t){
 		// some error checking
 		switch (currentThrowType) {
@@ -647,7 +669,7 @@ public class GameInProgress extends MenuContainerActivity
 		
 		if (currentThrowResult == ThrowResult.BROKEN) {
 			t.setThrowResult(ThrowResult.BROKEN);
-		} else if (isOnFire) {
+		} else if (currentIsOnFire) {
 			t.setThrowResult(ThrowResult.NA);
 		} else {
 			switch (resultNp.getValue()) { 
@@ -666,22 +688,24 @@ public class GameInProgress extends MenuContainerActivity
 		}
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-//		t.isDefensiveDrinkDropped = isError();
-//		t.isGoaltend = isGoaltend();
-//		t.isOffensiveDrinkDropped = isOwnGoal();
-		t.isTipped = isTipped;
-//		if (t.isError){
-//			t.setErrorScore(getErrorScore());
-//		}
-//		if (t.isOwnGoal){
-//			t.setOwnGoalScore(getOwnGoalScore());
-//		}
-		
+		t.isTipped = currentIsTipped;
 		t.setDeadType(currentDeadType);
 		
-//		t.isDrinkDropped = isDrinkDrop();
-//		t.isDrinkHit = isDrinkHit();
-//		
+		// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
+		t.isLineFault = currentOwnGoals[0];
+		t.isOffensiveDrinkDropped = currentOwnGoals[1];
+		t.isOffensivePoleKnocked = currentOwnGoals[2];
+		t.isOffensiveBottleKnocked = currentOwnGoals[3];
+		t.isOffensiveBreakError = currentOwnGoals[4];
+		
+		// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
+		t.isGoaltend = currentDefErrors[0];
+		t.isDrinkHit = currentDefErrors[1];
+		t.isDefensiveDrinkDropped = currentDefErrors[2];
+		t.isDefensivePoleKnocked = currentDefErrors[3];
+		t.isDefensiveBottleKnocked = currentDefErrors[4];
+		t.isDefensiveBreakError = currentDefErrors[5];
+
 //		t.isOnFire=isOnFire();
 //		t.isFiredOn=isFiredOn();
 	}
@@ -699,20 +723,23 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setSpecialMarks(Throw t){
 		currentDeadType = t.getDeadType();
-		isTipped = t.isTipped;
+		currentIsTipped = t.isTipped;
 		
-//		setIsError(t.isError);
-//		setIsOwnGoal(t.isOwnGoal);
-//		setIsGoaltend(t.isGoaltend);
-//		setErrorScore(t.getErrorScore());
-//		setOwnGoalScore(t.getOwnGoalScore());
-//		setGoaltendScore(t.getGoaltendScore());
+		// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
+		currentOwnGoals[0] = t.isLineFault;
+		currentOwnGoals[1] = t.isOffensiveDrinkDropped;
+		currentOwnGoals[2] = t.isOffensivePoleKnocked;
+		currentOwnGoals[3] = t.isOffensiveBottleKnocked;
+		currentOwnGoals[4] = t.isOffensiveBreakError;
 		
-//		setIsShort(t.isShort);
-//		setIsTrap(t.isTrap);
-//		setIsBroken(t.isBroken);
-//		setIsDrinkHit(t.isDrinkHit);
-//		setIsDrinkDropped(t.isDrinkDropped);
+		// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
+		currentDefErrors[0] = t.isGoaltend;
+		currentDefErrors[1] = t.isDrinkHit;
+		currentDefErrors[2] = t.isDefensiveDrinkDropped;
+		currentDefErrors[3] = t.isDefensivePoleKnocked;
+		currentDefErrors[4] = t.isDefensiveBottleKnocked;
+		currentDefErrors[5] = t.isDefensiveBreakError;
+
 //		setIsOnFire(t.isOnFire);
 //		setIsFiredOn(t.isFiredOn);
 	}

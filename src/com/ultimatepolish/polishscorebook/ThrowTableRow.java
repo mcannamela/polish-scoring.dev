@@ -68,6 +68,7 @@ public class ThrowTableRow extends TableRow {
 		tv = new TextView(context);
 		tv.setText("--");
 		ThrowTableRow.formatTextView(tv);
+		tv.setWidth(100);
 		tr.addView(tv);
 		
 		iv = new ImageView(context);
@@ -80,10 +81,9 @@ public class ThrowTableRow extends TableRow {
 		tv = new TextView(context);
 		tv.setText("--");
 		ThrowTableRow.formatTextView(tv);
+		tv.setWidth(100);
 		tr.addView(tv);
 		
-//		tr.appendBlank();
-//		tr.appendBlank();
 		tr.appendBlank();
 		return tr;
 	}

@@ -313,7 +313,7 @@ public class Throw implements Comparable<Throw>{
 			s = "--";
 		} else {
 			// pop the last '.' off the end of the string
-			s = s.substring(0, s.length()-2);
+			s = s.substring(0, s.length()-1);
 		}
 		return s;
 	}
