@@ -165,7 +165,11 @@ public class GameInProgress extends MenuContainerActivity
 				default:
 					break;
 			}
-			updateActiveThrow();
+			if (currentThrowResult == ThrowResult.BROKEN) {
+				confirmThrow();
+			} else {
+				updateActiveThrow();
+			}
             return true;
         }
 	};
