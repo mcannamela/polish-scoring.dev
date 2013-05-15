@@ -355,7 +355,7 @@ public class Throw implements Comparable<Throw>{
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
 			break;
 		case ThrowType.STRIKE:
-			if (throwResult == ThrowResult.CATCH) {
+			if (throwResult == ThrowResult.CATCH || offenseFireCount >= 3) {
 				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
 			}
 			break;
