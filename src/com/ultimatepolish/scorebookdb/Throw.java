@@ -57,9 +57,6 @@ public class Throw implements Comparable<Throw>{
 	public boolean isDrinkHit = false;
 	
 	@DatabaseField
-	public boolean isOnFire = false;
-
-	@DatabaseField
 	public boolean isLineFault = false;
 	
 	@DatabaseField
@@ -85,6 +82,12 @@ public class Throw implements Comparable<Throw>{
 	
 	@DatabaseField
 	public boolean isDefensiveBreakError = false;
+	
+	@DatabaseField
+	private int offenseFireCount = 0;
+	
+	@DatabaseField
+	private int defenseFireCount = 0;
 	
 	@DatabaseField
 	private int initialOffensivePlayerScore = 0;
@@ -133,6 +136,23 @@ public class Throw implements Comparable<Throw>{
         m.put(Throw.THROW_INDEX, getThrowIdx());
         m.put(Throw.GAME_ID, getGameId());
         return m;
+	}
+	
+	public void setFireCounts(Throw previousThrow){
+		int newDefenseCount = previousThrow.getOffenseFireCount();
+		if (previousThrow.isStoking()) {
+			newDefenseCount += 1;
+		} else {
+			newDefenseCount = 0;
+		}
+		
+		int newOffenseCount = previousThrow.getDefenseFireCount();
+		if (previousThrow.isQuenching()) {
+			newOffenseCount = 0;
+		}
+		Log.i("Throw.db()", "setFireCounts: (" + throwIdx + "), [" + newOffenseCount + ", " + newDefenseCount + "]");
+		setOffenseFireCount(newOffenseCount);
+		setDefenseFireCount(newDefenseCount);
 	}
 
 	public void setInitialScores(Throw previousThrow){
@@ -399,7 +419,7 @@ public class Throw implements Comparable<Throw>{
 			break;
 		}
 		
-		if (isOnFire) {
+		if (offenseFireCount >= 3) {
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_fire));
 		}
 		if (isTipped) {
@@ -412,7 +432,7 @@ public class Throw implements Comparable<Throw>{
 	public boolean getIsValid() {
 		boolean valid = true;
 		
-		if (isOnFire) {
+		if (offenseFireCount >= 3) {
 			if (throwResult != ThrowResult.NA && throwResult != ThrowResult.BROKEN) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Throw result must be NA or Broken");
@@ -437,8 +457,10 @@ public class Throw implements Comparable<Throw>{
 			case ThrowResult.CATCH:
 				break;
 			default:
-				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Result for SHRLL throws must be a drop or catch");
+				if (offenseFireCount < 3) {
+					valid = false;
+					Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Result for SHRLL throws must be a drop or catch");
+				}
 				break;
 			}
 			
@@ -456,7 +478,7 @@ public class Throw implements Comparable<Throw>{
 			} else if (deadType != 0 && isGoaltend) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Dead throws cannot be goaltended");
-			} else if (throwResult == ThrowResult.NA) {
+			} else if (throwResult == ThrowResult.NA && offenseFireCount < 3) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), PCB throws cannot have NA result");
 			} else if (isTipped && throwResult == ThrowResult.STALWART) {
@@ -559,6 +581,32 @@ public class Throw implements Comparable<Throw>{
 		this.deadType = deadType;
 	}
 	
+	public int[] getFireCounts() {
+		int[] fireCounts = {offenseFireCount, defenseFireCount};
+		return fireCounts;
+	}
+
+	public void setFireCounts(int[] fireCounts) {
+		this.offenseFireCount = fireCounts[0];
+		this.defenseFireCount = fireCounts[1];
+	}
+	
+	public int getOffenseFireCount() {
+		return offenseFireCount;
+	}
+
+	public void setOffenseFireCount(int offenseFireCount) {
+		this.offenseFireCount = offenseFireCount;
+	}
+	
+	public int getDefenseFireCount() {
+		return defenseFireCount;
+	}
+
+	public void setDefenseFireCount(int defenseFireCount) {
+		this.defenseFireCount = defenseFireCount;
+	}
+	
 	public int getInitialOffensivePlayerScore() {
 		return initialOffensivePlayerScore;
 	}
@@ -595,5 +643,34 @@ public class Throw implements Comparable<Throw>{
 	}
 	public boolean isP1Throw(){
 		return isP1Throw(throwIdx);
-	}	
+	}
+	
+	public boolean isStoking(){
+		boolean isHit = false;
+		if (deadType == 0) {
+			if (throwType == ThrowType.POLE || 
+					throwType == ThrowType.CUP || 
+					throwType == ThrowType.BOTTLE) {
+				isHit = true;
+			} else if (isTipped) {
+				isHit = true;
+			}
+		}
+		
+		return isHit;
+	}
+	
+	public boolean isQuenching(){
+		boolean quenches = false;
+		if (throwResult == ThrowResult.DROP) {
+			if (throwType == ThrowType.POLE || 
+					throwType == ThrowType.CUP || 
+					throwType == ThrowType.BOTTLE) {
+				quenches = true;
+			}
+		} else if (isDrinkHit) {
+			quenches = true;
+		}
+		return quenches;
+	}
 }

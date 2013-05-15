@@ -50,8 +50,15 @@ public class ActiveGame {
 		Throw t,u;
 		for (int i=idx; i<nThrows();i++){
 			t = getThrow(i);
-			u = getPreviousThrow(t);
-			t.setInitialScores(u);
+			if (i == 0) {
+				t.setInitialScores();
+				t.setOffenseFireCount(0);
+				t.setDefenseFireCount(0);
+			} else {
+				u = getPreviousThrow(t);
+				t.setInitialScores(u);
+				t.setFireCounts(u);
+			}
 		}
 		updateGameScore();
 	}
@@ -152,8 +159,13 @@ public class ActiveGame {
 		}
 		else if (idx==nThrows()){
 			t = makeNextThrow();
-			Throw u = getPreviousThrow(t);
-			t.setInitialScores(u);
+			if (idx == 0) {
+				t.setInitialScores();
+			} else {
+				Throw u = getPreviousThrow(t);
+				t.setInitialScores(u);
+			}
+			
 			tArray.add(t);
 		}
 		else if (idx>nThrows()){
@@ -168,7 +180,6 @@ public class ActiveGame {
 		Throw u = null;
 		int idx = t.getThrowIdx();
 		if (idx<=0){
-			u = g.makeNewThrow(-1);
 			u.setInitialScores();
 		}
 		else if (idx>0 && idx<=nThrows()){
