@@ -140,10 +140,12 @@ public class Throw implements Comparable<Throw>{
 	
 	public void setFireCounts(Throw previousThrow){
 		int newDefenseCount = previousThrow.getOffenseFireCount();
-		if (previousThrow.isStoking()) {
-			newDefenseCount += 1;
-		} else {
-			newDefenseCount = 0;
+		if (previousThrow.getDefenseFireCount() < 3) {
+			if (previousThrow.isStoking()) {
+				newDefenseCount += 1;
+			} else { 
+				newDefenseCount = 0;
+			}
 		}
 		
 		int newOffenseCount = previousThrow.getDefenseFireCount();
@@ -672,7 +674,7 @@ public class Throw implements Comparable<Throw>{
 	
 	public boolean isQuenching(){
 		boolean quenches = false;
-		if (throwResult == ThrowResult.DROP) {
+		if (throwResult == ThrowResult.DROP || offenseFireCount >= 3) {
 			if (throwType == ThrowType.POLE || 
 					throwType == ThrowType.CUP || 
 					throwType == ThrowType.BOTTLE) {
