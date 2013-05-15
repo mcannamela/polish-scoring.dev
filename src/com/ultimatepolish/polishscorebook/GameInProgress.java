@@ -104,6 +104,11 @@ public class GameInProgress extends MenuContainerActivity
 			switch (buttonId) {
 				case R.id.gip_button_strike:
 					currentIsTipped = !currentIsTipped;
+					if (currentIsTipped) {
+						((ImageView) view).getDrawable().setLevel(2);
+					} else {
+						((ImageView) view).getDrawable().setLevel(0);
+					}
 					break;
 				case R.id.gip_button_pole:
 					currentThrowType = ThrowType.POLE;
@@ -185,11 +190,13 @@ public class GameInProgress extends MenuContainerActivity
 		log("buttonPressed(): " + view.getContentDescription() + " was pressed");
 		int buttonId = view.getId();
 		
-		if (currentThrowType == ThrowType.TRAP) {
+		if (currentThrowType == ThrowType.TRAP || 
+				currentThrowType == ThrowType.TRAP_REDEEMED) {
 			switch (buttonId) {
 			case R.id.gip_button_trap:
 				currentThrowType = ThrowType.NOT_THROWN;
 				currentThrowResult = getThrowResultFromNP();
+				((ImageView) view).getDrawable().setLevel(0);
 				break;
 			case R.id.gip_button_bottle:
 			case R.id.gip_button_pole:
@@ -217,6 +224,7 @@ public class GameInProgress extends MenuContainerActivity
 					break;
 				case R.id.gip_button_trap:
 					currentThrowType = ThrowType.TRAP;
+					((ImageView) view).getDrawable().setLevel(2);
 					break;
 				case R.id.gip_button_short:
 					currentThrowType = ThrowType.SHORT;
@@ -785,10 +793,15 @@ public class GameInProgress extends MenuContainerActivity
 		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
 		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
 		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
+		setThrowButtonState(ThrowType.TRAP, R.id.gip_button_trap);
+		setThrowButtonState(ThrowType.SHORT, R.id.gip_button_short);
 		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
 		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
 		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
 		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
+		if (t.isTipped) {
+			((ImageView) findViewById(R.id.gip_button_strike)).getDrawable().setLevel(3);
+		}
 		
 	}
 	private void setThrowResult(Throw t) {
@@ -908,8 +921,14 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	private void setThrowButtonState(int throwType, int id) {
-		View btn = findViewById(id);
-		if (throwType == currentThrowType) {btn.setPressed(true);}
-		else {btn.setPressed(false);}
+		ImageView btn = (ImageView) findViewById(id);
+		
+		if (throwType == currentThrowType) {
+			btn.getDrawable().setLevel(1);
+		} else if (throwType == ThrowType.TRAP && currentThrowType == ThrowType.TRAP_REDEEMED) {
+			btn.getDrawable().setLevel(1);
+		} else {
+			btn.getDrawable().setLevel(0);
+		}
 	}
 }
