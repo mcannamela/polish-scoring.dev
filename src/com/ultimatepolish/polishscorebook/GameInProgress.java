@@ -247,7 +247,6 @@ public class GameInProgress extends MenuContainerActivity
 		} else if (buttonId == R.id.gip_playerError) {
 			PlayerErrorDialog();
 		}
-		
 	}
 
 	//==================================================
@@ -332,6 +331,7 @@ public class GameInProgress extends MenuContainerActivity
 	                   } else { 
 	                	   currentOwnGoals[which] = false;
 	                   }
+					updateActiveThrow();
 				}
 			})
 			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -365,6 +365,7 @@ public class GameInProgress extends MenuContainerActivity
 	                   } else { 
 	                	   currentDefErrors[which] = false;
 	                   }
+					updateActiveThrow();
 				}
 			})
 			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
