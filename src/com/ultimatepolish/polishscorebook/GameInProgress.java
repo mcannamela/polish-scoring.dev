@@ -61,8 +61,8 @@ public class GameInProgress extends MenuContainerActivity
 	int currentThrowType = ThrowType.NOT_THROWN;
 	int currentThrowResult = ThrowResult.NA;
 	int currentDeadType = DeadType.ALIVE;
+	int[] currentFireCounts = {0, 0};
 	boolean currentIsTipped;
-	boolean currentIsOnFire;
 	
 	// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
 	boolean[] currentOwnGoals = {false, false, false, false, false};
@@ -81,8 +81,9 @@ public class GameInProgress extends MenuContainerActivity
 
     private OnValueChangeListener numberPickerChangeListener = new OnValueChangeListener() {
 		public void onValueChange(NumberPicker parent, int oldVal, int newVal) {
-			if (currentThrowResult == ThrowResult.BROKEN) {
-				// if the numberpicker changed, unset broken status so that
+			if (currentThrowResult == ThrowResult.BROKEN ||
+					currentThrowResult == ThrowResult.NA) {
+				// if the numberpicker changed, unset broken and NA status so that
 				// updateActiveThrow can change the result. Otherwise the
 				// numberpicker is ignored.
 				currentThrowResult = ThrowResult.CATCH;
@@ -232,7 +233,6 @@ public class GameInProgress extends MenuContainerActivity
 			}
 			
 			if (currentThrowType != ThrowType.TRAP) {
-//				updateActiveThrow();			
 				confirmThrow();
 			}
 		}
@@ -648,77 +648,83 @@ public class GameInProgress extends MenuContainerActivity
     	applyUISpecialMarksToThrow(t);
 	}
 	private void applyUIThrowTypeToThrow(Throw t){
-		t.setThrowType(currentThrowType);
+		if (currentFireCounts[1] >= 3) {
+			t.setThrowType(ThrowType.FIRED_ON);
+		} else {
+			t.setThrowType(currentThrowType);
+		}
 	}
 	private void applyUIThrowResultToThrow(Throw t){
-		// some error checking
-		switch (currentThrowType) {
-		case ThrowType.BALL_HIGH:
-		case ThrowType.BALL_RIGHT:
-		case ThrowType.BALL_LOW:
-		case ThrowType.BALL_LEFT:
-		case ThrowType.STRIKE:
-			if (currentThrowResult != ThrowResult.DROP && 
-				currentThrowResult != ThrowResult.CATCH) {
-				currentThrowResult = ThrowResult.CATCH;
-				setThrowResultToNP(ThrowResult.CATCH);
-			}
-			break;
-		case ThrowType.TRAP:
-		case ThrowType.TRAP_REDEEMED:
-		case ThrowType.SHORT:
-		case ThrowType.FIRED_ON:
-			currentThrowResult = ThrowResult.NA;
-			break;
-		default:
-				break;	
-		}
-		
-		if (currentIsOnFire) {
-			currentThrowResult = ThrowResult.NA;
-		}
-		
-		if (currentThrowResult == ThrowResult.BROKEN) {
-			t.setThrowResult(ThrowResult.BROKEN);
-		} else if (currentThrowResult == ThrowResult.NA) {
+		if (currentFireCounts[1] >= 3) {
 			t.setThrowResult(ThrowResult.NA);
 		} else {
-			switch (resultNp.getValue()) { 
-			case 0:
-				t.setThrowResult(ThrowResult.DROP);
+			// some error checking
+			switch (currentThrowType) {
+			case ThrowType.BALL_HIGH:
+			case ThrowType.BALL_RIGHT:
+			case ThrowType.BALL_LOW:
+			case ThrowType.BALL_LEFT:
+			case ThrowType.STRIKE:
+				if (currentThrowResult != ThrowResult.DROP && 
+					currentThrowResult != ThrowResult.CATCH) {
+					currentThrowResult = ThrowResult.CATCH;
+					setThrowResultToNP(ThrowResult.CATCH);
+				}
 				break;
-			case 1:
-				t.setThrowResult(ThrowResult.CATCH);
-				break;
-			case 2:
-				t.setThrowResult(ThrowResult.STALWART);
+			case ThrowType.TRAP:
+			case ThrowType.TRAP_REDEEMED:
+			case ThrowType.SHORT:
+			case ThrowType.FIRED_ON:
+				currentThrowResult = ThrowResult.NA;
 				break;
 			default:
-				// TODO: error handling? 
+					break;	
 			}
+	//		log("currentFireCounts: " + currentFireCounts[0] + ", " + currentFireCounts[1]);
+			if (currentFireCounts[0] >= 3) {
+				currentThrowResult = ThrowResult.NA;
+			}
+			
+			if (currentThrowResult == ThrowResult.BROKEN) {
+				t.setThrowResult(ThrowResult.BROKEN);
+			} else if (currentThrowResult == ThrowResult.NA) {
+				t.setThrowResult(ThrowResult.NA);
+			} else {
+				t.setThrowResult(getThrowResultFromNP());
+			}
+			log("throw type is " + ThrowResult.typeString[t.getThrowResult()]);
 		}
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-		t.isTipped = currentIsTipped;
-		t.setDeadType(currentDeadType);
-		
-		// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
-		t.isLineFault = currentOwnGoals[0];
-		t.isOffensiveDrinkDropped = currentOwnGoals[1];
-		t.isOffensivePoleKnocked = currentOwnGoals[2];
-		t.isOffensiveBottleKnocked = currentOwnGoals[3];
-		t.isOffensiveBreakError = currentOwnGoals[4];
-		
-		// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
-		t.isGoaltend = currentDefErrors[0];
-		t.isDrinkHit = currentDefErrors[1];
-		t.isDefensiveDrinkDropped = currentDefErrors[2];
-		t.isDefensivePoleKnocked = currentDefErrors[3];
-		t.isDefensiveBottleKnocked = currentDefErrors[4];
-		t.isDefensiveBreakError = currentDefErrors[5];
-
-//		t.isOnFire=isOnFire();
-//		t.isFiredOn=isFiredOn();
+		if (currentFireCounts[1] >= 3) {
+			t.isTipped = false;
+			t.setDeadType(DeadType.ALIVE);
+			t.isLineFault = false;
+			t.isGoaltend = false;
+			t.isDrinkHit = false;
+		} else {
+			t.isTipped = currentIsTipped;
+			t.setDeadType(currentDeadType);
+	//		t.setFireCounts(currentFireCounts);
+			
+			// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
+			t.isLineFault = currentOwnGoals[0];
+			t.isOffensiveDrinkDropped = currentOwnGoals[1];
+			t.isOffensivePoleKnocked = currentOwnGoals[2];
+			t.isOffensiveBottleKnocked = currentOwnGoals[3];
+			t.isOffensiveBreakError = currentOwnGoals[4];
+			
+			// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
+			t.isGoaltend = currentDefErrors[0];
+			t.isDrinkHit = currentDefErrors[1];
+			t.isDefensiveDrinkDropped = currentDefErrors[2];
+			t.isDefensivePoleKnocked = currentDefErrors[3];
+			t.isDefensiveBottleKnocked = currentDefErrors[4];
+			t.isDefensiveBreakError = currentDefErrors[5];
+	
+	//		t.isOnFire=isOnFire();
+	//		t.isFiredOn=isFiredOn();
+		}
 	}
 	//-------------------------------------------------------------
 	
@@ -735,6 +741,7 @@ public class GameInProgress extends MenuContainerActivity
 	private void setSpecialMarks(Throw t){
 		currentDeadType = t.getDeadType();
 		currentIsTipped = t.isTipped;
+		currentFireCounts = t.getFireCounts();
 		
 		// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
 		currentOwnGoals[0] = t.isLineFault;
@@ -753,6 +760,9 @@ public class GameInProgress extends MenuContainerActivity
 
 //		setIsOnFire(t.isOnFire);
 //		setIsFiredOn(t.isFiredOn);
+		if (ag.getActiveIdx() >= 4) {
+//			if 
+		}
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
