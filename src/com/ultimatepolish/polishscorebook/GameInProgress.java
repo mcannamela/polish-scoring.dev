@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -117,6 +118,7 @@ public class GameInProgress extends MenuContainerActivity
 					} else {
 						currentThrowResult = ThrowResult.BROKEN;						
 					}
+					setBrokenButtonState(currentThrowType);
 					break;
 				case R.id.gip_button_cup:
 					currentThrowType = ThrowType.CUP;
@@ -125,6 +127,7 @@ public class GameInProgress extends MenuContainerActivity
 					} else {
 						currentThrowResult = ThrowResult.BROKEN;						
 					}
+					setBrokenButtonState(currentThrowType);
 					break;
 				case R.id.gip_button_bottle:
 					currentThrowType = ThrowType.BOTTLE;
@@ -133,6 +136,7 @@ public class GameInProgress extends MenuContainerActivity
 					} else {
 						currentThrowResult = ThrowResult.BROKEN;						
 					}
+					setBrokenButtonState(currentThrowType);
 					break;
 				case R.id.gip_button_high:
 					if (currentDeadType == DeadType.HIGH) {
@@ -165,7 +169,9 @@ public class GameInProgress extends MenuContainerActivity
 				default:
 					break;
 			}
-			if (currentThrowResult == ThrowResult.BROKEN) {
+			if (buttonId == R.id.gip_button_pole ||
+					buttonId == R.id.gip_button_cup ||
+					buttonId == R.id.gip_button_bottle) {
 				confirmThrow();
 			} else {
 				updateActiveThrow();
@@ -758,9 +764,33 @@ public class GameInProgress extends MenuContainerActivity
 		applyThrowToUIState(uiThrow);
 	}
 	private void applyThrowToUIState(Throw t){
-		setThrowType(t);
 		setThrowResult(t);
+		setThrowType(t);
 		setSpecialMarks(t);
+	}
+	private void setThrowResult(Throw t) {
+		setThrowResultToNP(t.getThrowResult());
+		currentThrowResult = t.getThrowResult();
+	}
+	private void setThrowType(Throw t){
+		currentThrowType = t.getThrowType();
+		
+		// wait until after click event?
+		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
+		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
+		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
+		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
+		setThrowButtonState(ThrowType.TRAP, R.id.gip_button_trap);
+		setThrowButtonState(ThrowType.SHORT, R.id.gip_button_short);
+		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
+		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
+		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
+		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
+		if (t.isTipped) {
+			((ImageView) findViewById(R.id.gip_button_strike)).getDrawable().setLevel(3);
+		}
+		
+		setBrokenButtonState(currentThrowType);
 	}
 	private void setSpecialMarks(Throw t){
 		currentIsTipped = t.isTipped;
@@ -787,45 +817,6 @@ public class GameInProgress extends MenuContainerActivity
 		currentDefErrors[3] = t.isDefensivePoleKnocked;
 		currentDefErrors[4] = t.isDefensiveBottleKnocked;
 		currentDefErrors[5] = t.isDefensiveBreakError;
-
-	}
-	private void setThrowType(Throw t){
-		currentThrowType = t.getThrowType();
-		
-		// wait until after click event?
-		setThrowButtonState(ThrowType.BALL_HIGH, R.id.gip_button_high);
-		setThrowButtonState(ThrowType.BALL_LOW, R.id.gip_button_low);
-		setThrowButtonState(ThrowType.BALL_LEFT, R.id.gip_button_left);
-		setThrowButtonState(ThrowType.BALL_RIGHT, R.id.gip_button_right);
-		setThrowButtonState(ThrowType.TRAP, R.id.gip_button_trap);
-		setThrowButtonState(ThrowType.SHORT, R.id.gip_button_short);
-		setThrowButtonState(ThrowType.STRIKE, R.id.gip_button_strike);
-		setThrowButtonState(ThrowType.BOTTLE, R.id.gip_button_bottle);
-		setThrowButtonState(ThrowType.POLE, R.id.gip_button_pole);
-		setThrowButtonState(ThrowType.CUP, R.id.gip_button_cup);
-		if (t.isTipped) {
-			((ImageView) findViewById(R.id.gip_button_strike)).getDrawable().setLevel(3);
-		}
-		
-	}
-	private void setThrowResult(Throw t) {
-		NumberPicker np = (NumberPicker) findViewById(R.id.numPicker_catch);
-		switch (t.getThrowResult()) { 
-		case ThrowResult.DROP:
-			np.setValue(0);
-			break;
-		case ThrowResult.CATCH:
-			np.setValue(1);
-			break;
-		case ThrowResult.STALWART:
-			np.setValue(2);
-			break;
-		default:
-			np.setValue(1);
-			break;
-			// TODO: error handling? 
-		}
-		currentThrowResult = t.getThrowResult();
 	}
 	//===================================================================
 	
@@ -934,5 +925,51 @@ public class GameInProgress extends MenuContainerActivity
 		} else {
 			btn.getDrawable().setLevel(0);
 		}
+	}
+	
+	private void setBrokenButtonState(int throwType) {
+		Drawable poleDwl = ((ImageView) findViewById(R.id.gip_button_pole)).getDrawable();
+		Drawable cupDwl = ((ImageView) findViewById(R.id.gip_button_cup)).getDrawable();
+		Drawable bottleDwl = ((ImageView) findViewById(R.id.gip_button_bottle)).getDrawable();
+		
+		if (currentThrowResult == ThrowResult.BROKEN) {
+			switch (throwType) {
+			case ThrowType.POLE:
+				poleDwl.setLevel(3);
+				cupDwl.setLevel(2);
+				bottleDwl.setLevel(2);
+				break;
+			case ThrowType.CUP:
+				poleDwl.setLevel(2);
+				cupDwl.setLevel(3);
+				bottleDwl.setLevel(2);
+				break;
+			case ThrowType.BOTTLE:
+				poleDwl.setLevel(2);
+				cupDwl.setLevel(2);
+				bottleDwl.setLevel(3);
+				break;
+			}
+		} else {
+			switch (throwType) {
+			case ThrowType.POLE:
+				poleDwl.setLevel(1);
+				cupDwl.setLevel(0);
+				bottleDwl.setLevel(0);
+				break;
+			case ThrowType.CUP:
+				poleDwl.setLevel(0);
+				cupDwl.setLevel(1);
+				bottleDwl.setLevel(0);
+				break;
+			case ThrowType.BOTTLE:
+				poleDwl.setLevel(0);
+				cupDwl.setLevel(0);
+				bottleDwl.setLevel(1);
+				break;
+			}
+		}
+		
+		
 	}
 }
