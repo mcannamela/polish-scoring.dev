@@ -753,6 +753,8 @@ public class GameInProgress extends MenuContainerActivity
 			t.isDefensivePoleKnocked = currentDefErrors[3];
 			t.isDefensiveBottleKnocked = currentDefErrors[4];
 			t.isDefensiveBreakError = currentDefErrors[5];
+			
+			setErrorButtonState();
 
 		}
 	}
@@ -817,6 +819,8 @@ public class GameInProgress extends MenuContainerActivity
 		currentDefErrors[3] = t.isDefensivePoleKnocked;
 		currentDefErrors[4] = t.isDefensiveBottleKnocked;
 		currentDefErrors[5] = t.isDefensiveBreakError;
+		
+		setErrorButtonState();
 	}
 	//===================================================================
 	
@@ -971,5 +975,18 @@ public class GameInProgress extends MenuContainerActivity
 		}
 		
 		
+	}
+
+	private void setErrorButtonState() {
+		TextView ogVw = (TextView) findViewById(R.id.gip_ownGoal);
+		TextView deVw = (TextView) findViewById(R.id.gip_playerError);
+		ogVw.setTextColor(Color.BLACK);
+		deVw.setTextColor(Color.BLACK);
+		for (boolean og: currentOwnGoals) {
+			if (og) {ogVw.setTextColor(Color.RED);}
+		}
+		for (boolean de: currentDefErrors) {
+			if (de) {deVw.setTextColor(Color.RED);}
+		}
 	}
 }
