@@ -179,6 +179,16 @@ public class Throw implements Comparable<Throw>{
 		case ThrowResult.NA:
 			if (throwType == ThrowType.TRAP) {
 				diffs[0] = -1;
+			} else if (offenseFireCount >= 3) {
+				switch (throwType) {
+				case ThrowType.BOTTLE:
+					diffs[0] = 3;
+					break;
+				case ThrowType.CUP:
+				case ThrowType.POLE:
+					diffs[0] = 2;
+					break;
+				}
 			}
 			break;
 		case ThrowResult.DROP:
