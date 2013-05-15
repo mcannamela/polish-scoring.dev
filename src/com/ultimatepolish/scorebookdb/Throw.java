@@ -659,7 +659,9 @@ public class Throw implements Comparable<Throw>{
 	
 	public boolean isStoking(){
 		boolean isHit = false;
-		if (deadType == 0) {
+		if (deadType == 0 && !isLineFault &&
+				!isOffensiveDrinkDropped && !isOffensivePoleKnocked &&
+				!isOffensiveBottleKnocked && !isOffensiveBreakError) {
 			if (throwType == ThrowType.POLE || 
 					throwType == ThrowType.CUP || 
 					throwType == ThrowType.BOTTLE) {
