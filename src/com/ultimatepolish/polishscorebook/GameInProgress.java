@@ -15,6 +15,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.TextView;
@@ -47,6 +49,7 @@ public class GameInProgress extends MenuContainerActivity
 	private FragmentArrayAdapter vpAdapter;
 	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
+	private View[] deadViews = new View[4];
 	
 	Game g;
 	ActiveGame ag;
@@ -503,6 +506,11 @@ public class GameInProgress extends MenuContainerActivity
 		tv.setText(p[1].getNickName() );
 		tv.setTextColor(ThrowTableRow.tableTextColor);
 		tv.setTextSize(ThrowTableRow.tableTextSize);
+		
+		deadViews[0] = findViewById(R.id.gip_dead_high);
+		deadViews[1] = findViewById(R.id.gip_dead_right);
+		deadViews[2] = findViewById(R.id.gip_dead_low);
+		deadViews[3] = findViewById(R.id.gip_dead_left);
 	}
 	private void initNumPickers(){
 		// catch type numberpicker
@@ -706,7 +714,12 @@ public class GameInProgress extends MenuContainerActivity
 		} else {
 			t.isTipped = currentIsTipped;
 			t.setDeadType(currentDeadType);
-	//		t.setFireCounts(currentFireCounts);
+			for (View vw: deadViews) {
+				vw.setBackgroundColor(Color.LTGRAY);
+			}
+			if (currentDeadType > 0) {
+				deadViews[currentDeadType-1].setBackgroundColor(Color.RED);
+			}
 			
 			// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
 			t.isLineFault = currentOwnGoals[0];
@@ -722,9 +735,7 @@ public class GameInProgress extends MenuContainerActivity
 			t.isDefensivePoleKnocked = currentDefErrors[3];
 			t.isDefensiveBottleKnocked = currentDefErrors[4];
 			t.isDefensiveBreakError = currentDefErrors[5];
-	
-	//		t.isOnFire=isOnFire();
-	//		t.isFiredOn=isFiredOn();
+
 		}
 	}
 	//-------------------------------------------------------------
@@ -740,9 +751,15 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setSpecialMarks(Throw t){
-		currentDeadType = t.getDeadType();
 		currentIsTipped = t.isTipped;
 		currentFireCounts = t.getFireCounts();
+		currentDeadType = t.getDeadType();
+		for (View vw: deadViews) {
+			vw.setBackgroundColor(Color.LTGRAY);
+		}
+		if (t.getDeadType() > 0) {
+			deadViews[t.getDeadType()-1].setBackgroundColor(Color.RED);
+		}
 		
 		// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
 		currentOwnGoals[0] = t.isLineFault;
@@ -759,11 +776,6 @@ public class GameInProgress extends MenuContainerActivity
 		currentDefErrors[4] = t.isDefensiveBottleKnocked;
 		currentDefErrors[5] = t.isDefensiveBreakError;
 
-//		setIsOnFire(t.isOnFire);
-//		setIsFiredOn(t.isFiredOn);
-		if (ag.getActiveIdx() >= 4) {
-//			if 
-		}
 	}
 	private void setThrowType(Throw t){
 		currentThrowType = t.getThrowType();
