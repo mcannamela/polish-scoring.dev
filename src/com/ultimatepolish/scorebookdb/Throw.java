@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
@@ -152,7 +153,7 @@ public class Throw implements Comparable<Throw>{
 		if (previousThrow.isQuenching()) {
 			newOffenseCount = 0;
 		}
-		Log.i("Throw.db()", "setFireCounts: (" + throwIdx + "), [" + newOffenseCount + ", " + newDefenseCount + "]");
+		Log.i("Throw.db()", "setFireCounts: (" + throwIdx + ") [" + newOffenseCount + ", " + newDefenseCount + "]");
 		setOffenseFireCount(newOffenseCount);
 		setDefenseFireCount(newDefenseCount);
 	}
@@ -353,7 +354,7 @@ public class Throw implements Comparable<Throw>{
 	public void setThrowDrawable(ImageView iv){
 		List<Drawable> boxIconLayers = new ArrayList<Drawable>();
 		
-		if (!getIsValid()) {
+		if (!getIsValid(iv.getContext())) {
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_badthrow));
 		}
 		switch (throwType) {
@@ -441,13 +442,14 @@ public class Throw implements Comparable<Throw>{
 		iv.setImageDrawable(new LayerDrawable(boxIconLayers.toArray(new Drawable[0])));
 	}
 	
-	public boolean getIsValid() {
+	public boolean getIsValid(Context context) {
 		boolean valid = true;
 		
 		if (offenseFireCount >= 3) {
 			if (throwResult != ThrowResult.NA && throwResult != ThrowResult.BROKEN) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Throw result must be NA or Broken");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Throw result when on fire must be NA or Broken");
+				Toast.makeText(context, "(" + throwIdx + ") Throw result when on fire must be NA or Broken", Toast.LENGTH_LONG).show();
 			}
 		}
 		switch (throwType) {
@@ -458,10 +460,12 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.STRIKE:
 			if (deadType != 0 && isDrinkHit){
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), drinkHit must be on a live throw");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") drinkHit must be on a live throw");
+				Toast.makeText(context, "(" + throwIdx + ") drinkHit must be on a live throw", Toast.LENGTH_LONG).show();
 			} else if (isGoaltend || isTipped) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Goaltending and tipped dont make sense for SHRLL throw types");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Goaltending and tipped dont make sense for SHRLL throw types");
+				Toast.makeText(context, "(" + throwIdx + ") Goaltending and tipped dont make sense for SHRLL throw types", Toast.LENGTH_LONG).show();
 			}
 			
 			switch (throwResult) {
@@ -471,7 +475,8 @@ public class Throw implements Comparable<Throw>{
 			default:
 				if (offenseFireCount < 3) {
 					valid = false;
-					Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Result for SHRLL throws must be a drop or catch");
+					Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Result for SHRLL throws must be a drop or catch");
+					Toast.makeText(context, "(" + throwIdx + ") Result for SHRLL throws must be a drop or catch", Toast.LENGTH_LONG).show();
 				}
 				break;
 			}
@@ -483,28 +488,36 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.BOTTLE:
 			if (isDrinkHit) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), drink hits cant occur with PCB hits");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") drink hits cant occur with PCB hits");
+				Toast.makeText(context, "(" + throwIdx + ") drink hits cant occur with PCB hits", Toast.LENGTH_LONG).show();
 			} else if (isTipped && isGoaltend) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), PCB throws cant be tipped and goaltended simultaneously");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously");
+				Toast.makeText(context, "(" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously", Toast.LENGTH_LONG).show();
 			} else if (deadType != 0 && isGoaltend) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Dead throws cannot be goaltended");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Dead throws cannot be goaltended");
+				Toast.makeText(context, "(" + throwIdx + ") Dead throws cannot be goaltended", Toast.LENGTH_LONG).show();
 			} else if (throwResult == ThrowResult.NA && offenseFireCount < 3) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), PCB throws cannot have NA result");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") PCB throws cannot have NA result");
+				Toast.makeText(context, "(" + throwIdx + ") PCB throws cannot have NA result", Toast.LENGTH_LONG).show();
 			} else if (isTipped && throwResult == ThrowResult.STALWART) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Not possible to stalwart on a tip");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Not possible to stalwart on a tip");
+				Toast.makeText(context, "(" + throwIdx + ") Not possible to stalwart on a tip", Toast.LENGTH_LONG).show();
 			} else if (isGoaltend && throwResult == ThrowResult.STALWART) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Not possible to stalwart and goaltend");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Not possible to stalwart and goaltend");
+				Toast.makeText(context, "(" + throwIdx + ") Not possible to stalwart and goaltend", Toast.LENGTH_LONG).show();
 			} else if (isTipped && throwResult == ThrowResult.BROKEN) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Cannot break on a tip");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Cannot break on a tip");
+				Toast.makeText(context, "(" + throwIdx + ") Cannot break on a tip", Toast.LENGTH_LONG).show();
 			} else if (isGoaltend && throwResult == ThrowResult.BROKEN) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Cannot break on a goaltend");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Cannot break on a goaltend");
+				Toast.makeText(context, "(" + throwIdx + ") Cannot break on a goaltend", Toast.LENGTH_LONG).show();
 			}
 			
 			break;
@@ -514,10 +527,12 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.SHORT:
 			if (isGoaltend || isTipped || isDrinkHit) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Goaltend, tip, and drinkHit dont apply to trap or short");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Goaltend, tip, and drinkHit dont apply to trap or short");
+				Toast.makeText(context, "(" + throwIdx + ") Goaltend, tip, and drinkHit dont apply to trap or short", Toast.LENGTH_LONG).show();
 			} else if (throwResult != ThrowResult.NA) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Trap and short can only have NA result");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Trap and short can only have NA result");
+				Toast.makeText(context, "(" + throwIdx + ") Trap and short can only have NA result", Toast.LENGTH_LONG).show();
 			}
 			
 			break;
@@ -526,10 +541,12 @@ public class Throw implements Comparable<Throw>{
 			// errors could potentially happen while returning the disc, so those are allowed
 			if (isLineFault || isGoaltend || isTipped || isDrinkHit || deadType != 0) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Fired-on cannot be modified");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Fired-on cannot be modified");
+				Toast.makeText(context, "(" + throwIdx + ") Fired-on cannot be modified", Toast.LENGTH_LONG).show();
 			} else if (throwResult != ThrowResult.NA) {
 				valid = false;
-				Log.i("Throw.db()", "getIsValid: (" + throwIdx + "), Fired-on must have NA result");
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Fired-on must have NA result");
+				Toast.makeText(context, "(" + throwIdx + ") Fired-on must have NA result", Toast.LENGTH_LONG).show();
 			}
 			
 			break;
