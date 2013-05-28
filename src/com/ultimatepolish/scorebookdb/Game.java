@@ -91,6 +91,14 @@ public class Game {
 		}
 		return d;
 	}
+	public static List<Game> getAll(Context context) throws SQLException{
+		Dao<Game, Long> d = Game.getDao(context);
+		List<Game> games = new ArrayList<Game>();
+		for(Game g:d){
+			games.add(g);
+		}
+		return games;
+	}
 	public boolean isValidThrow(Throw t){
 		boolean isValid = true;
 		int idx = t.getThrowIdx();
