@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -84,6 +83,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	
 	private void increment_09(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
 		try {
+			Log.i("DatabaseHelper.increment_09", "Attempting to upgrade from version 09 to version 10");
 			// game table
 			Dao<Game, Long> gDao = getGameDao();
 			String addGameColumn = "ALTER TABLE game ADD COLUMN ";
@@ -136,22 +136,74 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	
 	private void increment_10(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
 		try {
+			Log.i("DatabaseHelper.increment_10", "Attempting to upgrade from version 10 to version 11");
 			// throw table
+			Dao<Game, Long> gDao = getGameDao();
 			Dao<Throw, Long> tDao = getThrowDao();
-//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTeam BOOLEAN DEFAULT 0;");
-//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isComplete BOOLEAN DEFAULT 1;");
-//			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTracked BOOLEAN DEFAULT 1;");
 			
-//			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
-//			TableUtils.createTable(connectionSource, Throw.class);
-//			tDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive) " +
-//					"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, height_cm, weight_kg, isActive FROM temp;");
-//			tDao.executeRaw("DROP TABLE temp;");
+			// add all the new column types. after populating the new columns, the table gets rebuilt
+			
+			// these are easy. tipped and linefault were not tracked at all previously.
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTipped BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isLineFault BOOLEAN DEFAULT 0;");
+			
+			// populating defensivePlayerId column requires looping through all the games
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defensivePlayerId INTEGER;");
+			for(Game g:gDao){
+				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getFirstPlayerId() +
+						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getSecondPlayerId() + ";");
+				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getSecondPlayerId() +
+						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getFirstPlayerId() + ";");
+			}
+			
+			// fireCounts will be recalculated if the game is loaded again. should find a better way to handle this 
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN offenseFireCount INTEGER DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defenseFireCount INTEGER DEFAULT 0;");
+			
+			// migrate offensive errors. drink drop and break errors werent tracked before so stay false.
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveDrinkDropped BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensivePoleKnocked BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBottleKnocked BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBreakError BOOLEAN DEFAULT 0;");
+			
+			tDao.executeRaw("UPDATE throw SET isOffensivePoleKnocked=1 WHERE ownGoalScore=2;");
+			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3;");
+			
+			// migrate defensive errors. drink drop and break errors werent tracked before so stay false.
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensivePoleKnocked BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBottleKnocked BOOLEAN DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBreakError BOOLEAN DEFAULT 0;");
+			
+//			tDao.executeRaw("UPDATE throw SET ?? WHERE errorScore=0;");
+//			tDao.executeRaw("UPDATE throw SET ?? WHERE errorScore=1;");
+//			tDao.executeRaw("UPDATE throw SET deadType=1 WHERE errorScore=2;"); // deadType to high
+//			tDao.executeRaw("UPDATE throw SET throwType=2 WHERE errorScore=2;"); // throwType to pole
+//			tDao.executeRaw("UPDATE throw SET throwResult=1 WHERE errorScore=2;"); // throwResult to dropped
+			
+//			tDao.executeRaw("UPDATE throw SET ?? WHERE errorScore=3;");
+			tDao.executeRaw("UPDATE throw SET isDefensiveBreakError=1 WHERE isBroken=1;");
+			
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN deadType INTEGER DEFAULT 0;");
+			
+			// rebuild the table and copy data over
+			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
+			TableUtils.createTable(connectionSource, Throw.class);
+			tDao.executeRaw("INSERT INTO throw(id, throwIdx, gameId, offensivePlayerId, defensivePlayerId, timestamp, " +
+					"throwType, throwResult, deadType, isTipped, isGoaltend, isDrinkHit, isLineFault, " +
+					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
+					"isDefensiveDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
+					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore) " +
+					"SELECT id, throwNumber, gameId, playerId, defensivePlayerId, timestamp, " +
+					"throwType, throwResult, deadType, isTipped, isGoaltend, isDrinkHit, isLineFault, " +
+					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
+					"isDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
+					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore FROM temp;");
+			tDao.executeRaw("DROP TABLE temp;");
 			
 
 		} catch (SQLException e) {
-			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
-					+ 10, e);
+			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 10 + " to "
+					+ 11, e);
 		}
 	}
 	
