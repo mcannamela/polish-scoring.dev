@@ -184,17 +184,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			tDao.executeRaw("UPDATE throw SET isDefensiveBreakError=1 WHERE isBroken=1;");
 			
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN deadType INTEGER DEFAULT 0;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isGrabbed BOOLEAN DEFAULT 0;");
 			
 			// rebuild the table and copy data over
 			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Throw.class);
 			tDao.executeRaw("INSERT INTO throw(id, throwIdx, gameId, offensivePlayerId, defensivePlayerId, timestamp, " +
-					"throwType, throwResult, deadType, isTipped, isGoaltend, isDrinkHit, isLineFault, " +
+					"throwType, throwResult, deadType, isTipped, isGoaltend, isGrabbed, isDrinkHit, isLineFault, " +
 					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
 					"isDefensiveDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
 					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore) " +
 					"SELECT id, throwNumber, gameId, playerId, defensivePlayerId, timestamp, " +
-					"throwType, throwResult, deadType, isTipped, isGoaltend, isDrinkHit, isLineFault, " +
+					"throwType, throwResult, deadType, isTipped, isGoaltend, isGrabbed, isDrinkHit, isLineFault, " +
 					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
 					"isDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
 					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore FROM temp;");

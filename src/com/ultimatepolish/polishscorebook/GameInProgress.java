@@ -70,8 +70,8 @@ public class GameInProgress extends MenuContainerActivity
 	
 	// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
 	boolean[] currentOwnGoals = {false, false, false, false, false};
-	// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
-	boolean[] currentDefErrors = {false, false, false, false, false, false};
+	// defErrors: 0) goaltend, 1) grabbed, 2) drink hit, 3) drink drop, 4) knocked pole, 5) knocked bottle, 6) bottle break
+	boolean[] currentDefErrors = {false, false, false, false, false, false, false};
 	
 	NumberPicker resultNp;
 	
@@ -361,12 +361,13 @@ public class GameInProgress extends MenuContainerActivity
 
 	               }
 	           })
-	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-	               @Override
-	               public void onClick(DialogInterface dialog, int id) {
-	                   
-	               }
-	           });
+//	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//	               @Override
+//	               public void onClick(DialogInterface dialog, int id) {
+//	                   
+//	               }
+//	           })
+	           ;
     	AlertDialog dialog = builder.create();
     	dialog.show();
     	
@@ -395,12 +396,13 @@ public class GameInProgress extends MenuContainerActivity
 	                   
 	               }
 	           })
-	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-	               @Override
-	               public void onClick(DialogInterface dialog, int id) {
-	                   
-	               }
-	           });
+//	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//	               @Override
+//	               public void onClick(DialogInterface dialog, int id) {
+//	                   
+//	               }
+//	           })
+	           ;
     	AlertDialog dialog = builder.create();
     	dialog.show();
    }
@@ -748,11 +750,12 @@ public class GameInProgress extends MenuContainerActivity
 			
 			// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
 			t.isGoaltend = currentDefErrors[0];
-			t.isDrinkHit = currentDefErrors[1];
-			t.isDefensiveDrinkDropped = currentDefErrors[2];
-			t.isDefensivePoleKnocked = currentDefErrors[3];
-			t.isDefensiveBottleKnocked = currentDefErrors[4];
-			t.isDefensiveBreakError = currentDefErrors[5];
+			t.isGrabbed = currentDefErrors[1];
+			t.isDrinkHit = currentDefErrors[2];
+			t.isDefensiveDrinkDropped = currentDefErrors[3];
+			t.isDefensivePoleKnocked = currentDefErrors[4];
+			t.isDefensiveBottleKnocked = currentDefErrors[5];
+			t.isDefensiveBreakError = currentDefErrors[6];
 			
 			setErrorButtonState();
 
@@ -814,11 +817,12 @@ public class GameInProgress extends MenuContainerActivity
 		
 		// defErrors: 0) goaltend, 1) drink hit, 2) drink drop, 3) knocked pole, 4) knocked bottle, 5) bottle break
 		currentDefErrors[0] = t.isGoaltend;
-		currentDefErrors[1] = t.isDrinkHit;
-		currentDefErrors[2] = t.isDefensiveDrinkDropped;
-		currentDefErrors[3] = t.isDefensivePoleKnocked;
-		currentDefErrors[4] = t.isDefensiveBottleKnocked;
-		currentDefErrors[5] = t.isDefensiveBreakError;
+		currentDefErrors[1] = t.isGrabbed;
+		currentDefErrors[2] = t.isDrinkHit;
+		currentDefErrors[3] = t.isDefensiveDrinkDropped;
+		currentDefErrors[4] = t.isDefensivePoleKnocked;
+		currentDefErrors[5] = t.isDefensiveBottleKnocked;
+		currentDefErrors[6] = t.isDefensiveBreakError;
 		
 		setErrorButtonState();
 	}
