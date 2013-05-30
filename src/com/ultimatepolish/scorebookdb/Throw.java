@@ -53,6 +53,9 @@ public class Throw implements Comparable<Throw>{
 	
 	@DatabaseField
 	public boolean isGoaltend = false;
+	
+	@DatabaseField
+	public boolean isGrabbed = false;
 		
 	@DatabaseField
 	public boolean isDrinkHit = false;
@@ -267,6 +270,9 @@ public class Throw implements Comparable<Throw>{
 		if (isDrinkHit){
 			diffs[1] -= 1;
 		}
+		if (isGrabbed){
+			diffs[0] += 1;
+		}
 		if (isOffensiveDrinkDropped){
 			diffs[0] -= 1;
 		}
@@ -318,6 +324,10 @@ public class Throw implements Comparable<Throw>{
 		
 		if (isGoaltend){
 			s += "gt.";
+		}
+		
+		if (isGrabbed){
+			s += "g.";
 		}
 		
 		int og = 0;
@@ -486,35 +496,47 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.POLE:
 		case ThrowType.CUP:
 		case ThrowType.BOTTLE:
+			if (isGrabbed) {
+				valid = false;
+				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") grabbing a PCB hit should be marked goaltending");
+				Toast.makeText(context, "(" + throwIdx + ") grabbing a PCB hit should be marked goaltending", Toast.LENGTH_LONG).show();
+			}
 			if (isDrinkHit) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") drink hits cant occur with PCB hits");
 				Toast.makeText(context, "(" + throwIdx + ") drink hits cant occur with PCB hits", Toast.LENGTH_LONG).show();
-			} else if (isTipped && isGoaltend) {
+			}
+			if (isTipped && isGoaltend) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously");
 				Toast.makeText(context, "(" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously", Toast.LENGTH_LONG).show();
-			} else if (deadType != 0 && isGoaltend) {
+			}
+			if (deadType != 0 && isGoaltend) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Dead throws cannot be goaltended");
 				Toast.makeText(context, "(" + throwIdx + ") Dead throws cannot be goaltended", Toast.LENGTH_LONG).show();
-			} else if (throwResult == ThrowResult.NA && offenseFireCount < 3) {
+			}
+			if (throwResult == ThrowResult.NA && offenseFireCount < 3) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") PCB throws cannot have NA result");
 				Toast.makeText(context, "(" + throwIdx + ") PCB throws cannot have NA result", Toast.LENGTH_LONG).show();
-			} else if (isTipped && throwResult == ThrowResult.STALWART) {
+			}
+			if (isTipped && throwResult == ThrowResult.STALWART) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Not possible to stalwart on a tip");
 				Toast.makeText(context, "(" + throwIdx + ") Not possible to stalwart on a tip", Toast.LENGTH_LONG).show();
-			} else if (isGoaltend && throwResult == ThrowResult.STALWART) {
+			}
+			if (isGoaltend && throwResult == ThrowResult.STALWART) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Not possible to stalwart and goaltend");
 				Toast.makeText(context, "(" + throwIdx + ") Not possible to stalwart and goaltend", Toast.LENGTH_LONG).show();
-			} else if (isTipped && throwResult == ThrowResult.BROKEN) {
+			}
+			if (isTipped && throwResult == ThrowResult.BROKEN) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Cannot break on a tip");
 				Toast.makeText(context, "(" + throwIdx + ") Cannot break on a tip", Toast.LENGTH_LONG).show();
-			} else if (isGoaltend && throwResult == ThrowResult.BROKEN) {
+			}
+			if (isGoaltend && throwResult == ThrowResult.BROKEN) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Cannot break on a goaltend");
 				Toast.makeText(context, "(" + throwIdx + ") Cannot break on a goaltend", Toast.LENGTH_LONG).show();

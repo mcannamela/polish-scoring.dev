@@ -9,6 +9,7 @@
     </string-array>
     <string-array name="defErrors">
         <item >Goaltend</item>
+        <item >Grabbed</item>
         <item >Drink hit</item>
         <item >Drink drop</item>
         <item >Knocked pole</item>
