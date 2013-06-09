@@ -5,17 +5,22 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.Throw;
 import com.ultimatepolish.scorebookdb.Venue;
 
 public class Detail_Game extends MenuContainerActivity {
@@ -99,4 +104,39 @@ public class Detail_Game extends MenuContainerActivity {
 		TextView gameDate = (TextView) findViewById(R.id.gDet_date);
 		gameDate.setText(df.format(g.getDatePlayed()));
 	}
+	
+	public void deleteGame(View view){
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(view.getContext());
+		alertDialogBuilder.setTitle("Delete this game?");
+		alertDialogBuilder.setMessage("This action can not be undone.")
+			.setPositiveButton("Delete",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					try{
+						Dao<Throw, Long> tDao = Throw.getDao(getApplicationContext());
+						DeleteBuilder<Throw, Long> tdb = tDao.deleteBuilder();
+				        tdb.where().eq("gameId", g.getId());
+				        tDao.delete(tdb.prepare());
+				        
+						gDao.deleteById(g.getId());
+						finish();
+					}
+					catch (SQLException e){
+						Toast.makeText(getApplicationContext(), 
+								e.getMessage(), 
+								Toast.LENGTH_LONG).show();
+					}
+				}
+			  })
+			.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+				}
+			});
+ 
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
+		
+	}
+	
+	
 }

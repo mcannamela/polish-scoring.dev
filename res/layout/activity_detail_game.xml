@@ -55,5 +55,14 @@
         android:layout_below="@+id/gDet_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    
+    <Button
+        android:id="@+id/button_deleteGame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:onClick="deleteGame"
+        android:text="Delete Game" />
 
 </RelativeLayout>
