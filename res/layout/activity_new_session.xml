@@ -52,6 +52,15 @@
     	android:layout_alignParentLeft="true"
     	android:layout_marginTop="20dp"
     	android:text="Active"
-    	android:visibility="gone" />"
+    	android:visibility="gone" />
+
+    <ListView
+    	android:id="@+id/newSession_playerSelection"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentLeft="true"
+    	android:layout_alignRight="@+id/editText_sessionName"
+    	android:layout_below="@+id/newSession_isTeam"
+    	android:layout_marginTop="45dp" />
 
 </RelativeLayout>

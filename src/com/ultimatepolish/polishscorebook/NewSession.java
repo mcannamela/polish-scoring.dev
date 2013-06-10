@@ -2,6 +2,7 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -12,16 +13,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.SessionMember;
 import com.ultimatepolish.scorebookdb.SessionType;
+import com.ultimatepolish.scorebookdb.Team;
 
 public class NewSession extends MenuContainerActivity {
 	Long sId;
@@ -32,6 +40,13 @@ public class NewSession extends MenuContainerActivity {
 	Spinner sessionTypeSpinner;
 	CheckBox isTeamCB;
 	CheckBox isActiveCB;
+	ListView rosterCheckList;
+	List<Player> players = new ArrayList<Player>();
+	List<Integer> playerIdxList = new ArrayList<Integer>();
+	List<String> playerNames = new ArrayList<String>();
+	List<Team> teams = new ArrayList<Team>();
+	List<Integer> teamIdxList = new ArrayList<Integer>();
+	List<String> teamNames = new ArrayList<String>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +71,24 @@ public class NewSession extends MenuContainerActivity {
 		sAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		sessionTypeSpinner.setAdapter(sAdapter);
 		
+		try{
+			players = Player.getAll(getApplicationContext());
+			playerNames.clear();
+			for(Player p: players){
+				playerNames.add(p.getFirstName() + " " + p.getLastName());
+			}
+			teams = Team.getAll(getApplicationContext());
+			teamNames.clear();
+			for(Team t: teams){
+				teamNames.add(t.getTeamName());
+			}
+		}
+		catch (SQLException e){
+			Toast.makeText(getApplicationContext(), 
+					e.getMessage(), 
+					Toast.LENGTH_LONG).show();
+		}
+		
 		Intent intent = getIntent();
 		sId = intent.getLongExtra("SID", -1);
 		if (sId != -1){
@@ -68,6 +101,11 @@ public class NewSession extends MenuContainerActivity {
 				isTeamCB.setVisibility(View.GONE);
 				isActiveCB.setVisibility(View.VISIBLE);
 				isActiveCB.setChecked(s.getIsActive());
+				
+				// TODO: if loading a session, show player/team names or hide box
+				// but dont allow session roster to change or bad things could happen!
+				playerNames.clear();
+				teamNames.clear();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -75,12 +113,76 @@ public class NewSession extends MenuContainerActivity {
 						Toast.LENGTH_LONG).show();
 			}
 		}
+		
+		rosterCheckList = (ListView) findViewById(R.id.newSession_playerSelection);
+        rosterCheckList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        updateRosterCheckList();
+        rosterCheckList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView arg0, View view, int pos, long arg3) 
+            {
+            	if (isTeamCB.isChecked()) {
+	                if(teamIdxList.contains(pos))
+	                {
+	                    teamIdxList.remove((Integer) pos);
+	                } else {
+	                    teamIdxList.add(pos);
+	                }
+            	} else {
+            		if(playerIdxList.contains(pos))
+	                {
+	                    playerIdxList.remove((Integer) pos);
+	                } else {
+	                    playerIdxList.add(pos);
+	                }
+            	}
+                
+                Collections.sort(playerIdxList);
+            	String strText = "";
+                
+            	if (isTeamCB.isChecked()) {
+            		for(int i=0 ; i < teamIdxList.size(); i++)                   
+                        strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
+            	} else {
+            		for(int i=0 ; i < playerIdxList.size(); i++)                   
+                        strText += players.get(playerIdxList.get(i)).getFirstName() + ",";
+            	}
+                
+                Toast.makeText(getApplicationContext(), "Item Clicked: "+ strText, Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        isTeamCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        		updateRosterCheckList();
+        		if (isChecked) {
+        			for (Integer t: teamIdxList) {
+        				rosterCheckList.setItemChecked(t, true);
+        			}
+        		} else {
+        			for (Integer p: playerIdxList) {
+        				rosterCheckList.setItemChecked(p, true);
+        			}
+        		}
+            }
+        });
+		
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	public void updateRosterCheckList() {
+		if (isTeamCB.isChecked()) {
+			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
+	                android.R.layout.simple_list_item_multiple_choice, teamNames));
+		} else {
+			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
+	                android.R.layout.simple_list_item_multiple_choice, playerNames));
+		}
 	}
 	
 	public void createNewSession(View view) {
@@ -91,6 +193,8 @@ public class NewSession extends MenuContainerActivity {
     	Date startDate;
     	Boolean isTeam;
     	Boolean isActive = true;
+    	
+    	List<SessionMember> sMembers = new ArrayList<SessionMember>();
     	
     	// get the session name
     	String st;
@@ -145,16 +249,37 @@ public class NewSession extends MenuContainerActivity {
 			}
     	} else {
     		session = new Session(sessionName, sessionType, startDate, isTeam);
-        	
+    		    		
         	try{
         		Dao<Session, Long> dao = getHelper().getSessionDao();
     	   		dao.create(session);
     	   		Toast.makeText(context, "Session created!", Toast.LENGTH_SHORT).show();
-    	   		finish();
     		   	}
     		 catch (SQLException e){
     			 Log.e(PolishScorebook.class.getName(), "Could not create session.", e);
     			 Toast.makeText(context, "Could not create session.", Toast.LENGTH_SHORT).show();
+    		   	}
+        	
+        	if (isTeam) {
+        		for (Integer teamIdx: teamIdxList) {
+        			sMembers.add(new SessionMember(session.getId(), teams.get(teamIdx).getId(), 0));
+        		}
+        	} else {
+        		for (Integer playerIdx: playerIdxList) {
+        			sMembers.add(new SessionMember(session.getId(), players.get(playerIdx).getId(), 0));
+        		}
+        	}
+        	
+        	try{
+        		Dao<SessionMember, Long> smDao = getHelper().getSessionMemberDao();
+        		for (SessionMember sm: sMembers) {
+        			smDao.create(sm);
+        		}
+    	   		finish();
+    		   	}
+    		 catch (SQLException e){
+    			 Log.e(PolishScorebook.class.getName(), "Could not create session member.", e);
+    			 Toast.makeText(context, "Could not create session member.", Toast.LENGTH_SHORT).show();
     		   	}
     	}
     	
