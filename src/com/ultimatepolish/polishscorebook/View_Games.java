@@ -74,7 +74,6 @@ public class View_Games extends MenuContainerActivity {
 	@Override
     protected void onRestart(){
     	super.onRestart();
-    	gameAdapter.notifyDataSetChanged();
     }
     @Override
     protected void onResume(){
@@ -144,6 +143,7 @@ public class View_Games extends MenuContainerActivity {
         
         log("refreshGamesListing() - done adding games, about to expand all");
     	expandAll();
+    	gameAdapter.notifyDataSetChanged(); // required in case the list has changed
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,

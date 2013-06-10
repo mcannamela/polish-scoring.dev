@@ -60,7 +60,6 @@ public class View_Players extends MenuContainerActivity {
     @Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshPlayersListing();
     }
     @Override
     protected void onResume(){
@@ -112,6 +111,7 @@ public class View_Players extends MenuContainerActivity {
         }
         
     	expandAll();
+    	playerAdapter.notifyDataSetChanged(); // required in case the list has changed
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,
