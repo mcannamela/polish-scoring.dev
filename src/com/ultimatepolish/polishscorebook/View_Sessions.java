@@ -61,7 +61,6 @@ public class View_Sessions extends MenuContainerActivity {
 	@Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshSessionListing();
     }
     @Override
     protected void onResume(){
@@ -119,6 +118,7 @@ public class View_Sessions extends MenuContainerActivity {
         }
         
     	expandAll();
+    	sessionAdapter.notifyDataSetChanged(); // required in case the list has changed
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,

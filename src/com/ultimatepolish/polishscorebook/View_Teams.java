@@ -64,7 +64,6 @@ public class View_Teams extends MenuContainerActivity {
     @Override
     protected void onRestart(){
     	super.onRestart();
-    	refreshTeamsListing();
     }
     @Override
     protected void onResume(){
@@ -122,6 +121,7 @@ public class View_Teams extends MenuContainerActivity {
         }
         
     	expandAll();
+    	teamAdapter.notifyDataSetChanged(); // required in case the list has changed
     }
     private OnChildClickListener elvItemClicked =  new OnChildClickListener() {
     	public boolean onChildClick(ExpandableListView parent, View v,
