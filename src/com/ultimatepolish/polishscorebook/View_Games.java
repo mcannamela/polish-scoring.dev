@@ -74,8 +74,7 @@ public class View_Games extends MenuContainerActivity {
 	@Override
     protected void onRestart(){
     	super.onRestart();
-    	log("onRestart() - refreshing games listing");
-    	refreshGamesListing();
+    	gameAdapter.notifyDataSetChanged();
     }
     @Override
     protected void onResume(){
