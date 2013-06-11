@@ -82,8 +82,8 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defenseFireCount INTEGER DEFAULT 0;");
 			
 			// other columns
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN deadType INTEGER DEFAULT 0;");
-			tDao.executeRaw("UPDATE throw SET throwResult=3 WHERE isBroken=1;");
+			tDao.executeRaw("ALTER TABLE throw ADD COLUMN deadType INTEGER DEFAULT 0;"); 
+			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.BROKEN)+" WHERE isBroken=1;");
 			
 			// migrate offensive errors. drink drop and break errors werent tracked before so stay false.
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveDrinkDropped BOOLEAN DEFAULT 0;");
@@ -91,32 +91,58 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBottleKnocked BOOLEAN DEFAULT 0;");
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBreakError BOOLEAN DEFAULT 0;");
 			
-			tDao.executeRaw("UPDATE throw SET isOffensivePoleKnocked=1 WHERE ownGoalScore=2;");
-			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3;");
+			tDao.executeRaw("UPDATE throw SET isOffensivePoleKnocked=1 WHERE ownGoalScore=2 AND isOwnGoal=1;");
+			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3 AND isOwnGoal=1;");
 			
-			// migrate defensive errors.
-			  // isGoaltend (db10) == > isGoaltend (db11) 
+			////////////////////////////////////////////////////////////////////
+			//////////////// MIGRATE DEFENSIVE ERRORS //////////////////////////
+			////////////////////////////////////////////////////////////////////
+			
+			
+			//////////// ADD NEW COLUMNS ///////////////////
+			// isGoaltend (db10) == > isGoaltend (db11) 
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isGrabbed BOOLEAN DEFAULT 0;");
-			  // isDrinkDropped (db10) ==> isDefensiveDrinkDropped (db11)
+			 // isDrinkDropped (db10) ==> isDefensiveDrinkDropped (db11)
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensivePoleKnocked BOOLEAN DEFAULT 0;");
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBottleKnocked BOOLEAN DEFAULT 0;");
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBreakError BOOLEAN DEFAULT 0;");
 			
-			  // errorScore=0 (PCB knocked but bottle caught) no longer tracked.
-
-			tDao.executeRaw("UPDATE throw SET isGrabbed=1 WHERE errorScore=1;");
 			
-			  // for errorScore=2/3, assume defense knock pole/bottle if throw was a strike. assume dead pole/bottle hit that wasnt caught if throw was HRLL
-			tDao.executeRaw("UPDATE throw SET isDefensivePoleKnocked=1 WHERE errorScore=2 and throwType=3;"); // deadType to high
-			tDao.executeRaw("UPDATE throw SET isDefensiveBottleKnocked=1 WHERE errorScore=3 and throwType=3;"); // deadType to high
+			/////////// FIX FALSE POSITIVES ////////////////
+			tDao.executeRaw("UPDATE throw SET errorScore=0 WHERE isError=0;");
 			
-			tDao.executeRaw("UPDATE throw SET deadType=1 WHERE errorScore>1 and throwType=4;"); // deadType to high
-			tDao.executeRaw("UPDATE throw SET deadType=2 WHERE errorScore>1 and throwType=5;"); // deadType to right
-			tDao.executeRaw("UPDATE throw SET deadType=3 WHERE errorScore>1 and throwType=6;"); // deadType to low
-			tDao.executeRaw("UPDATE throw SET deadType=4 WHERE errorScore>1 and throwType=7;"); // deadType to left
-			tDao.executeRaw("UPDATE throw SET throwType=2 WHERE errorScore=2 AND throwType!=3;"); // throwType to pole
-			tDao.executeRaw("UPDATE throw SET throwType=0 WHERE errorScore=3 AND throwType!=3;"); // throwType to bottle
-			tDao.executeRaw("UPDATE throw SET throwResult=1 WHERE errorScore>1 AND throwType!=3;"); // throwResult to dropped
+			////////// FIX E1's ///////////////////
+			// errorScore=0 (PCB knocked but bottle caught) no longer tracked.
+			tDao.executeRaw("UPDATE throw SET isGrabbed=1 WHERE errorScore=1 AND isError=1;");
+			
+		    ////////// FIX E2's and E3s///////////////////
+			//for errorScore=2/3, assume defense knock pole/bottle if throw was a strike. 
+			//assume dead pole/bottle hit that wasnt caught if throw was HRLL
+			tDao.executeRaw("UPDATE throw SET isDefensivePoleKnocked=1 "+
+								"WHERE errorScore=2 and throwType="+String.valueOf(ThrowType.STRIKE)+" AND isError=1;"); 
+			tDao.executeRaw("UPDATE throw SET isDefensiveBottleKnocked=1 "+
+								"WHERE errorScore=3 and throwType="+String.valueOf(ThrowType.STRIKE)+" AND isError=1;"); 
+			
+			//HRLL with error score greater than 1 maps to dead HRLL
+			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.HIGH)+
+								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_HIGH)+";"); // deadType to high
+			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.RIGHT)+
+								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_RIGHT)+";"); // deadType to right
+			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.LOW)+
+								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_LOW)+";"); // deadType to low
+			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.LEFT)+
+								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_LEFT)+";"); // deadType to left
+			
+			// throwType to pole
+			tDao.executeRaw("UPDATE throw SET throwType="+String.valueOf(ThrowType.POLE)+
+								" WHERE isError=1 AND errorScore=2 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
+			// throwType to bottle
+			tDao.executeRaw("UPDATE throw SET throwType="+String.valueOf(ThrowType.BOTTLE)+
+								" WHERE isError=1 AND errorScore=3 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
+			// throwResult to dropped
+			//mc:doesn't this overwrite the previous two statements? maybe it should come first...
+			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.DROP)+
+								" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
 			
 			
 			// rebuild the table and copy data over
