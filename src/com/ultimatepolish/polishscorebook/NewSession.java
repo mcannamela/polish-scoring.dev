@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import android.content.Context;
 import android.content.Intent;
@@ -137,13 +138,14 @@ public class NewSession extends MenuContainerActivity {
 	                }
             	}
                 
-                Collections.sort(playerIdxList);
             	String strText = "";
                 
             	if (isTeamCB.isChecked()) {
+            		Collections.sort(teamIdxList);
             		for(int i=0 ; i < teamIdxList.size(); i++)                   
                         strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
             	} else {
+            		Collections.sort(playerIdxList);
             		for(int i=0 ; i < playerIdxList.size(); i++)                   
                         strText += players.get(playerIdxList.get(i)).getFirstName() + ",";
             	}
@@ -248,6 +250,7 @@ public class NewSession extends MenuContainerActivity {
 				Toast.makeText(context, "Could not modify session.", Toast.LENGTH_SHORT).show();
 			}
     	} else {
+    		// create the session
     		session = new Session(sessionName, sessionType, startDate, isTeam);
     		    		
         	try{
@@ -260,15 +263,28 @@ public class NewSession extends MenuContainerActivity {
     			 Toast.makeText(context, "Could not create session.", Toast.LENGTH_SHORT).show();
     		   	}
         	
+        	// convert the indices from the roster list to actual player or team ids
+        	List<Long> rosterIds = new ArrayList<Long>();
         	if (isTeam) {
         		for (Integer teamIdx: teamIdxList) {
-        			sMembers.add(new SessionMember(session.getId(), teams.get(teamIdx).getId(), 0));
+        			rosterIds.add(teams.get(teamIdx).getId());
         		}
         	} else {
         		for (Integer playerIdx: playerIdxList) {
-        			sMembers.add(new SessionMember(session.getId(), players.get(playerIdx).getId(), 0));
+        			rosterIds.add(players.get(playerIdx).getId());
         		}
+        		List<Integer> playerSeed = new ArrayList<Integer>();
         	}
+        	
+        	// only random seeding so far...
+        	Collections.shuffle(rosterIds);
+        	
+        	// create the session members
+    		int ii = 0;
+    		for (Long rosterId: rosterIds) {
+    			sMembers.add(new SessionMember(session.getId(), rosterId, ii));
+    			ii++;
+    		}
         	
         	try{
         		Dao<SessionMember, Long> smDao = getHelper().getSessionMemberDao();
