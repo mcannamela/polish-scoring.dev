@@ -13,6 +13,11 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class SessionMember {
+	public static final String SESSION_ID = "sessionId";
+	public static final String PLAYER_ID = "playerId";
+	public static final String PLAYER_SEED = "playerSeed";
+	public static final String PLAYER_RANK = "playerRank";
+	
 	@DatabaseField(canBeNull=false,uniqueCombo=true)
 	private long sessionId;
 	
