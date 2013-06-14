@@ -1,28 +1,33 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
 import com.ultimatepolish.scorebookdb.SessionMember;
 import com.ultimatepolish.scorebookdb.SessionType;
-import com.ultimatepolish.scorebookdb.Throw;
+import com.ultimatepolish.scorebookdb.Team;
 
 public class Detail_Session extends MenuContainerActivity {
 	Long sId;
 	Session s;
 	Dao<Session, Long> sDao;
 	Dao<SessionMember, Long> smDao;
-	List<SessionMember> sMembers;
+	Dao<Player, Long> pDao;
+	Dao<Team, Long> tDao;
+	List sMembers;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +42,20 @@ public class Detail_Session extends MenuContainerActivity {
 				sDao = Session.getDao(getApplicationContext());
 				s = sDao.queryForId(sId);
 				
-		        sMembers = smDao.queryBuilder().orderBy(SessionMember.PLAYER_SEED, true).where()
-		        	         .eq(SessionMember.SESSION_ID, sId).query();
+				smDao = SessionMember.getDao(getApplicationContext());
+		        QueryBuilder<SessionMember, Long> smQue = smDao.queryBuilder();
+		        smQue.where().eq(SessionMember.SESSION_ID, sId);
+		        
+		        if (s.getIsTeam()) {
+		        	tDao = Team.getDao(getApplicationContext());
+		        	QueryBuilder<Team, Long> tQue = tDao.queryBuilder();
+			        List<Team> sMembers = tQue.join(smQue).query();
+		        } else {
+		        	pDao = Player.getDao(getApplicationContext());
+		        	QueryBuilder<Player, Long> pQue = pDao.queryBuilder();
+			        List<Player> sMembers = pQue.join(smQue).query();
+		        }
+		        
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -113,6 +130,14 @@ public class Detail_Session extends MenuContainerActivity {
 	}
 	
 	public void refreshSingleElimBracket(){
+		View sv = findViewById(R.id.scrollView1);
+		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
+		TextView tv = new TextView(sv.getContext());
+		if (s.getIsTeam()) {
+			tv.setText( ((Player) sMembers.get(0)).getNickName() );
+		}
+		
+		rl.addView(tv);
 		
 	}
 }
