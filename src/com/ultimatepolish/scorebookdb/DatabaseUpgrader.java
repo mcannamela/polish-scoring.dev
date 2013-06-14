@@ -1,10 +1,13 @@
 package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.GenericRawResults;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -14,12 +17,31 @@ public class DatabaseUpgrader {
 			Dao<Game, Long> gDao,
 			Dao<Player, Long> pDao,
 			Dao<Session, Long> sDao,
-			Dao<Venue, Long> vDao) throws SQLException{
+			Dao<Venue, Long> vDao,
+			Dao<Throw, Long> tDao) throws SQLException{
 	
 		String addGameColumn = "ALTER TABLE game ADD COLUMN ";
 		gDao.executeRaw(addGameColumn+"isTeam BOOLEAN DEFAULT 0;");
 		gDao.executeRaw(addGameColumn+"isComplete BOOLEAN DEFAULT 1;");
 		gDao.executeRaw(addGameColumn+"isTracked BOOLEAN DEFAULT 1;");
+		
+		// clean out games with non-unique players
+		GenericRawResults<String[]> rawResults = gDao.queryRaw(
+				    "SELECT * FROM game WHERE firstPlayerId == secondPlayerId");
+		List<String[]> results = rawResults.getResults();
+		String[] resultArray = results.get(0);
+		for (String[] gRes: results) {
+			String gId = gRes[0];
+			tDao.executeRaw("DELETE FROM throw WHERE gameId == " + gId + ";");
+		}
+		gDao.executeRaw("DELETE FROM game WHERE firstPlayerId == secondPlayerId;");
+		
+		// continue migrating game table
+		pDao.executeRaw("ALTER TABLE game RENAME TO temp;");
+		TableUtils.createTable(connectionSource, Game.class);
+		pDao.executeRaw("INSERT INTO game(id, firstPlayer_id, secondPlayer_id, session_id, venue_id, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore) " +
+				"SELECT id, firstPlayerId, secondPlayerId, sessionId, venueId, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore FROM temp;");
+		pDao.executeRaw("DROP TABLE temp;");
 		
 		// player table
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN isActive BOOLEAN DEFAULT 1;");

@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/03 09:21:36
+# generated on 2013/06/14 08:58:36
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -131,13 +131,16 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=playerId
+fieldName=player
+foreign=true
 # --field-end--
 # --field-start--
-fieldName=isTeam
+fieldName=team
+foreign=true
 # --field-end--
 # --field-start--
-fieldName=sessionId
+fieldName=session
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=badgeType
@@ -155,24 +158,24 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=firstPlayerId
+fieldName=firstPlayer_id
 canBeNull=false
-uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=secondPlayerId
+fieldName=secondPlayer_id
 canBeNull=false
-uniqueCombo=true
 # --field-end--
 # --field-start--
 fieldName=firstPlayerOnTop
 canBeNull=false
 # --field-end--
 # --field-start--
-fieldName=sessionId
+fieldName=session
+foreign=true
 # --field-end--
 # --field-start--
-fieldName=venueId
+fieldName=venue
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=datePlayed
@@ -233,13 +236,19 @@ dataClass=com.ultimatepolish.scorebookdb.SessionMember
 tableName=sessionmember
 # --table-fields-start--
 # --field-start--
-fieldName=sessionId
+fieldName=session
 canBeNull=false
+foreign=true
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=playerId
-canBeNull=false
+fieldName=player
+foreign=true
+uniqueCombo=true
+# --field-end--
+# --field-start--
+fieldName=team
+foreign=true
 uniqueCombo=true
 # --field-end--
 # --field-start--

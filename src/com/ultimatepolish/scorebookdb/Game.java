@@ -18,20 +18,20 @@ public class Game {
 	@DatabaseField(generatedId=true)
 	private long id;
 	
-	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private long firstPlayerId;
+	@DatabaseField(canBeNull=false)
+	private long firstPlayer_id;
 	
-	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private long secondPlayerId;
+	@DatabaseField(canBeNull=false)
+	private long secondPlayer_id;
 	
 	@DatabaseField(canBeNull=false)
 	public boolean firstPlayerOnTop;
 	
-	@DatabaseField
-	private long sessionId;
+	@DatabaseField(foreign = true)
+	private Session session;
 	
-	@DatabaseField
-	private long venueId;
+	@DatabaseField(foreign = true)
+	private Venue venue;
 	
 	@DatabaseField(canBeNull=false)
 	private Date datePlayed;
@@ -55,26 +55,26 @@ public class Game {
 		super();
 	}
 
-	public Game(long firstPlayerId, long secondPlayerId, long sessionId,
-			long venueId, boolean isTeam, boolean isTracked, Date datePlayed) {
+	public Game(long firstPlayerId, long secondPlayerId, Session session,
+			Venue venue, boolean isTeam, boolean isTracked, Date datePlayed) {
 		super();
-		this.firstPlayerId = firstPlayerId;
-		this.secondPlayerId = secondPlayerId;
-		this.sessionId = sessionId;
-		this.venueId = venueId;
+		this.firstPlayer_id = firstPlayerId;
+		this.secondPlayer_id = secondPlayerId;
+		this.session = session;
+		this.venue = venue;
 		this.isTeam = isTeam;
 		this.isTracked = isTracked;
 		this.datePlayed = datePlayed;
 		
 	}
 	
-	public Game(long firstPlayerId, long secondPlayerId, long sessionId,
-			long venueId, boolean isTeam, boolean isTracked) {
+	public Game(long firstPlayerId, long secondPlayerId, Session session,
+			Venue venue, boolean isTeam, boolean isTracked) {
 		super();
-		this.firstPlayerId = firstPlayerId;
-		this.secondPlayerId = secondPlayerId;
-		this.sessionId = sessionId;
-		this.venueId = venueId;
+		this.firstPlayer_id = firstPlayerId;
+		this.secondPlayer_id = secondPlayerId;
+		this.session = session;
+		this.venue = venue;
 		this.isTeam = isTeam;
 		this.isTracked = isTracked;
 		this.datePlayed = new Date();
@@ -105,11 +105,11 @@ public class Game {
 		switch (idx%2){
 		    //first player is on offense
 			case 0:
-				isValid= isValid && (t.getOffensivePlayerId()==firstPlayerId);
+				isValid= isValid && (t.getOffensivePlayerId()==firstPlayer_id);
 				break;
 		    //second player is on defense
 			case 1:
-				isValid= isValid && (t.getOffensivePlayerId()==secondPlayerId);
+				isValid= isValid && (t.getOffensivePlayerId()==secondPlayer_id);
 				break;
 			default:
 				throw new RuntimeException("invalid index "+idx);
@@ -119,8 +119,8 @@ public class Game {
 	public Player[] getPlayers(Context context) throws SQLException{
 		Player[] players = new Player[2]; 
 		Dao<Player, Long> d = Player.getDao(context);
-		players[0] = d.queryForId(firstPlayerId);
-		players[1] = d.queryForId(secondPlayerId);
+		players[0] = d.queryForId(firstPlayer_id);
+		players[1] = d.queryForId(secondPlayer_id);
 		
 		return players;
 	}
@@ -198,35 +198,35 @@ public class Game {
 	}
 
 	public long getFirstPlayerId() {
-		return firstPlayerId;
+		return firstPlayer_id;
 	}
 
 	public void setFirstPlayerId(long firstPlayerId) {
-		this.firstPlayerId = firstPlayerId;
+		this.firstPlayer_id = firstPlayerId;
 	}
 
 	public long getSecondPlayerId() {
-		return secondPlayerId;
+		return secondPlayer_id;
 	}
 
 	public void setSecondPlayerId(long secondPlayerId) {
-		this.secondPlayerId = secondPlayerId;
+		this.secondPlayer_id = secondPlayerId;
 	}
 
-	public long getSessionId() {
-		return sessionId;
+	public Session getSession() {
+		return session;
 	}
 
-	public void setSessionId(long sessionId) {
-		this.sessionId = sessionId;
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
-	public long getVenueId() {
-		return venueId;
+	public Venue getVenue() {
+		return venue;
 	}
 
-	public void setVenueId(long venueId) {
-		this.venueId = venueId;
+	public void setVenue(Venue venue) {
+		this.venue = venue;
 	}
 
 	public Date getDatePlayed() {
@@ -251,27 +251,6 @@ public class Game {
 
 	public void setSecondPlayerScore(int secondPlayerScore) {
 		this.secondPlayerScore = secondPlayerScore;
-	}
-
-	public Session getSession(Context context) {
-		try{
-			Dao<Session, Long> d = Session.getDao(context);
-			return d.queryForId(getSessionId());
-		}
-		catch (SQLException e){
-			return null;
-		}
-		
-	}
-
-	public Venue getVenue(Context context) {
-		try{
-			Dao<Venue, Long> d = Venue.getDao(context);
-			return d.queryForId(getVenueId());
-		}
-		catch (SQLException e){
-			return null;
-		}
 	}
 	
 	public boolean getIsTeam() {

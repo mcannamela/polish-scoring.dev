@@ -44,7 +44,7 @@ public class Detail_Session extends MenuContainerActivity {
 				
 				smDao = SessionMember.getDao(getApplicationContext());
 		        QueryBuilder<SessionMember, Long> smQue = smDao.queryBuilder();
-		        smQue.where().eq(SessionMember.SESSION_ID, sId);
+		        smQue.where().eq(SessionMember.SESSION, sId);
 		        
 		        if (s.getIsTeam()) {
 		        	tDao = Team.getDao(getApplicationContext());

@@ -263,28 +263,29 @@ public class NewSession extends MenuContainerActivity {
     			 Toast.makeText(context, "Could not create session.", Toast.LENGTH_SHORT).show();
     		   	}
         	
-        	// convert the indices from the roster list to actual player or team ids
-        	List<Long> rosterIds = new ArrayList<Long>();
+        	// convert the indices from the roster list to actual players or teams
         	if (isTeam) {
+        		List<Team> roster = new ArrayList<Team>();
         		for (Integer teamIdx: teamIdxList) {
-        			rosterIds.add(teams.get(teamIdx).getId());
+        			roster.add(teams.get(teamIdx));
+        		}
+        		
+        		roster = seedRoster(roster);
+        		
+        		int ii = 0;
+        		for (Team t: roster) {
+        			sMembers.add(new SessionMember(session, t, ii));
+        			ii++;
         		}
         	} else {
+        		List<Player> roster = new ArrayList<Player>();
         		for (Integer playerIdx: playerIdxList) {
-        			rosterIds.add(players.get(playerIdx).getId());
+        			roster.add(players.get(playerIdx));
         		}
-        		List<Integer> playerSeed = new ArrayList<Integer>();
         	}
-        	
-        	// only random seeding so far...
-        	Collections.shuffle(rosterIds);
-        	
+
         	// create the session members
-    		int ii = 0;
-    		for (Long rosterId: rosterIds) {
-    			sMembers.add(new SessionMember(session.getId(), rosterId, ii));
-    			ii++;
-    		}
+    		
         	
         	try{
         		Dao<SessionMember, Long> smDao = getHelper().getSessionMemberDao();
@@ -300,5 +301,12 @@ public class NewSession extends MenuContainerActivity {
     	}
     	
     }
+	
+	public List seedRoster(List roster) {
+		// only random seeding so far...
+    	Collections.shuffle(roster);
+    	
+		return roster;
+	}
 
 }
