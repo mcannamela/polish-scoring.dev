@@ -142,9 +142,7 @@ public class NewGame extends MenuContainerActivity {
 	public void createGame(View view){
 		Long p1id = players.get(p1_pos).getId();
 		Long p2id = players.get(p2_pos).getId();
-		Long sid = sessions.get(session_pos).getId();
-		Long vid = venues.get(venue_pos).getId();
-		Game g = new Game(p1id, p2id, sid, vid, false, true);
+		Game g = new Game(p1id, p2id, sessions.get(session_pos), venues.get(venue_pos), false, true);
 		long gid; 
 		g.setDatePlayed(new Date());
 		

@@ -88,8 +88,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			Dao<Player, Long> pDao = getPlayerDao();
 			Dao<Session, Long> sDao = getSessionDao();
 			Dao<Venue, Long> vDao = getVenueDao();
+			Dao<Throw, Long> tDao = getThrowDao();
 			
-			DatabaseUpgrader.increment_09(connectionSource, gDao, pDao, sDao, vDao);
+			DatabaseUpgrader.increment_09(connectionSource, gDao, pDao, sDao, vDao, tDao);
 			
 			createAll();
 			

@@ -124,7 +124,7 @@ public class View_Games extends MenuContainerActivity {
         	log("refreshGamesListing() - adding games");
         	for (Game g: gameDao) {
         		log("refreshGamesListing() - got game "+g.getId());
-        		s = sessionDao.queryForId(g.getSessionId());
+        		s = g.getSession();
         		p[0] = playerDao.queryForId(g.getFirstPlayerId());
         		p[1] = playerDao.queryForId(g.getSecondPlayerId());
         		

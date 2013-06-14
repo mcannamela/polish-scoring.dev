@@ -72,8 +72,8 @@ public class Detail_Game extends MenuContainerActivity {
 				g = gDao.queryForId(gId);
 				
 				p = g.getPlayers(context);
-				s = g.getSession(context);
-				v = g.getVenue(context);
+				s = g.getSession();
+				v = g.getVenue();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 

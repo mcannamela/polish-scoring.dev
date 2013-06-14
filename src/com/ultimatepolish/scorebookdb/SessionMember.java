@@ -2,7 +2,6 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -13,16 +12,20 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class SessionMember {
-	public static final String SESSION_ID = "sessionId";
-	public static final String PLAYER_ID = "playerId";
+	public static final String SESSION = "session";
+	public static final String PLAYER = "player";
+	public static final String TEAM = "team";
 	public static final String PLAYER_SEED = "playerSeed";
 	public static final String PLAYER_RANK = "playerRank";
 	
-	@DatabaseField(canBeNull=false,uniqueCombo=true)
-	private long sessionId;
+	@DatabaseField(canBeNull=false,uniqueCombo=true,foreign=true)
+	private Session session;
 	
-	@DatabaseField(canBeNull=false,uniqueCombo=true)
-	private long playerId; // could be a team
+	@DatabaseField(uniqueCombo=true,foreign=true)
+	private Player player;
+	
+	@DatabaseField(uniqueCombo=true,foreign=true)
+	private Team team;
 	
 	@DatabaseField(canBeNull=false)
 	private int playerSeed;
@@ -36,10 +39,18 @@ public class SessionMember {
 	
 	public SessionMember(){}
 
-	public SessionMember(long sessionId, long playerId, int playerSeed) {
+	public SessionMember(Session session, Player player, int playerSeed) {
 		super();
-		this.sessionId = sessionId;
-		this.playerId = playerId;
+		this.session = session;
+		this.player = player;
+		this.playerSeed = playerSeed;
+		this.playerRank = playerSeed;
+	}
+	
+	public SessionMember(Session session, Team team, int playerSeed) {
+		super();
+		this.session = session;
+		this.team = team;
 		this.playerSeed = playerSeed;
 		this.playerRank = playerSeed;
 	}
@@ -59,16 +70,24 @@ public class SessionMember {
 		return sessionMembers;
 	}
 
-	public long getSessionId() {
-		return sessionId;
+	public Session getSessionId() {
+		return session;
 	}
 
 //	public void setSessionId(long sessionId) {
 //		this.sessionId = sessionId;
 //	}
 
-	public long getPlayerId() {
-		return playerId;
+	public Player getPlayer() {
+		return player;
+	}
+
+//	public void setPlayerId(long playerId) {
+//		this.playerId = playerId;
+//	}
+	
+	public Team getTeam() {
+		return team;
 	}
 
 //	public void setPlayerId(long playerId) {

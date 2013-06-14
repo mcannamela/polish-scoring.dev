@@ -481,8 +481,8 @@ public class GameInProgress extends MenuContainerActivity
 				ag = new ActiveGame(g, context);
 				uiThrow = ag.getActiveThrow();
 				p = g.getPlayers(context);
-				s = g.getSession(context);
-				v = g.getVenue(context);
+				s = g.getSession();
+				v = g.getVenue();
 				
 			}
 			catch (SQLException e){

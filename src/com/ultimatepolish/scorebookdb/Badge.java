@@ -3,12 +3,9 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
@@ -20,32 +17,43 @@ public class Badge{
 	@DatabaseField(generatedId=true)
 	private long id;
 	
-	@DatabaseField
-	private long playerId; // could be a team
+	@DatabaseField(foreign = true)
+	private Player player;
 	
-	@DatabaseField
-	private boolean isTeam;
+	@DatabaseField(foreign = true)
+	private Team team;
 	
-	@DatabaseField
-	private long sessionId;
+	@DatabaseField(foreign = true)
+	private Session session;
 	
 	@DatabaseField(canBeNull=false)
 	private int badgeType;
 	
 	Badge(){}
 
-	public Badge(long playerId, boolean isTeam, long sessionId, int badgeType) {
+	public Badge(Player player, Session session, int badgeType) {
 		super();
-		this.playerId = playerId;
-		this.isTeam = isTeam;
-		this.sessionId = sessionId;
+		this.player = player;
+		this.session = session;
 		this.badgeType = badgeType;
 	}
 	
-	public Badge(long playerId, boolean isTeam, int badgeType) {
+	public Badge(Player player, int badgeType) {
 		super();
-		this.playerId = id;
-		this.isTeam = isTeam;
+		this.player = player;
+		this.badgeType = badgeType;
+	}
+	
+	public Badge(Team team, Session session, int badgeType) {
+		super();
+		this.team =team;
+		this.session = session;
+		this.badgeType = badgeType;
+	}
+	
+	public Badge(Team team, int badgeType) {
+		super();
+		this.team = team;
 		this.badgeType = badgeType;
 	}
 	
@@ -72,27 +80,27 @@ public class Badge{
 		this.id = id;
 	}
 
-	public long getPlayerId() {
-		return playerId;
+	public Player getPlayer() {
+		return player;
 	}
 	
-	public void setPlayerId(long playerId) {
-		this.playerId = playerId;
+	public void setPlayer(Player player) {
+		this.player = player;
 	}
 	
-	public boolean getIsTeam() {
-		return isTeam;
+	public Team getTeam() {
+		return team;
 	}
 
-//	public void setIsTeam(boolean isTeam) {
-//		this.isTeam = isTeam;
-//	}
-	
-	public long getSessionId() {
-		return sessionId;
+	public void setTeam(Team team) {
+		this.team = team;
 	}
 	
-	public void setSessionId(long sessionId) {
-		this.sessionId = sessionId;
+	public Session getSession() {
+		return session;
+	}
+	
+	public void setSession(Session session) {
+		this.session = session;
 	}
 }
