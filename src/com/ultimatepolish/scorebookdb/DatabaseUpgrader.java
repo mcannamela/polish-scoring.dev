@@ -39,9 +39,15 @@ public class DatabaseUpgrader {
 		// continue migrating game table
 		pDao.executeRaw("ALTER TABLE game RENAME TO temp;");
 		TableUtils.createTable(connectionSource, Game.class);
-		pDao.executeRaw("INSERT INTO game(id, firstPlayer_id, secondPlayer_id, session_id, venue_id, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore) " +
-				"SELECT id, firstPlayerId, secondPlayerId, sessionId, venueId, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore FROM temp;");
+		pDao.executeRaw("INSERT INTO game(id, firstPlayer_id, secondPlayer_id, session_id, venue_id, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isTeam, isComplete, isTracked) " +
+				"SELECT id, firstPlayerId, secondPlayerId, sessionId, venueId, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isTeam, isComplete, isTracked FROM temp;");
 		pDao.executeRaw("DROP TABLE temp;");
+		
+		// mark completed games as appropriate
+		for (Game g: gDao) {
+			g.checkGameComplete();
+			gDao.update(g);
+		}
 		
 		// player table
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN isActive BOOLEAN DEFAULT 1;");
