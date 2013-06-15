@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/15 08:51:13
+# generated on 2013/06/15 09:52:35
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -112,7 +112,8 @@ dataClass=com.ultimatepolish.scorebookdb.TeamStats
 tableName=teamstats
 # --table-fields-start--
 # --field-start--
-fieldName=teamId
+fieldName=team
+foreign=true
 unique=true
 # --field-end--
 # --field-start--
@@ -160,16 +161,14 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=firstPlayer_id
+fieldName=firstPlayer
 canBeNull=false
+foreign=true
 # --field-end--
 # --field-start--
-fieldName=secondPlayer_id
+fieldName=secondPlayer
 canBeNull=false
-# --field-end--
-# --field-start--
-fieldName=firstPlayerOnTop
-canBeNull=false
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=session
@@ -178,6 +177,10 @@ foreign=true
 # --field-start--
 fieldName=venue
 foreign=true
+# --field-end--
+# --field-start--
+fieldName=firstPlayerOnTop
+canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=datePlayed
@@ -278,17 +281,20 @@ canBeNull=false
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=gameId
+fieldName=game
 canBeNull=false
+foreign=true
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=offensivePlayerId
+fieldName=offensivePlayer
 canBeNull=false
+foreign=true
 # --field-end--
 # --field-start--
-fieldName=defensivePlayerId
+fieldName=defensivePlayer
 canBeNull=false
+foreign=true
 # --field-end--
 # --field-start--
 fieldName=timestamp

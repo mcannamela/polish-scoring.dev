@@ -60,7 +60,8 @@ public class GameInProgress extends MenuContainerActivity
 	Venue v;
 	
 	Dao<Game, Long> gDao;
-	Dao<Throw, Long>tDao; 
+	Dao<Throw, Long> tDao;
+	Dao<Player, Long> pDao;
 
 	int currentThrowType = ThrowType.NOT_THROWN;
 	int currentThrowResult = ThrowResult.NA;
@@ -476,11 +477,16 @@ public class GameInProgress extends MenuContainerActivity
 			try{
 				gDao = Game.getDao(context);
 				tDao = Throw.getDao(context);
+				pDao = Player.getDao(context);
 				
 				g = gDao.queryForId(gId);
+				pDao.refresh(g.getFirstPlayer());
+				pDao.refresh(g.getSecondPlayer());
+				
 				ag = new ActiveGame(g, context);
 				uiThrow = ag.getActiveThrow();
-				p = g.getPlayers(context);
+				p[0] = g.getFirstPlayer();
+				p[1] = g.getSecondPlayer();
 				s = g.getSession();
 				v = g.getVenue();
 				

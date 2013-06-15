@@ -18,8 +18,10 @@ import com.j256.ormlite.field.DatabaseField;
 import com.ultimatepolish.polishscorebook.R;
 
 public class Throw implements Comparable<Throw>{
-	public static final String GAME_ID = "gameId";
 	public static final String THROW_INDEX = "throwIdx";
+	public static final String GAME = "game_id";
+	public static final String OFFENSIVE_PLAYER = "offensivePlayer_id";
+	public static final String DEFENSIVE_PLAYER = "defensivePlayer_id";
 
 	@DatabaseField(generatedId=true)
 	private long id;
@@ -27,14 +29,14 @@ public class Throw implements Comparable<Throw>{
 	@DatabaseField(canBeNull=false, uniqueCombo=true)
 	private int throwIdx;
 
-	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private long gameId;
+	@DatabaseField(canBeNull=false, uniqueCombo=true, foreign=true)
+	private Game game;
 
-	@DatabaseField(canBeNull=false)
-	private long offensivePlayerId;
+	@DatabaseField(canBeNull=false, foreign=true)
+	private Player offensivePlayer;
 
-	@DatabaseField(canBeNull=false)
-	private long defensivePlayerId;
+	@DatabaseField(canBeNull=false, foreign=true)
+	private Player defensivePlayer;
 	
 	@DatabaseField(canBeNull=false)
 	private Date timestamp;
@@ -101,24 +103,24 @@ public class Throw implements Comparable<Throw>{
 	
 	Throw(){}
 	
-	public Throw(int throwIdx, long gameId, long offensivePlayerId, long defensivePlayerId, Date timestamp,
+	public Throw(int throwIdx, Game game, Player offensivePlayer, Player defensivePlayer, Date timestamp,
 			int throwType, int throwResult) {
 		super();
 		this.throwIdx = throwIdx;
-		this.gameId = gameId;
-		this.offensivePlayerId = offensivePlayerId;
-		this.defensivePlayerId = defensivePlayerId;
+		this.game = game;
+		this.offensivePlayer = offensivePlayer;
+		this.defensivePlayer = defensivePlayer;
 		this.timestamp = timestamp;
 		this.throwType = throwType;
 		this.throwResult = throwResult;
 	}
 	
-	public Throw(int throwIdx, long gameId, long offensivePlayerId, long defensivePlayerId, Date timestamp) {
+	public Throw(int throwIdx, Game game, Player offensivePlayer, Player defensivePlayer, Date timestamp) {
 		super();
 		this.throwIdx = throwIdx;
-		this.gameId = gameId;
-		this.offensivePlayerId = offensivePlayerId;
-		this.defensivePlayerId = defensivePlayerId;
+		this.game = game;
+		this.offensivePlayer = offensivePlayer;
+		this.defensivePlayer = defensivePlayer;
 		this.timestamp = timestamp;
         this.throwType = ThrowType.NOT_THROWN;
 	}
@@ -138,7 +140,7 @@ public class Throw implements Comparable<Throw>{
 	public HashMap<String, Object> getQueryMap(){
         HashMap<String,Object> m = new HashMap<String,Object>();
         m.put(Throw.THROW_INDEX, getThrowIdx());
-        m.put(Throw.GAME_ID, getGameId());
+        m.put(Throw.GAME, getGame());
         return m;
 	}
 	
@@ -592,16 +594,16 @@ public class Throw implements Comparable<Throw>{
         this.throwIdx = throwIdx;
 	}
 	
-	public long getGameId() {
-		return gameId;
+	public Game getGame() {
+		return game;
 	}
 
-	public long getOffensivePlayerId() {
-		return offensivePlayerId;
+	public Player getOffensivePlayer() {
+		return offensivePlayer;
 	}
 
-	public long getDefensivePlayerId() {
-		return defensivePlayerId;
+	public Player getDefensivePlayer() {
+		return defensivePlayer;
 	}
 
 	public Date getTimestamp() {
