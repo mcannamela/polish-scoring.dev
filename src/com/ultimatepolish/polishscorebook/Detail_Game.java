@@ -67,15 +67,19 @@ public class Detail_Game extends MenuContainerActivity {
 			try{
 				Context context = getApplicationContext();
 				gDao = Game.getDao(context);
+				Dao<Player, Long> playerDao = Player.getDao(context);
 				Dao<Session, Long> sessionDao = Session.getDao(context);
 				Dao<Venue, Long> venueDao = Venue.getDao(context);
 				
 				g = gDao.queryForId(gId);
+				playerDao.refresh(g.getFirstPlayer());
+				playerDao.refresh(g.getSecondPlayer());
 				
 				sessionDao.refresh(g.getSession());
 				venueDao.refresh(g.getVenue());
 				
-				p = g.getPlayers(context);
+				p[0] = g.getFirstPlayer();
+				p[1] = g.getSecondPlayer();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 

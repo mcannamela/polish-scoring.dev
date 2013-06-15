@@ -15,23 +15,28 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class Game {
+	public static final String FIRST_PLAYER = "firstPlayer_id";
+	public static final String SECOND_PLAYER = "secondPlayer_id";
+	public static final String SESSION = "session_id";
+	public static final String VENUE = "venue_id";
+	
 	@DatabaseField(generatedId=true)
 	private long id;
 	
-	@DatabaseField(canBeNull=false)
-	private long firstPlayer_id;
+	@DatabaseField(canBeNull=false, foreign=true)
+	private Player firstPlayer;
 	
-	@DatabaseField(canBeNull=false)
-	private long secondPlayer_id;
-	
-	@DatabaseField(canBeNull=false)
-	public boolean firstPlayerOnTop;
+	@DatabaseField(canBeNull=false, foreign=true)
+	private Player secondPlayer;
 	
 	@DatabaseField(foreign = true)
 	private Session session;
 	
 	@DatabaseField(foreign = true)
 	private Venue venue;
+	
+	@DatabaseField(canBeNull=false)
+	public boolean firstPlayerOnTop;
 	
 	@DatabaseField(canBeNull=false)
 	private Date datePlayed;
@@ -55,11 +60,11 @@ public class Game {
 		super();
 	}
 
-	public Game(long firstPlayerId, long secondPlayerId, Session session,
+	public Game(Player firstPlayer, Player secondPlayer, Session session,
 			Venue venue, boolean isTeam, boolean isTracked, Date datePlayed) {
 		super();
-		this.firstPlayer_id = firstPlayerId;
-		this.secondPlayer_id = secondPlayerId;
+		this.firstPlayer = firstPlayer;
+		this.secondPlayer = secondPlayer;
 		this.session = session;
 		this.venue = venue;
 		this.isTeam = isTeam;
@@ -68,11 +73,11 @@ public class Game {
 		
 	}
 	
-	public Game(long firstPlayerId, long secondPlayerId, Session session,
+	public Game(Player firstPlayer, Player secondPlayer, Session session,
 			Venue venue, boolean isTeam, boolean isTracked) {
 		super();
-		this.firstPlayer_id = firstPlayerId;
-		this.secondPlayer_id = secondPlayerId;
+		this.firstPlayer = firstPlayer;
+		this.secondPlayer = secondPlayer;
 		this.session = session;
 		this.venue = venue;
 		this.isTeam = isTeam;
@@ -103,35 +108,28 @@ public class Game {
 		boolean isValid = true;
 		int idx = t.getThrowIdx();
 		switch (idx%2){
+		// TODO: do players need to be refreshed now that foreign variable is used?
 		    //first player is on offense
 			case 0:
-				isValid= isValid && (t.getOffensivePlayerId()==firstPlayer_id);
+				isValid= isValid && (t.getOffensivePlayer()==firstPlayer);
 				break;
 		    //second player is on defense
 			case 1:
-				isValid= isValid && (t.getOffensivePlayerId()==secondPlayer_id);
+				isValid= isValid && (t.getOffensivePlayer()==secondPlayer);
 				break;
 			default:
 				throw new RuntimeException("invalid index "+idx);
 		}
 		return isValid;
 	}
-	public Player[] getPlayers(Context context) throws SQLException{
-		Player[] players = new Player[2]; 
-		Dao<Player, Long> d = Player.getDao(context);
-		players[0] = d.queryForId(firstPlayer_id);
-		players[1] = d.queryForId(secondPlayer_id);
-		
-		return players;
-	}
-	
+
 	public ArrayList<Throw> getThrowList(Context context) throws SQLException{
 		int tidx, maxThrowIndex;
 		ArrayList<Throw> throwArray = new ArrayList<Throw>();
 		
 		HashMap<Integer, Throw> throwMap = new HashMap<Integer, Throw>();
 		HashMap<String,Object> m = new HashMap<String,Object>();
-		m.put("gameId", getId());
+		m.put("game_id", getId());
 		
 		Dao<Throw, Long> d = Throw.getDao(context);		
 		List<Throw> dbThrows = d.queryForFieldValuesArgs(m);
@@ -174,17 +172,17 @@ public class Game {
 		return throwArray;
 	}
 	public Throw makeNewThrow(int throwNumber){
-		long offensivePlayerId, defensivePlayerId;
+		Player offensivePlayer, defensivePlayer;
 		if (throwNumber%2 == 0){
-			offensivePlayerId = getFirstPlayerId();
-			defensivePlayerId = getSecondPlayerId();
+			offensivePlayer = getFirstPlayer();
+			defensivePlayer = getSecondPlayer();
 		}
 		else{
-			offensivePlayerId = getSecondPlayerId();
-			defensivePlayerId = getFirstPlayerId();
+			offensivePlayer = getSecondPlayer();
+			defensivePlayer = getFirstPlayer();
 		}
 		Date timestamp = new Date(System.currentTimeMillis());
-		Throw t = new Throw (throwNumber, getId(), offensivePlayerId, defensivePlayerId, timestamp);
+		Throw t = new Throw (throwNumber, this, offensivePlayer, defensivePlayer, timestamp);
 		
 		return t;
 	}
@@ -197,20 +195,20 @@ public class Game {
 		this.id = id;
 	}
 
-	public long getFirstPlayerId() {
-		return firstPlayer_id;
+	public Player getFirstPlayer() {
+		return firstPlayer;
 	}
 
-	public void setFirstPlayerId(long firstPlayerId) {
-		this.firstPlayer_id = firstPlayerId;
+	public void setFirstPlayer(Player firstPlayer) {
+		this.firstPlayer = firstPlayer;
 	}
 
-	public long getSecondPlayerId() {
-		return secondPlayer_id;
+	public Player getSecondPlayer() {
+		return secondPlayer;
 	}
 
-	public void setSecondPlayerId(long secondPlayerId) {
-		this.secondPlayer_id = secondPlayerId;
+	public void setSecondPlayer(Player secondPlayer) {
+		this.secondPlayer = secondPlayer;
 	}
 
 	public Session getSession() {
@@ -282,17 +280,11 @@ public class Game {
 		}
 	}
 	
-	public long getWinnerId() {
-		long winnerId = -1;
-		if (isComplete) {
-			Integer s1 = getFirstPlayerScore();
-			Integer s2 = getSecondPlayerScore();
-			if (s1 > s2) {
-				winnerId = firstPlayer_id;
-			} else {
-				winnerId = secondPlayer_id;
-			}
+	public Player getWinner() {
+		Player winner = firstPlayer;
+		if (getSecondPlayerScore() > getFirstPlayerScore()) {
+			winner = secondPlayer;
 		}
-		return winnerId;
+		return winner;
 	}
 }

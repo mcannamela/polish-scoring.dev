@@ -86,7 +86,7 @@ public class ActiveGame {
 			 tList= tDao.queryForFieldValuesArgs(m);
 		}
 		catch (SQLException e){
-			throw new RuntimeException("could not query for throw "+t.getThrowIdx()+", game "+t.getGameId());
+			throw new RuntimeException("could not query for throw "+t.getThrowIdx()+", game " + t.getGame().getId());
 		}
 		try{
 			if (tList.isEmpty()){
@@ -100,7 +100,7 @@ public class ActiveGame {
 			}
 		}
 		catch (SQLException e){
-			throw new RuntimeException("could not create/update throw "+t.getThrowIdx()+", game "+t.getGameId());
+			throw new RuntimeException("could not create/update throw "+t.getThrowIdx()+", game "+t.getGame().getId());
 		}
 	}
 	

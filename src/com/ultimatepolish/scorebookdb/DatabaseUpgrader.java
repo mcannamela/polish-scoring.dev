@@ -99,10 +99,10 @@ public class DatabaseUpgrader {
 			// populating defensivePlayerId column requires looping through all the games
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defensivePlayerId INTEGER;");
 			for(Game g:gDao){
-				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getFirstPlayerId() +
-						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getSecondPlayerId() + ";");
-				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getSecondPlayerId() +
-						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getFirstPlayerId() + ";");
+				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getFirstPlayer().getId() +
+						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getSecondPlayer().getId() + ";");
+				tDao.executeRaw("UPDATE throw SET defensivePlayerId=" + g.getSecondPlayer().getId() +
+						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getFirstPlayer().getId() + ";");
 			}
 			
 			// fireCounts will be recalculated if the game is loaded again. should find a better way to handle this 
@@ -176,7 +176,7 @@ public class DatabaseUpgrader {
 			// rebuild the table and copy data over
 			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Throw.class);
-			tDao.executeRaw("INSERT INTO throw(id, throwIdx, gameId, offensivePlayerId, defensivePlayerId, timestamp, " +
+			tDao.executeRaw("INSERT INTO throw(id, throwIdx, game_id, offensivePlayer_id, defensivePlayer_id, timestamp, " +
 					"throwType, throwResult, deadType, isTipped, isGoaltend, isGrabbed, isDrinkHit, isLineFault, " +
 					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
 					"isDefensiveDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
