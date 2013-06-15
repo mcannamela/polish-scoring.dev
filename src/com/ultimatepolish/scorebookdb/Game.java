@@ -281,4 +281,18 @@ public class Game {
 			setIsComplete(false);
 		}
 	}
+	
+	public long getWinnerId() {
+		long winnerId = -1;
+		if (isComplete) {
+			Integer s1 = getFirstPlayerScore();
+			Integer s2 = getSecondPlayerScore();
+			if (s1 > s2) {
+				winnerId = firstPlayer_id;
+			} else {
+				winnerId = secondPlayer_id;
+			}
+		}
+		return winnerId;
+	}
 }
