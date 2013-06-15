@@ -27,8 +27,6 @@ public class Detail_Game extends MenuContainerActivity {
 	Long gId;
 	Game g;
 	Player[] p = new Player[2];
-	Session s;
-	Venue v;
 	Dao<Game, Long> gDao;
 	
 	@Override
@@ -68,12 +66,16 @@ public class Detail_Game extends MenuContainerActivity {
 		if (gId != -1){
 			try{
 				Context context = getApplicationContext();
-				gDao = Game.getDao(getApplicationContext());
+				gDao = Game.getDao(context);
+				Dao<Session, Long> sessionDao = Session.getDao(context);
+				Dao<Venue, Long> venueDao = Venue.getDao(context);
+				
 				g = gDao.queryForId(gId);
 				
+				sessionDao.refresh(g.getSession());
+				venueDao.refresh(g.getVenue());
+				
 				p = g.getPlayers(context);
-				s = g.getSession();
-				v = g.getVenue();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -92,10 +94,10 @@ public class Detail_Game extends MenuContainerActivity {
 		gameId.setText(String.valueOf(g.getId()));
 		
 		TextView gameSession = (TextView) findViewById(R.id.gDet_session);
-		gameSession.setText(s.getSessionName());
+		gameSession.setText(g.getSession().getSessionName());
 		
 		TextView gameVenue = (TextView) findViewById(R.id.gDet_venue);
-		gameVenue.setText(v.getName());
+		gameVenue.setText(g.getVenue().getName());
 		
 		TextView gameScore = (TextView) findViewById(R.id.gDet_score);
 		gameScore.setText(String.valueOf(g.getFirstPlayerScore()) + "/" + String.valueOf(g.getSecondPlayerScore()));
