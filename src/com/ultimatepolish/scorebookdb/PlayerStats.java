@@ -15,8 +15,10 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class PlayerStats{
-	@DatabaseField(unique=true)
-	private long playerId;
+	public static final String PLAYER = "player_id";
+	
+	@DatabaseField(unique=true, foreign=true)
+	private Player player;
 	
 	@DatabaseField
 	public int nWins;
@@ -45,8 +47,8 @@ public class PlayerStats{
 		return playersStats;
 	}
 
-	public long getPlayerId() {
-		return playerId;
+	public Player getPlayer() {
+		return player;
 	}
 
 	public int getnGames() {

@@ -93,15 +93,15 @@ public class NewTeam extends MenuContainerActivity {
 		Context context = getApplicationContext();
 		Team newTeam = null;
 		String teamName = null;
-		long[] pIds = new long[2];
+		Player[] chosenPlayers = new Player[2];
     	
     	
     	String s = name.getText().toString().trim().toLowerCase(Locale.US);
     	if (!s.isEmpty()){
     		teamName = new String(s);
     	}
-    	pIds[0] = players.get(p1_pos).getId();
-    	pIds[1] = players.get(p2_pos).getId();
+    	chosenPlayers[0] = players.get(p1_pos);
+    	chosenPlayers[1] = players.get(p2_pos);
     	
 //    	check that they are different players.
     	
@@ -120,7 +120,7 @@ public class NewTeam extends MenuContainerActivity {
 			}
     		
     	} else {
-	    	newTeam = new Team(teamName, pIds);
+	    	newTeam = new Team(teamName, chosenPlayers);
 	    	
 	    	try{
 	    		Dao<Team, Long> dao = getHelper().getTeamDao();
