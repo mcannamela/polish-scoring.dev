@@ -3,8 +3,9 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 import java.util.List;
 
-import android.accounts.Account;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -139,15 +140,17 @@ public class Detail_Session extends MenuContainerActivity {
 			tv.setText( member.getPlayer().getNickName() );
 			tv.setId(member.getPlayerSeed()+1);
 			tv.setGravity(Gravity.RIGHT);
+			tv.setTextAppearance(sv.getContext(), android.R.style.TextAppearance_Medium);
+			tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.top_player));
+			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 			if (member.getPlayerSeed() != 0) {
 				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
 				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				lp.addRule(RelativeLayout.BELOW, member.getPlayerSeed());
 				lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
-				
 				rl.addView(tv, lp);
 			} else {
-				tv.setWidth(200);
+				tv.setWidth(250);
 				rl.addView(tv);
 			}
 		}
