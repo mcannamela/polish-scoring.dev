@@ -12,9 +12,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class SessionMember {
-	public static final String SESSION = "session";
-	public static final String PLAYER = "player";
-	public static final String TEAM = "team";
+	public static final String SESSION = "session_id";
+	public static final String PLAYER = "player_id";
+	public static final String TEAM = "team_id";
 	public static final String PLAYER_SEED = "playerSeed";
 	public static final String PLAYER_RANK = "playerRank";
 	
