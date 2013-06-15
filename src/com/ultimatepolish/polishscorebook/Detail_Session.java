@@ -6,6 +6,7 @@ import java.util.List;
 import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -27,7 +28,7 @@ public class Detail_Session extends MenuContainerActivity {
 	Dao<SessionMember, Long> smDao;
 	Dao<Player, Long> pDao;
 	Dao<Team, Long> tDao;
-	List sMembers;
+	List<SessionMember> sMembers;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,23 +41,21 @@ public class Detail_Session extends MenuContainerActivity {
 		if (sId != -1){
 			try{
 				sDao = Session.getDao(getApplicationContext());
+				smDao = SessionMember.getDao(getApplicationContext());
+				pDao = Player.getDao(getApplicationContext());
+				
 				s = sDao.queryForId(sId);
 				
-				smDao = SessionMember.getDao(getApplicationContext());
-		        QueryBuilder<SessionMember, Long> smQue = smDao.queryBuilder();
-		        smQue.where().eq(SessionMember.SESSION, sId);
+				// get all the session members
+				QueryBuilder<Session, Long> sQue = sDao.queryBuilder();
+				sQue.where().eq("id", sId);
+				QueryBuilder<SessionMember, Long> smQue = smDao.queryBuilder();
+		        sMembers = smQue.join(sQue).orderBy(SessionMember.PLAYER_SEED, true).query();
 		        
-		        if (s.getIsTeam()) {
-		        	tDao = Team.getDao(getApplicationContext());
-		        	QueryBuilder<Team, Long> tQue = tDao.queryBuilder();
-			        List<Team> sMembers = tQue.join(smQue).query();
-		        } else {
-		        	pDao = Player.getDao(getApplicationContext());
-		        	QueryBuilder<Player, Long> pQue = pDao.queryBuilder();
-			        List<Player> sMembers = pQue.join(smQue).query();
-		        }
-		        
-			}
+	        	for(SessionMember member: sMembers) {
+	        		pDao.refresh(member.getPlayer());
+	        	}
+		    }
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
 						e.getMessage(), 
@@ -132,12 +131,26 @@ public class Detail_Session extends MenuContainerActivity {
 	public void refreshSingleElimBracket(){
 		View sv = findViewById(R.id.scrollView1);
 		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
-		TextView tv = new TextView(sv.getContext());
-		if (s.getIsTeam()) {
-			tv.setText( ((Player) sMembers.get(0)).getNickName() );
-		}
+
+		TextView tv;
 		
-		rl.addView(tv);
+		for (SessionMember member: sMembers) {
+			tv = new TextView(sv.getContext());
+			tv.setText( member.getPlayer().getNickName() );
+			tv.setId(member.getPlayerSeed()+1);
+			tv.setGravity(Gravity.RIGHT);
+			if (member.getPlayerSeed() != 0) {
+				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				lp.addRule(RelativeLayout.BELOW, member.getPlayerSeed());
+				lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
+				
+				rl.addView(tv, lp);
+			} else {
+				tv.setWidth(200);
+				rl.addView(tv);
+			}
+		}
 		
 	}
 }

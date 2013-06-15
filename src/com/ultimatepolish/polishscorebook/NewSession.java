@@ -149,8 +149,6 @@ public class NewSession extends MenuContainerActivity {
             		for(int i=0 ; i < playerIdxList.size(); i++)                   
                         strText += players.get(playerIdxList.get(i)).getFirstName() + ",";
             	}
-                
-                Toast.makeText(getApplicationContext(), "Item Clicked: "+ strText, Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -281,6 +279,14 @@ public class NewSession extends MenuContainerActivity {
         		List<Player> roster = new ArrayList<Player>();
         		for (Integer playerIdx: playerIdxList) {
         			roster.add(players.get(playerIdx));
+        		}
+        		
+    			roster = seedRoster(roster);
+        		
+        		int ii = 0;
+        		for (Player p: roster) {
+        			sMembers.add(new SessionMember(session, p, ii));
+        			ii++;
         		}
         	}
 
