@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/14 08:58:36
+# generated on 2013/06/15 08:51:13
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -60,7 +60,8 @@ dataClass=com.ultimatepolish.scorebookdb.PlayerStats
 tableName=playerstats
 # --table-fields-start--
 # --field-start--
-fieldName=playerId
+fieldName=player
+foreign=true
 unique=true
 # --field-end--
 # --field-start--
@@ -82,17 +83,18 @@ generatedId=true
 # --field-end--
 # --field-start--
 fieldName=teamName
-columnName=teamName
 canBeNull=false
 # --field-end--
 # --field-start--
-fieldName=firstPlayerId
+fieldName=firstPlayer
 canBeNull=false
+foreign=true
 uniqueCombo=true
 # --field-end--
 # --field-start--
-fieldName=secondPlayerId
+fieldName=secondPlayer
 canBeNull=false
+foreign=true
 uniqueCombo=true
 # --field-end--
 # --field-start--

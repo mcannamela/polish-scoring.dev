@@ -18,18 +18,20 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Team{
 	public static final String TEAM_NAME = "teamName";
+	public static final String FIRST_PLAYER = "firstPlayer_id";
+	public static final String SECOND_PLAYER = "secondPlayer_id";
 	
 	@DatabaseField(generatedId=true)
 	private long id;
 	
-	@DatabaseField(columnName=TEAM_NAME, canBeNull=false)
+	@DatabaseField(canBeNull=false)
 	private String teamName;
 	
-	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private long firstPlayerId;
+	@DatabaseField(canBeNull=false, uniqueCombo=true, foreign=true)
+	private Player firstPlayer;
 	
-	@DatabaseField(canBeNull=false, uniqueCombo=true)
-	private long secondPlayerId;
+	@DatabaseField(canBeNull=false, uniqueCombo=true, foreign=true)
+	private Player secondPlayer;
 	
 	@DatabaseField(dataType = DataType.BYTE_ARRAY)
 	byte[] imageBytes;
@@ -39,56 +41,26 @@ public class Team{
 	
 	Team(){}
 
-	public Team(  String teamName, 
-					long firstPlayerId,
-					long secondPlayerId) {
+	public Team(String teamName, 
+				Player firstPlayer,
+				Player secondPlayer) {
 		super();
 		this.teamName = teamName;
-		this.firstPlayerId = firstPlayerId;
-		this.secondPlayerId = secondPlayerId;
+		this.firstPlayer = firstPlayer;
+		this.secondPlayer = secondPlayer;
 	}
 	
-	public Team(  String teamName, long[] playerIds) {
+	public Team(String teamName, Player[] players) {
 		super();
 		this.teamName = teamName;
-		this.firstPlayerId = playerIds[0];
-		this.secondPlayerId = playerIds[1];
+		this.firstPlayer = players[0];
+		this.secondPlayer = players[1];
 	}
 	
 	public static Dao<Team, Long> getDao(Context context) throws SQLException{
 		DatabaseHelper helper = new DatabaseHelper(context);
 		Dao<Team, Long> d = helper.getTeamDao();
 		return d;
-	}
-	
-	public static long getIdByPlayers(Player p1, Player p2, Context context) throws SQLException{
-		Team p = getByPlayers(p1, p2, context);
-		if (p==null){
-			return -1;
-		}
-		return p.getId();
-	}
-	
-	public static Team getByPlayers(Player p1, Player p2, Context context) throws SQLException{
-		List<Team> teamList = null;
-//		HashMap<String, Object> m = buildNameMap(p1, p2);
-//		
-//		teamList = getDao(context).queryForFieldValuesArgs(m);
-//		if (teamList.isEmpty()){
-			return null;
-//		}
-//		else{
-//			return teamList.get(0);
-//		}
-	}
-	
-	public Player[] getPlayers(Context context) throws SQLException{
-		Player[] players = new Player[2]; 
-		Dao<Player, Long> d = Player.getDao(context);
-		players[0] = d.queryForId(firstPlayerId);
-		players[1] = d.queryForId(secondPlayerId);
-		
-		return players;
 	}
 	
 	public static boolean exists(String teamName, Context context) throws SQLException{
@@ -119,15 +91,6 @@ public class Team{
 		}
 		return teams;
 	}
-	
-//	public static HashMap<String,Object> buildPlayerMap(Player p1, Player p2){
-//		HashMap<long, 1, Object> m = new HashMap<long, Object>();
-//		m.put(FIRST_NAME, first.toLowerCase(Locale.US));
-//		m.put(LAST_NAME, last.toLowerCase(Locale.US));
-//		m.put(NICK_NAME, nick.toLowerCase(Locale.US));
-//		return m;
-//	}
-	
 
 	public long getId() {
 		return id;
@@ -145,12 +108,12 @@ public class Team{
 		this.teamName = teamName;
 	}
 	
-	public long getFirstPlayerId() {
-		return firstPlayerId;
+	public Player getFirstPlayer() {
+		return firstPlayer;
 	}
 	
-	public long getSecondPlayerId() {
-		return secondPlayerId;
+	public Player getSecondPlayer() {
+		return secondPlayer;
 	}
 
 	public byte[] getImageBytes() {

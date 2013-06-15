@@ -105,14 +105,14 @@ public class View_Teams extends MenuContainerActivity {
         	Dao<Player, Long> playerDao = Player.getDao(context);
         	
         	for (Team t: teamDao) {
-        		p[0] = playerDao.queryForId(t.getFirstPlayerId());
-        		p[1] = playerDao.queryForId(t.getSecondPlayerId());
+        		playerDao.refresh(t.getFirstPlayer());
+        		playerDao.refresh(t.getSecondPlayer());
 
         		addTeam(t.getIsActive(), 
         				String.valueOf(t.getId()),
         				t.getTeamName(),
-        				"(" + p[0].getNickName()
-        				+ " and " + p[1].getNickName() + ")"
+        				"(" + t.getFirstPlayer().getNickName()
+        				+ " and " + t.getSecondPlayer().getNickName() + ")"
         				);
         	}
         }
