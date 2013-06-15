@@ -141,7 +141,12 @@ public class Detail_Session extends MenuContainerActivity {
 			tv.setId(member.getPlayerSeed()+1);
 			tv.setGravity(Gravity.RIGHT);
 			tv.setTextAppearance(sv.getContext(), android.R.style.TextAppearance_Medium);
-			tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.top_player));
+			if (member.getPlayerSeed() % 2 == 0) {
+				tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_top_player));
+			} else {
+				tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_bottom_player));
+			}
+			
 			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 			if (member.getPlayerSeed() != 0) {
 				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
