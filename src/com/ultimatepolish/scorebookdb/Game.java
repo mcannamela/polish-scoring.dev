@@ -243,6 +243,7 @@ public class Game {
 
 	public void setFirstPlayerScore(int firstPlayerScore) {
 		this.firstPlayerScore = firstPlayerScore;
+		checkGameComplete();
 	}
 
 	public int getSecondPlayerScore() {
@@ -251,6 +252,7 @@ public class Game {
 
 	public void setSecondPlayerScore(int secondPlayerScore) {
 		this.secondPlayerScore = secondPlayerScore;
+		checkGameComplete();
 	}
 	
 	public boolean getIsTeam() {
@@ -267,5 +269,16 @@ public class Game {
 	
 	public boolean getIsTracked() {
 		return isTracked;
+	}
+	
+	public void checkGameComplete() {
+		Integer s1 = getFirstPlayerScore();
+		Integer s2 = getSecondPlayerScore();
+		if (Math.abs(s1 - s2) >= 2 &&
+				(s1 >= 11 || s2 >= 11) ) {
+			setIsComplete(true);
+		} else {
+			setIsComplete(false);
+		}
 	}
 }
