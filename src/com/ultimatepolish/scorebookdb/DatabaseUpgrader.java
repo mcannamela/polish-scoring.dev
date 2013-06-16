@@ -162,32 +162,32 @@ public class DatabaseUpgrader {
 			//for errorScore=2/3, assume defense knock pole/bottle if throw was a strike. 
 			//assume dead pole/bottle hit that wasnt caught if throw was HRLL
 			tDao.executeRaw("UPDATE throw SET isDefensivePoleKnocked=1 "+
-								"WHERE errorScore=2 and throwType="+String.valueOf(ThrowType.STRIKE)+" AND isError=1;"); 
+								"WHERE errorScore=2 and throwType="+ThrowType.STRIKE+" AND isError=1;"); 
 			tDao.executeRaw("UPDATE throw SET isDefensiveBottleKnocked=1 "+
-								"WHERE errorScore=3 and throwType="+String.valueOf(ThrowType.STRIKE)+" AND isError=1;"); 
+								"WHERE errorScore=3 and throwType="+ThrowType.STRIKE+" AND isError=1;"); 
 			
 			//HRLL with error score greater than 1 maps to dead HRLL
-			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.HIGH)+
-								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_HIGH)+";"); // deadType to high
-			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.RIGHT)+
-								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_RIGHT)+";"); // deadType to right
-			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.LOW)+
-								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_LOW)+";"); // deadType to low
-			tDao.executeRaw("UPDATE throw SET deadType="+String.valueOf(DeadType.LEFT)+
-								" WHERE isError=1 AND errorScore>1 and throwType="+String.valueOf(ThrowType.BALL_LEFT)+";"); // deadType to left
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.HIGH+
+								" WHERE isError=1 AND errorScore>1 and throwType="+ThrowType.BALL_HIGH+";"); // deadType to high
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.RIGHT+
+								" WHERE isError=1 AND errorScore>1 and throwType="+ThrowType.BALL_RIGHT+";"); // deadType to right
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LOW+
+								" WHERE isError=1 AND errorScore>1 and throwType="+ThrowType.BALL_LOW+";"); // deadType to low
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LEFT+
+								" WHERE isError=1 AND errorScore>1 and throwType="+ThrowType.BALL_LEFT+";"); // deadType to left
 			
 			// throwType to pole
-			tDao.executeRaw("UPDATE throw SET throwType="+String.valueOf(ThrowType.POLE)+
-								" WHERE isError=1 AND errorScore=2 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.POLE+
+								" WHERE isError=1 AND errorScore=2 AND throwType!="+ThrowType.STRIKE+";"); 
 			// throwType to bottle
-			tDao.executeRaw("UPDATE throw SET throwType="+String.valueOf(ThrowType.BOTTLE)+
-								" WHERE isError=1 AND errorScore=3 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.BOTTLE+
+								" WHERE isError=1 AND errorScore=3 AND throwType!="+ThrowType.STRIKE+";"); 
 			// throwResult to dropped
-			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.DROP)+
-								" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.DROP+
+								" WHERE isError=1 AND errorScore>1 AND throwType!="+ThrowType.STRIKE+";");
 			
-			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.NA)+
-					" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+
+					" WHERE isError=1 AND errorScore>1 AND throwType!="+ThrowType.STRIKE+";");
 			
 			
 			// rebuild the table and copy data over
