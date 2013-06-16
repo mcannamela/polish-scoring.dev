@@ -15,7 +15,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,10 +31,8 @@ import com.dropbox.sync.android.DbxFileSystem;
 import com.dropbox.sync.android.DbxPath;
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.DatabaseHelper;
-import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
-import com.ultimatepolish.scorebookdb.Throw;
 import com.ultimatepolish.scorebookdb.Venue;
 
 public class SimpleSettings extends MenuContainerActivity {
