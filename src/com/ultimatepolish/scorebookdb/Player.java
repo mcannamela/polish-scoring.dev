@@ -20,6 +20,7 @@ public class Player implements Comparable<Player>{
 	public static final String FIRST_NAME = "firstName";
 	public static final String LAST_NAME = "lastName";
 	public static final String NICK_NAME = "nickName";
+	public static final String IS_ACTIVE = "isActive";
 	
 	@DatabaseField(generatedId=true)
 	private long id;

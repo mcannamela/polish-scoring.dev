@@ -13,6 +13,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Venue {
 	public static final String VENUE_NAME = "venueName";
+	public static final String IS_ACTIVE = "isActive";
 	
 	@DatabaseField(generatedId=true)
 	private long id;
