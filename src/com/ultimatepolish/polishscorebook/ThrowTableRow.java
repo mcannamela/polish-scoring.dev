@@ -20,7 +20,7 @@ public class ThrowTableRow extends TableRow {
 	public static int tableTextSize = 20;
 	public static int tableTextColor = Color.BLACK;
 	public static int tableBackgroundColor = Color.WHITE;
-	public static int columnWidth = 35;
+	public static int columnWidth = 30;
 	
 	public ThrowTableRow(Context context) {
 		super(context);
@@ -28,23 +28,6 @@ public class ThrowTableRow extends TableRow {
 	public ThrowTableRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
-//	public ThrowTableRow(Throw t1, Throw t2, Context context) {
-//		super(context);
-//		
-//		this.appendThrow(t1);
-//		this.appendThrow(t2);
-//		t2.setInitialScores(t1);
-//		int[] scores = t2.getFinalScores();
-//		this.appendScore(scores[1], scores[0]);
-//	}
-	
-//	public ThrowTableRow(Throw t1,  Context context) {
-//		super(context);
-//		this.appendThrow(t1);
-//		this.appendBlank();
-//		int[] scores = t1.getFinalScores();
-//		this.appendScore(scores[0], scores[1]);
-//	}
 	
 	public static ThrowTableRow buildBlankRow(Context context){
 		ThrowTableRow tr = new ThrowTableRow(context);
@@ -88,18 +71,6 @@ public class ThrowTableRow extends TableRow {
 		return tr;
 	}
 
-//	public static TextView[] buildThrowViews(Throw t, Context context){
-//		TextView[] views = {new TextView(context), 
-//				new TextView(context)};
-//
-//		views[0].setText(t.getThrowString());
-//		views[1].setText(t.getSpecialString());
-//		
-//		for (TextView tv: views){
-//			ThrowTableRow.formatTextView(tv);
-//		}
-//		return views;
-//	}
 	public static TextView[] buildScoreViews(int p1Score, int p2Score, Context context){
 		TextView[] views = {new TextView(context), 
 				new TextView(context)
@@ -118,15 +89,10 @@ public class ThrowTableRow extends TableRow {
 		v.setTextSize(tableTextSize);
 		v.setBackgroundColor(tableBackgroundColor);
 		v.setGravity(Gravity.CENTER);
-		v.setWidth(columnWidth);
+		v.setWidth((int) (columnWidth * v.getResources().getDisplayMetrics().density));
 		v.setPadding(1, 0, 1, 0);
 	}
-//	public void appendThrow(Throw t){
-//		TextView[] views = buildThrowViews(t, this.getContext());
-//		for (int i=0; i<views.length;i++){
-//			this.addView(views[i]);
-//		}
-//	}
+
 	public void appendBlank(){
 		TextView[] views = {new TextView(this.getContext()), 
 							new TextView(this.getContext())};
@@ -201,5 +167,4 @@ public class ThrowTableRow extends TableRow {
 	protected TextView getP2ScoreView(){
 		return (TextView) getChildAt(6);
 	}
-	
 }
