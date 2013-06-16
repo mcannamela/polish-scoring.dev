@@ -29,19 +29,26 @@ public class NewPlayer extends MenuContainerActivity {
 	TextView height;
 	CheckBox rh;
 	CheckBox lh;
+	CheckBox prefL;
+	CheckBox prefR;
+	CheckBox isActiveCB;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_player);
 		
+		Button createButton = (Button) findViewById(R.id.button_createPlayer);
 		name = (TextView) findViewById(R.id.editText_playerName);
 		nick = (TextView) findViewById(R.id.editText_nickname);
 		weight = (TextView) findViewById(R.id.editText_weight);
 		height = (TextView) findViewById(R.id.editText_height);
 		rh = (CheckBox) findViewById(R.id.checkBox_throwsRightHanded);
 		lh = (CheckBox) findViewById(R.id.checkBox_throwsLeftHanded);
-		Button createButton = (Button) findViewById(R.id.button_createPlayer);
+		prefR = (CheckBox) findViewById(R.id.checkBox_prefersRightSide);
+		prefL = (CheckBox) findViewById(R.id.checkBox_prefersLeftSide);
+		isActiveCB = (CheckBox) findViewById(R.id.newPlayer_isActive);
+		
 		
 		Intent intent = getIntent();
 		pId = intent.getLongExtra("PID", -1);
@@ -60,6 +67,14 @@ public class NewPlayer extends MenuContainerActivity {
 				if (p.throwsRightHanded == true) {
 					rh.setChecked(true);
 				}
+				if (p.prefersLeftSide == true) {
+					prefL.setChecked(true);
+				}
+				if (p.prefersRightSide == true) {
+					prefR.setChecked(true);
+				}
+				isActiveCB.setVisibility(View.VISIBLE);
+				isActiveCB.setChecked(p.getIsActive());
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -84,11 +99,12 @@ public class NewPlayer extends MenuContainerActivity {
     	int height_cm = -1;
     	int weight_kg = -1;
     	
-    	Boolean throwsRightHanded = null;
-    	Boolean throwsLeftHanded = null;
-    	    	
-    	throwsRightHanded = rh.isChecked();
-    	throwsLeftHanded = lh.isChecked();
+    	Boolean throwsRightHanded = rh.isChecked();
+    	Boolean throwsLeftHanded = lh.isChecked();
+    	Boolean prefersRightSide = prefR.isChecked();
+    	Boolean prefersLeftSide = prefL.isChecked();
+    	
+    	Boolean isActive = isActiveCB.isChecked();
     	
     	String s = name.getText().toString();
     	String[] toks;
@@ -122,6 +138,9 @@ public class NewPlayer extends MenuContainerActivity {
     		p.setHeight_cm(height_cm);
     		p.setLeftHanded(throwsLeftHanded);
     		p.setRightHanded(throwsRightHanded);
+    		p.setPrefersLeftSide(prefersLeftSide);
+    		p.setPrefersRightSide(prefersRightSide);
+    		p.setIsActive(isActive);
     		try {
 				pDao.update(p);
 				Toast.makeText(context, "Player modified.", Toast.LENGTH_SHORT).show();
