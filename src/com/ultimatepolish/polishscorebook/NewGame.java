@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,6 +44,10 @@ public class NewGame extends MenuContainerActivity {
 	List<String> playerNames = new ArrayList<String>();
 	List<String> sessionNames = new ArrayList<String>();
 	List<String> venueNames = new ArrayList<String>();
+	
+	Dao<Player, Long> pDao;
+	Dao<Session, Long> sDao;
+	Dao<Venue, Long> vDao;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +102,12 @@ public class NewGame extends MenuContainerActivity {
 	public void refreshSpinners(View view){
 		Context context = getApplicationContext();
 		try{
-			players = Player.getAll(context);
-			sessions = Session.getAll(context);
-			venues = Venue.getAll(context);
+			pDao = Player.getDao(context);
+			sDao = Session.getDao(context);
+			vDao = Venue.getDao(context);
+			players = pDao.queryBuilder().where().eq(Player.IS_ACTIVE, true).query();
+			sessions = sDao.queryBuilder().where().eq(Session.IS_ACTIVE, true).query();
+			venues = vDao.queryBuilder().where().eq(Venue.IS_ACTIVE, true).query();
 		}
 		catch (SQLException e){
 			Log.e(PolishScorebook.class.getName(), "Could not get objects", e);

@@ -13,6 +13,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class Session {
+	public static final String IS_ACTIVE = "isActive";
+	
 	@DatabaseField(generatedId=true)
 	private long id;
 	
