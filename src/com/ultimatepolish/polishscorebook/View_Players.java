@@ -97,7 +97,7 @@ public class View_Players extends MenuContainerActivity {
         try{
         	playerDao = getHelper().getPlayerDao();
         	for (Player p: playerDao) {
-        		addPlayer("Active", 
+        		addPlayer(p.getIsActive(), 
         				String.valueOf(p.getId()), 
         				p.getFirstName() + " " + p.getLastName(), 
         				"(" + p.getNickName() + ")"
@@ -149,9 +149,15 @@ public class View_Players extends MenuContainerActivity {
     	statusList.add(vhh_Player);
     	sHash.put(statusName, vhh_Player);
     }
-    private void addPlayer(String sort, String playerId, String playerName, String playerNick){
-    	//find the index of the session header
-    	ViewHolderHeader_Player statusInfo = sHash.get(sort);
+    private void addPlayer(Boolean isActive, String playerId, String playerName, String playerNick){
+    	//find the index of the player header
+    	String sortBy;
+    	if (isActive) {
+    		sortBy = "Active";
+    	} else {
+    		sortBy = "Retired";
+    	}
+    	ViewHolderHeader_Player statusInfo = sHash.get(sortBy);
 	    ArrayList<ViewHolder_Player> playerList = statusInfo.getPlayerList();
 	    
 	    //create a new child and add that to the group
