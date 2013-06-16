@@ -147,6 +147,15 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.SHORT+" WHERE isShort=1;");
 			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isShort=1;");
 			
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.HIGH+
+					" WHERE isShort=1 AND throwType="+ThrowType.BALL_HIGH+";");
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.RIGHT+
+					" WHERE isShort=1 AND throwType="+ThrowType.BALL_RIGHT+";");
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LOW+
+					" WHERE isShort=1 AND throwType="+ThrowType.BALL_LOW+";"); 
+			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LEFT+
+					" WHERE isShort=1 AND throwType="+ThrowType.BALL_LEFT+";"); 
+			
 			////////////////////////////////////////////////////////////////////
 			//////////////// MIGRATE DEFENSIVE ERRORS //////////////////////////
 			////////////////////////////////////////////////////////////////////
