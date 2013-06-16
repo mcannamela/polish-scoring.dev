@@ -1,13 +1,12 @@
 package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -93,8 +92,10 @@ public class DatabaseUpgrader {
 			//throw table
 			// add all the new column types. after populating the new columns, the table gets rebuilt
 			// these are easy. tipped and linefault were not tracked at all previously.
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isTipped BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isLineFault BOOLEAN DEFAULT 0;");
+			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isTipped"));
+			tDao.executeRaw(replaceNulls("throw", "isTipped", "0"));
+			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isLineFault"));
+			tDao.executeRaw(replaceNulls("throw", "isLineFault", "0"));
 			
 			// populating defensivePlayerId column requires looping through all the games
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defensivePlayerId INTEGER;");
@@ -106,35 +107,49 @@ public class DatabaseUpgrader {
 			}
 			
 			// fireCounts will be recalculated if the game is loaded again. should find a better way to handle this 
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN offenseFireCount INTEGER DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defenseFireCount INTEGER DEFAULT 0;");
+			tDao.executeRaw(addColumn("throw", "offenseFireCount", "INTEGER", "0"));			
+			tDao.executeRaw(replaceNulls("throw", "offenseFireCount", "0"));
+			tDao.executeRaw(addColumn("throw", "defenseFireCount", "INTEGER", "0"));
+			tDao.executeRaw(replaceNulls("throw", "defenseFireCount", "0"));
 			
 			// other columns
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN deadType INTEGER DEFAULT 0;"); 
-			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.BROKEN)+" WHERE isBroken=1;");
+			tDao.executeRaw(addColumn("throw", "deadType", "INTEGER", "0"));
+			tDao.executeRaw(replaceNulls("throw", "deadType", "0"));
+			
+			
+			//////////ADD NEW COLUMNS ///////////////////
+			// isGoaltend (db10) == > isGoaltend (db11) 
+			 // isDrinkDropped (db10) ==> isDefensiveDrinkDropped (db11)
+			String[] columnNames = { 	"isOffensiveDrinkDropped", 
+										"isOffensivePoleKnocked",
+										"isOffensiveBottleKnocked",
+										"isOffensiveBreakError",
+										"isGrabbed",
+										"isDefensivePoleKnocked",
+										"isDefensiveBottleKnocked",
+										"isDefensiveBreakError"
+										};
+			
+			for(int i=0; i<columnNames.length; i++){
+				tDao.executeRaw(addBooleanDefaultZeroColumn("throw", columnNames[i]));
+				tDao.executeRaw(replaceNulls("throw", columnNames[i], "0"));
+			}
 			
 			// migrate offensive errors. drink drop and break errors werent tracked before so stay false.
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveDrinkDropped BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensivePoleKnocked BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBottleKnocked BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isOffensiveBreakError BOOLEAN DEFAULT 0;");
-			
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.BROKEN+" WHERE isBroken=1;");
 			tDao.executeRaw("UPDATE throw SET isOffensivePoleKnocked=1 WHERE ownGoalScore=2 AND isOwnGoal=1;");
 			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3 AND isOwnGoal=1;");
+			
+			//migrate short/trap
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.TRAP+" WHERE isTrap=1;");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isTrap=1;");
+			
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.SHORT+" WHERE isShort=1;");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isShort=1;");
 			
 			////////////////////////////////////////////////////////////////////
 			//////////////// MIGRATE DEFENSIVE ERRORS //////////////////////////
 			////////////////////////////////////////////////////////////////////
-			
-			
-			//////////// ADD NEW COLUMNS ///////////////////
-			// isGoaltend (db10) == > isGoaltend (db11) 
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isGrabbed BOOLEAN DEFAULT 0;");
-			 // isDrinkDropped (db10) ==> isDefensiveDrinkDropped (db11)
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensivePoleKnocked BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBottleKnocked BOOLEAN DEFAULT 0;");
-			tDao.executeRaw("ALTER TABLE throw ADD COLUMN isDefensiveBreakError BOOLEAN DEFAULT 0;");
-			
 			
 			/////////// FIX FALSE POSITIVES ////////////////
 			tDao.executeRaw("UPDATE throw SET errorScore=0 WHERE isError=0;");
@@ -168,9 +183,11 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET throwType="+String.valueOf(ThrowType.BOTTLE)+
 								" WHERE isError=1 AND errorScore=3 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
 			// throwResult to dropped
-			//mc:doesn't this overwrite the previous two statements? maybe it should come first...
 			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.DROP)+
-								" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";"); 
+								" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";");
+			
+			tDao.executeRaw("UPDATE throw SET throwResult="+String.valueOf(ThrowResult.NA)+
+					" WHERE isError=1 AND errorScore>1 AND throwType!="+String.valueOf(ThrowType.STRIKE)+";");
 			
 			
 			// rebuild the table and copy data over
@@ -187,5 +204,15 @@ public class DatabaseUpgrader {
 					"isDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
 					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore FROM temp;");
 			tDao.executeRaw("DROP TABLE temp;");
+	}
+	public static String replaceNulls(String tableName, String columnName, String value){
+		return "UPDATE "+tableName+" SET "+columnName+"="+value+" where "+columnName+" is NULL;";
+		
+	}
+	public static String addColumn(String tableName, String columnName, String type, String defaultValue){
+		return "ALTER TABLE "+tableName+" ADD COLUMN "+columnName+" "+type+" DEFAULT "+defaultValue+";";
+	}
+	public static String addBooleanDefaultZeroColumn(String tableName, String columnName){
+		return addColumn(tableName, columnName, "BOOLEAN", "0");
 	}
 }
