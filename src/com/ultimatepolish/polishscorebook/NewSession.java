@@ -60,7 +60,6 @@ public class NewSession extends MenuContainerActivity {
 		isTeamCB = (CheckBox) findViewById(R.id.newSession_isTeam);
 		isActiveCB = (CheckBox) findViewById(R.id.newSession_isActive);
 		
-		
 		List<String> sessionTypes = new ArrayList<String>();
 		sessionTypes.add(SessionType.typeString[SessionType.LEAGUE]);
 		sessionTypes.add(SessionType.typeString[SessionType.LADDER]);
@@ -252,8 +251,8 @@ public class NewSession extends MenuContainerActivity {
     		session = new Session(sessionName, sessionType, startDate, isTeam);
     		    		
         	try{
-        		Dao<Session, Long> dao = getHelper().getSessionDao();
-    	   		dao.create(session);
+        		sDao = getHelper().getSessionDao();
+    	   		sDao.create(session);
     	   		Toast.makeText(context, "Session created!", Toast.LENGTH_SHORT).show();
     		   	}
     		 catch (SQLException e){
@@ -262,20 +261,20 @@ public class NewSession extends MenuContainerActivity {
     		   	}
         	
         	// convert the indices from the roster list to actual players or teams
-        	if (isTeam) {
-        		List<Team> roster = new ArrayList<Team>();
-        		for (Integer teamIdx: teamIdxList) {
-        			roster.add(teams.get(teamIdx));
-        		}
-        		
-        		roster = seedRoster(roster);
-        		
-        		int ii = 0;
-        		for (Team t: roster) {
-        			sMembers.add(new SessionMember(session, t, ii));
-        			ii++;
-        		}
-        	} else {
+//        	if (isTeam) {
+//        		List<Team> roster = new ArrayList<Team>();
+//        		for (Integer teamIdx: teamIdxList) {
+//        			roster.add(teams.get(teamIdx));
+//        		}
+//        		
+//        		roster = seedRoster(roster);
+//        		
+//        		int ii = 0;
+//        		for (Team t: roster) {
+//        			sMembers.add(new SessionMember(session, t, ii));
+//        			ii++;
+//        		}
+//        	} else {
         		List<Player> roster = new ArrayList<Player>();
         		for (Integer playerIdx: playerIdxList) {
         			roster.add(players.get(playerIdx));
@@ -288,7 +287,7 @@ public class NewSession extends MenuContainerActivity {
         			sMembers.add(new SessionMember(session, p, ii));
         			ii++;
         		}
-        	}
+//        	}
 
         	// create the session members
     		

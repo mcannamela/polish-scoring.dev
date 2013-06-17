@@ -14,7 +14,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class SessionMember {
 	public static final String SESSION = "session_id";
 	public static final String PLAYER = "player_id";
-	public static final String TEAM = "team_id";
+//	public static final String TEAM = "team_id";
 	public static final String PLAYER_SEED = "playerSeed";
 	public static final String PLAYER_RANK = "playerRank";
 	
@@ -24,8 +24,8 @@ public class SessionMember {
 	@DatabaseField(uniqueCombo=true,foreign=true)
 	private Player player;
 	
-	@DatabaseField(uniqueCombo=true,foreign=true)
-	private Team team;
+//	@DatabaseField(foreign=true)
+//	private Team team;
 	
 	@DatabaseField(canBeNull=false)
 	private int playerSeed;
@@ -47,13 +47,13 @@ public class SessionMember {
 		this.playerRank = playerSeed;
 	}
 	
-	public SessionMember(Session session, Team team, int playerSeed) {
-		super();
-		this.session = session;
-		this.team = team;
-		this.playerSeed = playerSeed;
-		this.playerRank = playerSeed;
-	}
+//	public SessionMember(Session session, Team team, int playerSeed) {
+//		super();
+//		this.session = session;
+//		this.team = team;
+//		this.playerSeed = playerSeed;
+//		this.playerRank = playerSeed;
+//	}
 	
 	public static Dao<SessionMember, Long> getDao(Context context) throws SQLException{
 		DatabaseHelper helper = new DatabaseHelper(context);
@@ -86,9 +86,9 @@ public class SessionMember {
 //		this.playerId = playerId;
 //	}
 	
-	public Team getTeam() {
-		return team;
-	}
+//	public Team getTeam() {
+//		return team;
+//	}
 
 //	public void setPlayerId(long playerId) {
 //		this.playerId = playerId;

@@ -3,12 +3,9 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
