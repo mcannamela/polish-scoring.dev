@@ -21,13 +21,19 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private Dao<Player, Long> playerDao;
 	private Dao<PlayerStats, Long> playerStatsDao;
-	private Dao<Team, Long> teamDao;
-	private Dao<TeamStats, Long> teamStatsDao;
-	private Dao<Badge, Long> badgeDao;
 	private Dao<Game, Long> gameDao;
-	private Dao<Session, Long> sessionDao;
-	private Dao<SessionMember, Long> sessionMemberDao;
 	private Dao<Throw, Long> throwDao;
+	private Dao<SessionMember, Long> sessionMemberDao;
+	private Dao<Badge, Long> badgeDao;
+	
+//	private Dao<Team, Long> teamDao;
+//	private Dao<TeamStats, Long> teamStatsDao;
+//	private Dao<TeamGame, Long> teamGameDao;
+//	private Dao<TeamThrow, Long> teamThrowDao;
+//	private Dao<TeamSessionMember, Long> teamSessionMemberDao;
+//	private Dao<TeamBadge, Long> teamBadgeDao;
+	
+	private Dao<Session, Long> sessionDao;
 	private Dao<Venue, Long> venueDao;
 	
 	private List<Class> tableClasses = new ArrayList<Class>();
@@ -36,13 +42,19 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
 		tableClasses.add( Player.class);
 		tableClasses.add( PlayerStats.class);
-		tableClasses.add( Team.class);
-		tableClasses.add( TeamStats.class);
-		tableClasses.add( Badge.class);
 		tableClasses.add( Game.class);
-		tableClasses.add( Session.class);
-		tableClasses.add( SessionMember.class);
 		tableClasses.add( Throw.class);
+		tableClasses.add( SessionMember.class);
+		tableClasses.add( Badge.class);
+		
+//		tableClasses.add( Team.class);
+//		tableClasses.add( TeamStats.class);
+//		tableClasses.add( TeamGame.class);
+//		tableClasses.add( TeamThrow.class);
+//		tableClasses.add( TeamSessionMember.class);
+//		tableClasses.add( TeamBadge.class);
+		
+		tableClasses.add( Session.class);
 		tableClasses.add( Venue.class);
 	}
 	
@@ -158,18 +170,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return playerStatsDao;
 	}
-	public Dao<Team, Long> getTeamDao() throws SQLException {
-		if (teamDao == null) {
-			teamDao = getDao(Team.class);
-		}
-		return teamDao;
-	}
-	public Dao<TeamStats, Long> getTeamStatsDao() throws SQLException {
-		if (teamStatsDao == null) {
-			teamStatsDao = getDao(TeamStats.class);
-		}
-		return teamStatsDao;
-	}
+//	public Dao<Team, Long> getTeamDao() throws SQLException {
+//		if (teamDao == null) {
+//			teamDao = getDao(Team.class);
+//		}
+//		return teamDao;
+//	}
+//	public Dao<TeamStats, Long> getTeamStatsDao() throws SQLException {
+//		if (teamStatsDao == null) {
+//			teamStatsDao = getDao(TeamStats.class);
+//		}
+//		return teamStatsDao;
+//	}
 	public Dao<Badge, Long> getBadgeDao() throws SQLException {
 		if (badgeDao == null) {
 			badgeDao = getDao(Badge.class);

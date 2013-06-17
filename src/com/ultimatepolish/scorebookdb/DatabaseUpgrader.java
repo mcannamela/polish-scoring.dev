@@ -21,7 +21,6 @@ public class DatabaseUpgrader {
 			Dao<Throw, Long> tDao) throws SQLException{
 	
 		String addGameColumn = "ALTER TABLE game ADD COLUMN ";
-		gDao.executeRaw(addGameColumn+"isTeam BOOLEAN DEFAULT 0;");
 		gDao.executeRaw(addGameColumn+"isComplete BOOLEAN DEFAULT 1;");
 		gDao.executeRaw(addGameColumn+"isTracked BOOLEAN DEFAULT 1;");
 		
@@ -39,8 +38,8 @@ public class DatabaseUpgrader {
 		// continue migrating game table
 		pDao.executeRaw("ALTER TABLE game RENAME TO temp;");
 		TableUtils.createTable(connectionSource, Game.class);
-		pDao.executeRaw("INSERT INTO game(id, firstPlayer_id, secondPlayer_id, session_id, venue_id, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isTeam, isComplete, isTracked) " +
-				"SELECT id, firstPlayerId, secondPlayerId, sessionId, venueId, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isTeam, isComplete, isTracked FROM temp;");
+		pDao.executeRaw("INSERT INTO game(id, firstPlayer_id, secondPlayer_id, session_id, venue_id, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isComplete, isTracked) " +
+				"SELECT id, firstPlayerId, secondPlayerId, sessionId, venueId, firstPlayerOnTop, datePlayed, firstPlayerScore, secondPlayerScore, isComplete, isTracked FROM temp;");
 		pDao.executeRaw("DROP TABLE temp;");
 		
 		// mark completed games as appropriate
