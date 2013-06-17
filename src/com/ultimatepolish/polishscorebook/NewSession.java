@@ -45,9 +45,9 @@ public class NewSession extends MenuContainerActivity {
 	List<Player> players = new ArrayList<Player>();
 	List<Integer> playerIdxList = new ArrayList<Integer>();
 	List<String> playerNames = new ArrayList<String>();
-	List<Team> teams = new ArrayList<Team>();
-	List<Integer> teamIdxList = new ArrayList<Integer>();
-	List<String> teamNames = new ArrayList<String>();
+//	List<Team> teams = new ArrayList<Team>();
+//	List<Integer> teamIdxList = new ArrayList<Integer>();
+//	List<String> teamNames = new ArrayList<String>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +77,12 @@ public class NewSession extends MenuContainerActivity {
 			for(Player p: players){
 				playerNames.add(p.getFirstName() + " " + p.getLastName());
 			}
-			teams = Team.getAll(getApplicationContext());
-			teamNames.clear();
-			for(Team t: teams){
-				teamNames.add(t.getTeamName());
-			}
+			// TODO: uncomment once teams are re-implemented
+//			teams = Team.getAll(getApplicationContext());
+//			teamNames.clear();
+//			for(Team t: teams){
+//				teamNames.add(t.getTeamName());
+//			}
 		}
 		catch (SQLException e){
 			Toast.makeText(getApplicationContext(), 
@@ -105,7 +106,7 @@ public class NewSession extends MenuContainerActivity {
 				// TODO: if loading a session, show player/team names or hide box
 				// but dont allow session roster to change or bad things could happen!
 				playerNames.clear();
-				teamNames.clear();
+//				teamNames.clear();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -121,33 +122,33 @@ public class NewSession extends MenuContainerActivity {
             @Override
             public void onItemClick(AdapterView arg0, View view, int pos, long arg3) 
             {
-            	if (isTeamCB.isChecked()) {
-	                if(teamIdxList.contains(pos))
-	                {
-	                    teamIdxList.remove((Integer) pos);
-	                } else {
-	                    teamIdxList.add(pos);
-	                }
-            	} else {
+//            	if (isTeamCB.isChecked()) {
+//	                if(teamIdxList.contains(pos))
+//	                {
+//	                    teamIdxList.remove((Integer) pos);
+//	                } else {
+//	                    teamIdxList.add(pos);
+//	                }
+//            	} else {
             		if(playerIdxList.contains(pos))
 	                {
 	                    playerIdxList.remove((Integer) pos);
 	                } else {
 	                    playerIdxList.add(pos);
 	                }
-            	}
+//            	}
                 
             	String strText = "";
                 
-            	if (isTeamCB.isChecked()) {
-            		Collections.sort(teamIdxList);
-            		for(int i=0 ; i < teamIdxList.size(); i++)                   
-                        strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
-            	} else {
+//            	if (isTeamCB.isChecked()) {
+//            		Collections.sort(teamIdxList);
+//            		for(int i=0 ; i < teamIdxList.size(); i++)                   
+//                        strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
+//            	} else {
             		Collections.sort(playerIdxList);
             		for(int i=0 ; i < playerIdxList.size(); i++)                   
                         strText += players.get(playerIdxList.get(i)).getFirstName() + ",";
-            	}
+//            	}
             }
         });
         
@@ -155,9 +156,9 @@ public class NewSession extends MenuContainerActivity {
         	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         		updateRosterCheckList();
         		if (isChecked) {
-        			for (Integer t: teamIdxList) {
-        				rosterCheckList.setItemChecked(t, true);
-        			}
+//        			for (Integer t: teamIdxList) {
+//        				rosterCheckList.setItemChecked(t, true);
+//        			}
         		} else {
         			for (Integer p: playerIdxList) {
         				rosterCheckList.setItemChecked(p, true);
@@ -175,13 +176,13 @@ public class NewSession extends MenuContainerActivity {
 	}
 	
 	public void updateRosterCheckList() {
-		if (isTeamCB.isChecked()) {
-			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
-	                android.R.layout.simple_list_item_multiple_choice, teamNames));
-		} else {
+//		if (isTeamCB.isChecked()) {
+//			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
+//	                android.R.layout.simple_list_item_multiple_choice, teamNames));
+//		} else {
 			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
 	                android.R.layout.simple_list_item_multiple_choice, playerNames));
-		}
+//		}
 	}
 	
 	public void createNewSession(View view) {

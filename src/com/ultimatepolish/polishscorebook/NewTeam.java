@@ -60,7 +60,8 @@ public class NewTeam extends MenuContainerActivity {
 		if (tId != -1){
 			try{
 				Context context = getApplicationContext();
-				tDao = Team.getDao(context);
+				// TODO: uncomment once teams are re-implemented
+//				tDao = Team.getDao(context);
 				t = tDao.queryForId(tId);
 				createButton.setText("Modify");
 				name.setText(t.getTeamName());
@@ -120,17 +121,18 @@ public class NewTeam extends MenuContainerActivity {
 			}
     		
     	} else {
-	    	newTeam = new Team(teamName, chosenPlayers);
+//	    	newTeam = new Team(teamName, chosenPlayers);
 	    	
-	    	try{
-	    		Dao<Team, Long> dao = getHelper().getTeamDao();
-		   		dao.create(newTeam);
-		   		Toast.makeText(context, "Team created!", Toast.LENGTH_SHORT).show();
+//	    	try{
+//	    		Dao<Team, Long> dao = getHelper().getTeamDao();
+//		   		dao.create(newTeam);
+//		   		Toast.makeText(context, "Team created!", Toast.LENGTH_SHORT).show();
+		   		Toast.makeText(context, "Teams are disabled!", Toast.LENGTH_SHORT).show();
 		   		
 		   		finish();
-			   	}
-			 catch (SQLException e){
-				 Log.e(PolishScorebook.class.getName(), "Could not create team.", e);
+//			   	}
+//			 catch (SQLException e){
+//				 Log.e(PolishScorebook.class.getName(), "Could not create team.", e);
 //				 boolean team_exists = false;
 //				 try{
 //					 player_exists = newPlayer.exists(context);
@@ -145,7 +147,7 @@ public class NewTeam extends MenuContainerActivity {
 //					 Toast.makeText(context, ee.getMessage(), Toast.LENGTH_LONG).show();
 //				   		Log.e(PolishScorebook.class.getName(), "Could not test for existence of player", ee);
 //				 }
-			 }
+//			 }
     	}
     }
 	private OnItemSelectedListener mPlayerOneSelectedHandler = new OnItemSelectedListener() {

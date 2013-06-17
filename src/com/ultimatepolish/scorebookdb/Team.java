@@ -54,11 +54,11 @@ public class Team{
 		this.secondPlayer = players[1];
 	}
 	
-	public static Dao<Team, Long> getDao(Context context) throws SQLException{
-		DatabaseHelper helper = new DatabaseHelper(context);
-		Dao<Team, Long> d = helper.getTeamDao();
-		return d;
-	}
+//	public static Dao<Team, Long> getDao(Context context) throws SQLException{
+//		DatabaseHelper helper = new DatabaseHelper(context);
+//		Dao<Team, Long> d = helper.getTeamDao();
+//		return d;
+//	}
 	
 	public static boolean exists(String teamName, Context context) throws SQLException{
 		if (teamName == null){
@@ -80,21 +80,17 @@ public class Team{
 		return exists(teamName, context);
 	}
 		
-	public static List<Team> getAll(Context context) throws SQLException{
-		Dao<Team, Long> d = Team.getDao(context);
-		List<Team> teams = new ArrayList<Team>();
-		for(Team t:d){
-			teams.add(t);
-		}
-		return teams;
-	}
+//	public static List<Team> getAll(Context context) throws SQLException{
+//		Dao<Team, Long> d = Team.getDao(context);
+//		List<Team> teams = new ArrayList<Team>();
+//		for(Team t:d){
+//			teams.add(t);
+//		}
+//		return teams;
+//	}
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public String getTeamName() {

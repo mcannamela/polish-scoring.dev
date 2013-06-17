@@ -21,9 +21,6 @@ public class Badge{
 	private Player player;
 	
 	@DatabaseField(foreign = true)
-	private Team team;
-	
-	@DatabaseField(foreign = true)
 	private Session session;
 	
 	@DatabaseField(canBeNull=false)
@@ -41,19 +38,6 @@ public class Badge{
 	public Badge(Player player, int badgeType) {
 		super();
 		this.player = player;
-		this.badgeType = badgeType;
-	}
-	
-	public Badge(Team team, Session session, int badgeType) {
-		super();
-		this.team =team;
-		this.session = session;
-		this.badgeType = badgeType;
-	}
-	
-	public Badge(Team team, int badgeType) {
-		super();
-		this.team = team;
 		this.badgeType = badgeType;
 	}
 	
@@ -86,14 +70,6 @@ public class Badge{
 	
 	public void setPlayer(Player player) {
 		this.player = player;
-	}
-	
-	public Team getTeam() {
-		return team;
-	}
-
-	public void setTeam(Team team) {
-		this.team = team;
 	}
 	
 	public Session getSession() {
