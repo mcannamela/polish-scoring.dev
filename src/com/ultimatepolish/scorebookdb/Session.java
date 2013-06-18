@@ -106,10 +106,6 @@ public class Session {
 		return isTeam;
 	}
 
-	public void setIsTeam(boolean isTeam) {
-		this.isTeam = isTeam;
-	}
-	
 	public boolean getIsActive() {
 		return isActive;
 	}

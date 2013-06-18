@@ -48,9 +48,6 @@ public class Game {
 	private int secondPlayerScore;
 
 	@DatabaseField
-	private boolean isTeam;
-	
-	@DatabaseField
 	private boolean isComplete = false;
 	
 	@DatabaseField
@@ -61,26 +58,24 @@ public class Game {
 	}
 
 	public Game(Player firstPlayer, Player secondPlayer, Session session,
-			Venue venue, boolean isTeam, boolean isTracked, Date datePlayed) {
+			Venue venue, boolean isTracked, Date datePlayed) {
 		super();
 		this.firstPlayer = firstPlayer;
 		this.secondPlayer = secondPlayer;
 		this.session = session;
 		this.venue = venue;
-		this.isTeam = isTeam;
 		this.isTracked = isTracked;
 		this.datePlayed = datePlayed;
 		
 	}
 	
 	public Game(Player firstPlayer, Player secondPlayer, Session session,
-			Venue venue, boolean isTeam, boolean isTracked) {
+			Venue venue, boolean isTracked) {
 		super();
 		this.firstPlayer = firstPlayer;
 		this.secondPlayer = secondPlayer;
 		this.session = session;
 		this.venue = venue;
-		this.isTeam = isTeam;
 		this.isTracked = isTracked;
 		this.datePlayed = new Date();
 	}
@@ -251,10 +246,6 @@ public class Game {
 	public void setSecondPlayerScore(int secondPlayerScore) {
 		this.secondPlayerScore = secondPlayerScore;
 		checkGameComplete();
-	}
-	
-	public boolean getIsTeam() {
-		return isTeam;
 	}
 	
 	public boolean getIsComplete() {

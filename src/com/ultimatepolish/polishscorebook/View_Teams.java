@@ -100,25 +100,25 @@ public class View_Teams extends MenuContainerActivity {
         Player[] p = new Player[2];
         
         // add all the teams
-        try{
-        	Dao<Team, Long> teamDao = Team.getDao(context);
-        	Dao<Player, Long> playerDao = Player.getDao(context);
-        	
-        	for (Team t: teamDao) {
-        		playerDao.refresh(t.getFirstPlayer());
-        		playerDao.refresh(t.getSecondPlayer());
-
-        		addTeam(t.getIsActive(), 
-        				String.valueOf(t.getId()),
-        				t.getTeamName(),
-        				"(" + t.getFirstPlayer().getNickName()
-        				+ " and " + t.getSecondPlayer().getNickName() + ")"
-        				);
-        	}
-        }
-    	catch (SQLException e){
-    		loge("Retrieval of teams failed", e);
-        }
+//        try{
+//        	Dao<Team, Long> teamDao = Team.getDao(context);
+//        	Dao<Player, Long> playerDao = Player.getDao(context);
+//        	
+//        	for (Team t: teamDao) {
+//        		playerDao.refresh(t.getFirstPlayer());
+//        		playerDao.refresh(t.getSecondPlayer());
+//
+//        		addTeam(t.getIsActive(), 
+//        				String.valueOf(t.getId()),
+//        				t.getTeamName(),
+//        				"(" + t.getFirstPlayer().getNickName()
+//        				+ " and " + t.getSecondPlayer().getNickName() + ")"
+//        				);
+//        	}
+//        }
+//    	catch (SQLException e){
+//    		loge("Retrieval of teams failed", e);
+//        }
         
     	expandAll();
     	teamAdapter.notifyDataSetChanged(); // required in case the list has changed

@@ -58,7 +58,8 @@ public class Detail_Team extends MenuContainerActivity {
 		
 		if (tId != -1){
 			try{
-				tDao = Team.getDao(context);
+				// TODO: uncomment this once teams are set up in the db again
+//				tDao = Team.getDao(context);
 				t = tDao.queryForId(tId);
 				
 				pDao = Player.getDao(context);
