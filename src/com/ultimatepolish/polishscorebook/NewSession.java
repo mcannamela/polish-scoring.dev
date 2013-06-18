@@ -45,9 +45,9 @@ public class NewSession extends MenuContainerActivity {
 	List<Player> players = new ArrayList<Player>();
 	List<Integer> playerIdxList = new ArrayList<Integer>();
 	List<String> playerNames = new ArrayList<String>();
-	List<Team> teams = new ArrayList<Team>();
-	List<Integer> teamIdxList = new ArrayList<Integer>();
-	List<String> teamNames = new ArrayList<String>();
+//	List<Team> teams = new ArrayList<Team>();
+//	List<Integer> teamIdxList = new ArrayList<Integer>();
+//	List<String> teamNames = new ArrayList<String>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,6 @@ public class NewSession extends MenuContainerActivity {
 		sessionTypeSpinner = (Spinner) findViewById(R.id.newSession_sessionType);
 		isTeamCB = (CheckBox) findViewById(R.id.newSession_isTeam);
 		isActiveCB = (CheckBox) findViewById(R.id.newSession_isActive);
-		
 		
 		List<String> sessionTypes = new ArrayList<String>();
 		sessionTypes.add(SessionType.typeString[SessionType.LEAGUE]);
@@ -78,11 +77,12 @@ public class NewSession extends MenuContainerActivity {
 			for(Player p: players){
 				playerNames.add(p.getFirstName() + " " + p.getLastName());
 			}
-			teams = Team.getAll(getApplicationContext());
-			teamNames.clear();
-			for(Team t: teams){
-				teamNames.add(t.getTeamName());
-			}
+			// TODO: uncomment once teams are re-implemented
+//			teams = Team.getAll(getApplicationContext());
+//			teamNames.clear();
+//			for(Team t: teams){
+//				teamNames.add(t.getTeamName());
+//			}
 		}
 		catch (SQLException e){
 			Toast.makeText(getApplicationContext(), 
@@ -106,7 +106,7 @@ public class NewSession extends MenuContainerActivity {
 				// TODO: if loading a session, show player/team names or hide box
 				// but dont allow session roster to change or bad things could happen!
 				playerNames.clear();
-				teamNames.clear();
+//				teamNames.clear();
 			}
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -122,33 +122,33 @@ public class NewSession extends MenuContainerActivity {
             @Override
             public void onItemClick(AdapterView arg0, View view, int pos, long arg3) 
             {
-            	if (isTeamCB.isChecked()) {
-	                if(teamIdxList.contains(pos))
-	                {
-	                    teamIdxList.remove((Integer) pos);
-	                } else {
-	                    teamIdxList.add(pos);
-	                }
-            	} else {
+//            	if (isTeamCB.isChecked()) {
+//	                if(teamIdxList.contains(pos))
+//	                {
+//	                    teamIdxList.remove((Integer) pos);
+//	                } else {
+//	                    teamIdxList.add(pos);
+//	                }
+//            	} else {
             		if(playerIdxList.contains(pos))
 	                {
 	                    playerIdxList.remove((Integer) pos);
 	                } else {
 	                    playerIdxList.add(pos);
 	                }
-            	}
+//            	}
                 
             	String strText = "";
                 
-            	if (isTeamCB.isChecked()) {
-            		Collections.sort(teamIdxList);
-            		for(int i=0 ; i < teamIdxList.size(); i++)                   
-                        strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
-            	} else {
+//            	if (isTeamCB.isChecked()) {
+//            		Collections.sort(teamIdxList);
+//            		for(int i=0 ; i < teamIdxList.size(); i++)                   
+//                        strText += teams.get(teamIdxList.get(i)).getTeamName() + ",";
+//            	} else {
             		Collections.sort(playerIdxList);
             		for(int i=0 ; i < playerIdxList.size(); i++)                   
                         strText += players.get(playerIdxList.get(i)).getFirstName() + ",";
-            	}
+//            	}
             }
         });
         
@@ -156,9 +156,9 @@ public class NewSession extends MenuContainerActivity {
         	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         		updateRosterCheckList();
         		if (isChecked) {
-        			for (Integer t: teamIdxList) {
-        				rosterCheckList.setItemChecked(t, true);
-        			}
+//        			for (Integer t: teamIdxList) {
+//        				rosterCheckList.setItemChecked(t, true);
+//        			}
         		} else {
         			for (Integer p: playerIdxList) {
         				rosterCheckList.setItemChecked(p, true);
@@ -176,13 +176,13 @@ public class NewSession extends MenuContainerActivity {
 	}
 	
 	public void updateRosterCheckList() {
-		if (isTeamCB.isChecked()) {
-			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
-	                android.R.layout.simple_list_item_multiple_choice, teamNames));
-		} else {
+//		if (isTeamCB.isChecked()) {
+//			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
+//	                android.R.layout.simple_list_item_multiple_choice, teamNames));
+//		} else {
 			rosterCheckList.setAdapter(new ArrayAdapter<String>(this,
 	                android.R.layout.simple_list_item_multiple_choice, playerNames));
-		}
+//		}
 	}
 	
 	public void createNewSession(View view) {
@@ -252,8 +252,8 @@ public class NewSession extends MenuContainerActivity {
     		session = new Session(sessionName, sessionType, startDate, isTeam);
     		    		
         	try{
-        		Dao<Session, Long> dao = getHelper().getSessionDao();
-    	   		dao.create(session);
+        		sDao = getHelper().getSessionDao();
+    	   		sDao.create(session);
     	   		Toast.makeText(context, "Session created!", Toast.LENGTH_SHORT).show();
     		   	}
     		 catch (SQLException e){
@@ -262,20 +262,20 @@ public class NewSession extends MenuContainerActivity {
     		   	}
         	
         	// convert the indices from the roster list to actual players or teams
-        	if (isTeam) {
-        		List<Team> roster = new ArrayList<Team>();
-        		for (Integer teamIdx: teamIdxList) {
-        			roster.add(teams.get(teamIdx));
-        		}
-        		
-        		roster = seedRoster(roster);
-        		
-        		int ii = 0;
-        		for (Team t: roster) {
-        			sMembers.add(new SessionMember(session, t, ii));
-        			ii++;
-        		}
-        	} else {
+//        	if (isTeam) {
+//        		List<Team> roster = new ArrayList<Team>();
+//        		for (Integer teamIdx: teamIdxList) {
+//        			roster.add(teams.get(teamIdx));
+//        		}
+//        		
+//        		roster = seedRoster(roster);
+//        		
+//        		int ii = 0;
+//        		for (Team t: roster) {
+//        			sMembers.add(new SessionMember(session, t, ii));
+//        			ii++;
+//        		}
+//        	} else {
         		List<Player> roster = new ArrayList<Player>();
         		for (Integer playerIdx: playerIdxList) {
         			roster.add(players.get(playerIdx));
@@ -288,7 +288,7 @@ public class NewSession extends MenuContainerActivity {
         			sMembers.add(new SessionMember(session, p, ii));
         			ii++;
         		}
-        	}
+//        	}
 
         	// create the session members
     		

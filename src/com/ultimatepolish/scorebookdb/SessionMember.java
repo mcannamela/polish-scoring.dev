@@ -14,7 +14,6 @@ import com.j256.ormlite.table.DatabaseTable;
 public class SessionMember {
 	public static final String SESSION = "session_id";
 	public static final String PLAYER = "player_id";
-	public static final String TEAM = "team_id";
 	public static final String PLAYER_SEED = "playerSeed";
 	public static final String PLAYER_RANK = "playerRank";
 	
@@ -23,10 +22,7 @@ public class SessionMember {
 	
 	@DatabaseField(uniqueCombo=true,foreign=true)
 	private Player player;
-	
-	@DatabaseField(uniqueCombo=true,foreign=true)
-	private Team team;
-	
+
 	@DatabaseField(canBeNull=false)
 	private int playerSeed;
 	
@@ -43,14 +39,6 @@ public class SessionMember {
 		super();
 		this.session = session;
 		this.player = player;
-		this.playerSeed = playerSeed;
-		this.playerRank = playerSeed;
-	}
-	
-	public SessionMember(Session session, Team team, int playerSeed) {
-		super();
-		this.session = session;
-		this.team = team;
 		this.playerSeed = playerSeed;
 		this.playerRank = playerSeed;
 	}
@@ -74,24 +62,12 @@ public class SessionMember {
 		return session;
 	}
 
-//	public void setSessionId(long sessionId) {
-//		this.sessionId = sessionId;
-//	}
-
 	public Player getPlayer() {
 		return player;
 	}
 
-//	public void setPlayerId(long playerId) {
-//		this.playerId = playerId;
-//	}
-	
-	public Team getTeam() {
-		return team;
-	}
-
-//	public void setPlayerId(long playerId) {
-//		this.playerId = playerId;
+//	public void setPlayer(Player player) {
+//		this.player = player;
 //	}
 	
 	public int getPlayerSeed() {

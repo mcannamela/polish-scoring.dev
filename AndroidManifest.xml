@@ -147,6 +147,14 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="com.ultimatepolish.polishscorebook.PolishScorebook" />
 		</activity>
+		<activity
+			android:name="com.ultimatepolish.polishscorebook.Settings"
+			android:label="@string/title_activity_settings"
+			android:parentActivityName="com.ultimatepolish.polishscorebook.PolishScorebook" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="com.ultimatepolish.polishscorebook.PolishScorebook" />
+		</activity>
 	</application>
 
 </manifest>
