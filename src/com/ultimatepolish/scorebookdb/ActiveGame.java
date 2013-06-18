@@ -180,7 +180,8 @@ public class ActiveGame {
 		Throw u = null;
 		int idx = t.getThrowIdx();
 		if (idx<=0){
-			u.setInitialScores();
+			//u can only be null here, not sure what i was thinking...
+			//u.setInitialScores();
 		}
 		else if (idx>0 && idx<=nThrows()){
 			u = tArray.get(idx-1);
