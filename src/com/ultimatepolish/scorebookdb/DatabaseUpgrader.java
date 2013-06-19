@@ -2,8 +2,9 @@ package com.ultimatepolish.scorebookdb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
@@ -222,5 +223,33 @@ public class DatabaseUpgrader {
 	}
 	public static String addBooleanDefaultZeroColumn(String tableName, String columnName){
 		return addColumn(tableName, columnName, "BOOLEAN", "0");
+	}
+	
+	public static ArrayList<Long> updateScores(Dao<Game, Long> gDao, Context context){
+		ActiveGame ag = null;
+		int[] oldScores = new int[2];
+		int[] newScores = new int[2];
+		ArrayList<Long> badGames = new ArrayList<Long>();
+		for(Game g:gDao){
+			oldScores[0] = g.getFirstPlayerScore();
+			oldScores[1] = g.getSecondPlayerScore();
+			
+			ag = new ActiveGame(g, context);
+			ag.updateScoresFrom(0);
+			ag.saveGame();
+			newScores[0] = ag.getGame().getFirstPlayerScore();
+			newScores[1] = ag.getGame().getSecondPlayerScore();
+			
+			if (!(are_scores_equal(oldScores, newScores))){
+				badGames.add(g.getId());
+			}
+						
+		}
+		return badGames;
+		
+	}
+	
+	public static boolean are_scores_equal(int[] oldScores, int[] newScores){
+		return oldScores[0]==newScores[0] && oldScores[1]==newScores[1];
 	}
 }
