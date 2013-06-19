@@ -46,7 +46,7 @@ public class ActiveGame {
 		return t;
 	}
 	
-	private void updateScoresFrom(int idx){
+	void updateScoresFrom(int idx){
 		Throw t,u;
 		for (int i=idx; i<nThrows();i++){
 			t = getThrow(i);
@@ -180,8 +180,7 @@ public class ActiveGame {
 		Throw u = null;
 		int idx = t.getThrowIdx();
 		if (idx<=0){
-			//u can only be null here, not sure what i was thinking...
-			//u.setInitialScores();
+			throw new RuntimeException("throw "+idx+" has no predecessor");
 		}
 		else if (idx>0 && idx<=nThrows()){
 			u = tArray.get(idx-1);
