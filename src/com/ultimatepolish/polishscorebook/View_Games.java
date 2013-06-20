@@ -105,7 +105,7 @@ public class View_Games extends MenuContainerActivity {
     	sHash.clear();
     	sessionList.clear();
     	// add all the sessions to the headers
-    	log("refreshGamesListing() - adding session daos");
+    	logd("refreshGamesListing() - adding session daos");
     	
     	Context context = getApplicationContext();
     	Session s;
@@ -116,14 +116,14 @@ public class View_Games extends MenuContainerActivity {
         	Dao<Game, Long> gameDao = Game.getDao(context);
         	Dao<Player, Long> playerDao = Player.getDao(context);
         	
-        	log("refreshGamesListing() - adding sessions");
+        	logd("refreshGamesListing() - adding sessions");
         	for (Session sess: sessionDao) {
         		addSession(sess.getSessionName());
         	}
         	
-        	log("refreshGamesListing() - adding games");
+        	logd("refreshGamesListing() - adding games");
         	for (Game g: gameDao) {
-        		log("refreshGamesListing() - got game "+g.getId());
+        		logd("refreshGamesListing() - got game "+g.getId());
         		sessionDao.refresh(g.getSession());
         		s = g.getSession();
         		p[0] = playerDao.queryForId(g.getFirstPlayer().getId());
@@ -209,7 +209,7 @@ public class View_Games extends MenuContainerActivity {
     	sHash.put(sessionName, vhh_Game);
     }
     private void addGame(String sort, String gameId, String p1, String p2, String score){
-    	log("addGame() - adding game "+ gameId);
+    	logd("addGame() - adding game "+ gameId);
     	//find the index of the session header
     	ViewHolderHeader_Game sessionInfo = sHash.get(sort);
 	    List<ViewHolder_Game> gameList = sessionInfo.getGameList();

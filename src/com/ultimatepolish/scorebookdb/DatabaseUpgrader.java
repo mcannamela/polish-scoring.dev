@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
@@ -227,10 +228,12 @@ public class DatabaseUpgrader {
 	
 	public static ArrayList<Long> updateScores(Dao<Game, Long> gDao, Context context){
 		ActiveGame ag = null;
+		String msg;
 		int[] oldScores = new int[2];
 		int[] newScores = new int[2];
 		ArrayList<Long> badGames = new ArrayList<Long>();
 		for(Game g:gDao){
+			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
 			oldScores[0] = g.getFirstPlayerScore();
 			oldScores[1] = g.getSecondPlayerScore();
 			
@@ -241,6 +244,10 @@ public class DatabaseUpgrader {
 			newScores[1] = ag.getGame().getSecondPlayerScore();
 			
 			if (!(are_scores_equal(oldScores, newScores))){
+				msg= "bad game %d: (%d,%d)->(%d,%d)";
+				msg = String.format("bad game %d: (%d,%d)->(%d,%d)", 
+						g.getId(), oldScores[0], oldScores[1], newScores[0], newScores[1]);
+				Log.w("DatabaseUpgrader.updateScores()",msg);
 				badGames.add(g.getId());
 			}
 						
