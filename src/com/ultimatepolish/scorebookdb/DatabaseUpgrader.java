@@ -94,6 +94,7 @@ public class DatabaseUpgrader {
 			// add all the new column types. after populating the new columns, the table gets rebuilt
 			// these are easy. tipped and linefault were not tracked at all previously.
 			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.CATCH +" WHERE id=1376;"); // stalwart was entered improperly
+			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.NOT_THROWN +" WHERE throwType=8;"); // NOT_THROWN moved from 8 to 11
 		
 			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isTipped"));
 			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isLineFault"));
@@ -225,12 +226,12 @@ public class DatabaseUpgrader {
 		return addColumn(tableName, columnName, "BOOLEAN", "0");
 	}
 	
-	public static ArrayList<Long> updateScores(Dao<Game, Long> gDao, Context context){
+	public static List<Long> updateScores(Dao<Game, Long> gDao, Context context){
 		ActiveGame ag = null;
 		String msg;
 		int[] oldScores = new int[2];
 		int[] newScores = new int[2];
-		ArrayList<Long> badGames = new ArrayList<Long>();
+		List<Long> badGames = new ArrayList<Long>();
 		for(Game g:gDao){
 //			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
 			oldScores[0] = g.getFirstPlayerScore();
@@ -249,10 +250,22 @@ public class DatabaseUpgrader {
 				Log.w("DatabaseUpgrader.updateScores()",msg);
 				badGames.add(g.getId());
 			}
-						
 		}
-		return badGames;
-		
+		return badGames;	
+	}
+	
+	public static List<Long> checkThrows(Dao<Throw, Long> tDao, Context context){
+		String msg;
+		List<Long> badThrows = new ArrayList<Long>();
+		for(Throw t:tDao){
+//			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
+			if (!t.getIsValid(context)){
+				msg = "bad throw: " + t.getId();
+				Log.w("DatabaseUpgrader.checkThrows()", msg);
+				badThrows.add(t.getId());
+			}
+		}
+		return badThrows;
 	}
 	
 	public static boolean are_scores_equal(int[] oldScores, int[] newScores){

@@ -36,6 +36,7 @@ import com.ultimatepolish.scorebookdb.DatabaseUpgrader;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
+import com.ultimatepolish.scorebookdb.Throw;
 import com.ultimatepolish.scorebookdb.Venue;
 
 public class SimpleSettings extends MenuContainerActivity {
@@ -191,15 +192,28 @@ public class SimpleSettings extends MenuContainerActivity {
     }
 	
 	public void updateScores(View view){
-		ArrayList<Long> badGames = null;
+		List<Long> badGames = null;
+		List<Long> badThrows = null;
 		Dao<Game, Long> gDao;
+		Dao<Throw, Long> tDao;
 		try{
 			gDao = getHelper().getGameDao();
+			tDao = getHelper().getThrowDao();
 			badGames = DatabaseUpgrader.updateScores(gDao, getApplicationContext());
 			if (badGames.size()>0){
 				Log.w("SimpleSettings",
 						"The following games had different scores after upgrade: "+badGames.toString());
 //				throw new RuntimeException("Scores changed on upgrade");
+			} else {
+				Log.i("SimpleSettings", "All game scores unchanged after upgrade!");
+			}
+			
+			badThrows = DatabaseUpgrader.checkThrows(tDao, getApplicationContext());
+			if (badThrows.size() > 0){
+				Log.w("SimpleSettings",
+						"The following throws are not valid: "+badThrows.toString());
+			} else {
+				Log.i("SimpleSettings", "All throws are valid!");
 			}
     	}
     	catch (SQLException e){
