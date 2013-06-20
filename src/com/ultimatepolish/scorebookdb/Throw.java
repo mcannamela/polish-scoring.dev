@@ -158,7 +158,7 @@ public class Throw implements Comparable<Throw>{
 		if (previousThrow.isQuenching()) {
 			newOffenseCount = 0;
 		}
-		Log.d("Throw.db()", "setFireCounts: (" + throwIdx + ") [" + newOffenseCount + ", " + newDefenseCount + "]");
+//		Log.d("Throw.db()", "setFireCounts: (" + throwIdx + ") [" + newOffenseCount + ", " + newDefenseCount + "]");
 		setOffenseFireCount(newOffenseCount);
 		setDefenseFireCount(newDefenseCount);
 	}
