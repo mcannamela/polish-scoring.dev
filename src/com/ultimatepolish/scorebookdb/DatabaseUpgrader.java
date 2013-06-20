@@ -269,7 +269,7 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
 				" WHERE offenseFireCount>=3 AND throwResult != " + ThrowResult.BROKEN + ";");
 			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
-					" WHERE defenseFireCount>=3;");
+					" AND throwResult= " + ThrowResult.NA + " WHERE defenseFireCount>=3;");
 		}
 		return badThrows;
 	}
