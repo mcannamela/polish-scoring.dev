@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,8 @@ import com.dropbox.sync.android.DbxFileSystem;
 import com.dropbox.sync.android.DbxPath;
 import com.j256.ormlite.dao.Dao;
 import com.ultimatepolish.scorebookdb.DatabaseHelper;
+import com.ultimatepolish.scorebookdb.DatabaseUpgrader;
+import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
 import com.ultimatepolish.scorebookdb.Venue;
@@ -186,6 +189,28 @@ public class SimpleSettings extends MenuContainerActivity {
     		Log.e(PolishScorebook.class.getName(), "Creation of players failed", e);
     	}
     }
+	
+	public void updateScores(View view){
+		ArrayList<Long> badGames = null;
+		Dao<Game, Long> gDao;
+		try{
+			gDao = getHelper().getGameDao();
+			badGames = DatabaseUpgrader.updateScores(gDao, getApplicationContext());
+			if (badGames.size()>0){
+				Log.w("SimpleSettings",
+						"The following games had different scores after upgrade: "+badGames.toString());
+//				throw new RuntimeException("Scores changed on upgrade");
+			}
+    	}
+    	catch (SQLException e){
+    		Context context = getApplicationContext();
+    		int duration = Toast.LENGTH_LONG;
+    		Toast.makeText(context, e.getMessage(), duration).show();
+    		Log.e(PolishScorebook.class.getName(), "Update of scores failed", e);
+    	}
+		
+	}
+	
 	public void saveDBdropbox(View view) {
 		Context context = getApplicationContext();
    		Toast.makeText(context, "Saved to dropbox", Toast.LENGTH_SHORT).show();
