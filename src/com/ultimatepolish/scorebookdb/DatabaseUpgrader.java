@@ -93,10 +93,10 @@ public class DatabaseUpgrader {
 			//throw table
 			// add all the new column types. after populating the new columns, the table gets rebuilt
 			// these are easy. tipped and linefault were not tracked at all previously.
+			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.CATCH +" WHERE id=1376;"); // stalwart was entered improperly
+		
 			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isTipped"));
-			tDao.executeRaw(replaceNulls("throw", "isTipped", "0"));
 			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isLineFault"));
-			tDao.executeRaw(replaceNulls("throw", "isLineFault", "0"));
 			
 			// populating defensivePlayerId column requires looping through all the games
 			tDao.executeRaw("ALTER TABLE throw ADD COLUMN defensivePlayerId INTEGER;");
@@ -120,6 +120,9 @@ public class DatabaseUpgrader {
 			
 			//////////ADD NEW COLUMNS ///////////////////
 			// isGoaltend (db10) == > isGoaltend (db11) 
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.POLE+" WHERE isGoaltend=1 AND goaltendScore=2;");
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.BOTTLE+" WHERE isGoaltend=1 AND goaltendScore=3;");
+			
 			 // isDrinkDropped (db10) ==> isDefensiveDrinkDropped (db11)
 			String[] columnNames = { 	"isOffensiveDrinkDropped", 
 										"isOffensivePoleKnocked",
@@ -142,12 +145,6 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3 AND isOwnGoal=1;");
 			
 			//migrate short/trap
-			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.TRAP+" WHERE isTrap=1;");
-			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isTrap=1;");
-			
-			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.SHORT+" WHERE isShort=1;");
-			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isShort=1;");
-			
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.HIGH+
 					" WHERE isShort=1 AND throwType="+ThrowType.BALL_HIGH+";");
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.RIGHT+
@@ -155,7 +152,13 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LOW+
 					" WHERE isShort=1 AND throwType="+ThrowType.BALL_LOW+";"); 
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.LEFT+
-					" WHERE isShort=1 AND throwType="+ThrowType.BALL_LEFT+";"); 
+					" WHERE isShort=1 AND throwType="+ThrowType.BALL_LEFT+";");
+			
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.SHORT+" WHERE isShort=1;");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isShort=1;");
+			
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.TRAP+" WHERE isTrap=1;");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isTrap=1;");
 			
 			////////////////////////////////////////////////////////////////////
 			//////////////// MIGRATE DEFENSIVE ERRORS //////////////////////////
@@ -196,10 +199,6 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.DROP+
 								" WHERE isError=1 AND errorScore>1 AND throwType!="+ThrowType.STRIKE+";");
 			
-			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+
-					" WHERE isError=1 AND errorScore>1 AND throwType!="+ThrowType.STRIKE+";");
-			
-			
 			// rebuild the table and copy data over
 			tDao.executeRaw("ALTER TABLE throw RENAME TO temp;");
 			TableUtils.createTable(connectionSource, Throw.class);
@@ -233,7 +232,7 @@ public class DatabaseUpgrader {
 		int[] newScores = new int[2];
 		ArrayList<Long> badGames = new ArrayList<Long>();
 		for(Game g:gDao){
-			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
+//			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
 			oldScores[0] = g.getFirstPlayerScore();
 			oldScores[1] = g.getSecondPlayerScore();
 			
@@ -244,7 +243,7 @@ public class DatabaseUpgrader {
 			newScores[1] = ag.getGame().getSecondPlayerScore();
 			
 			if (!(are_scores_equal(oldScores, newScores))){
-				msg= "bad game %d: (%d,%d)->(%d,%d)";
+//				msg= "bad game %d: (%d,%d)->(%d,%d)";
 				msg = String.format("bad game %d: (%d,%d)->(%d,%d)", 
 						g.getId(), oldScores[0], oldScores[1], newScores[0], newScores[1]);
 				Log.w("DatabaseUpgrader.updateScores()",msg);
