@@ -222,7 +222,6 @@ public class SimpleSettings extends MenuContainerActivity {
     		Toast.makeText(context, e.getMessage(), duration).show();
     		Log.e(PolishScorebook.class.getName(), "Update of scores failed", e);
     	}
-		
 	}
 	
 	public void saveDBdropbox(View view) {

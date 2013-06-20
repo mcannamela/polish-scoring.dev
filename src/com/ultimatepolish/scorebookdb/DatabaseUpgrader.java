@@ -238,13 +238,12 @@ public class DatabaseUpgrader {
 			oldScores[1] = g.getSecondPlayerScore();
 			
 			ag = new ActiveGame(g, context);
-			ag.updateScoresFrom(0);
+			ag.saveAllThrows(); // this also calls updateThrowsFrom(0)
 			ag.saveGame();
 			newScores[0] = ag.getGame().getFirstPlayerScore();
 			newScores[1] = ag.getGame().getSecondPlayerScore();
 			
 			if (!(are_scores_equal(oldScores, newScores))){
-//				msg= "bad game %d: (%d,%d)->(%d,%d)";
 				msg = String.format("bad game %d: (%d,%d)->(%d,%d)", 
 						g.getId(), oldScores[0], oldScores[1], newScores[0], newScores[1]);
 				Log.w("DatabaseUpgrader.updateScores()",msg);
@@ -254,7 +253,7 @@ public class DatabaseUpgrader {
 		return badGames;	
 	}
 	
-	public static List<Long> checkThrows(Dao<Throw, Long> tDao, Context context){
+	public static List<Long> checkThrows(Dao<Throw, Long> tDao, Context context) throws SQLException {
 		String msg;
 		List<Long> badThrows = new ArrayList<Long>();
 		for(Throw t:tDao){
@@ -264,6 +263,13 @@ public class DatabaseUpgrader {
 				Log.w("DatabaseUpgrader.checkThrows()", msg);
 				badThrows.add(t.getId());
 			}
+		}
+		if (badThrows.size() > 0) {
+			//these have to be done after firecounts are updated
+			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
+				" WHERE offenseFireCount>=3 AND throwResult != " + ThrowResult.BROKEN + ";");
+			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
+					" WHERE defenseFireCount>=3;");
 		}
 		return badThrows;
 	}
