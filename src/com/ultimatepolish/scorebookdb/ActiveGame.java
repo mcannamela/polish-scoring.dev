@@ -4,10 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.j256.ormlite.dao.Dao;
+import java.util.concurrent.Callable;
 
 import android.content.Context;
+
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.SqlExceptionUtil;
 
 public class ActiveGame {
 
@@ -103,12 +105,60 @@ public class ActiveGame {
 			throw new RuntimeException("could not create/update throw "+t.getThrowIdx()+", game "+t.getGame().getId());
 		}
 	}
+	private ArrayList<Long> getThrowIds(){
+		HashMap<String,Object> m;
+	    List<Throw> tList = new ArrayList<Throw>();
+	    ArrayList<Long> throwIds = new ArrayList<Long>();
+	    int cnt=0;
+	    try{
+	    	for(Throw t:tArray){
+	    		m = t.getQueryMap();
+	    		tList= tDao.queryForFieldValuesArgs(m);
+	    		if (tList.isEmpty()){
+					throwIds.add(Long.valueOf(-1));
+				}
+				else{
+					throwIds.add(tList.get(0).getId());
+				}
+	    	}
+	    }
+	    catch (SQLException e){
+	    	throw new RuntimeException("could not query for throw ids");
+	    }
+	    return throwIds;
+	}
+	
 	
 	public void saveAllThrows(){
 		updateScoresFrom(0);
-		for(Throw t: tArray){
-			saveThrow(t);
+		final ArrayList<Long> throwIds = getThrowIds();
+		try{
+			tDao.callBatchTasks(new Callable<Void>() {
+			    public Void call() throws SQLException {
+			    	long id;
+	            	Throw t;
+	            	for(int i=0;i<tArray.size();i++){
+	            		id = throwIds.get(i);
+	            		t = tArray.get(i);
+	            		if (id==-1){
+	            			tDao.create(t);
+	            		}
+	            		else{
+	            			t.setId(id);
+	            			tDao.update(t);
+	            		}
+	            	}
+			        return null;
+			    }
+			});
 		}
+		catch (SQLException e){
+			throw new RuntimeException(e);
+		}
+		catch (Exception e){
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	public void saveGame(){
