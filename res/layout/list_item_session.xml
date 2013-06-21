@@ -37,6 +37,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignBaseline="@+id/textView_sessionId"
+        android:gravity="right"
+        android:layout_marginRight="24dp"
         android:hint="Team"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

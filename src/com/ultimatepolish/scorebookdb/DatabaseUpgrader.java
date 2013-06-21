@@ -238,6 +238,7 @@ public class DatabaseUpgrader {
 			oldScores[1] = g.getSecondPlayerScore();
 			
 			ag = new ActiveGame(g, context);
+			// saveAllThrows is extremely slow. any way to speed up?
 			ag.saveAllThrows(); // this also calls updateThrowsFrom(0)
 			ag.saveGame();
 			newScores[0] = ag.getGame().getFirstPlayerScore();
@@ -269,7 +270,7 @@ public class DatabaseUpgrader {
 			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
 				" WHERE offenseFireCount>=3 AND throwResult != " + ThrowResult.BROKEN + ";");
 			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
-					" WHERE defenseFireCount>=3;");
+					", throwResult= " + ThrowResult.NA + " WHERE defenseFireCount>=3;");
 		}
 		return badThrows;
 	}
