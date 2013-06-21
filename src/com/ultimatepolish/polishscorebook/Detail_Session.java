@@ -1,12 +1,14 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -29,7 +31,7 @@ public class Detail_Session extends MenuContainerActivity {
 	Dao<SessionMember, Long> smDao;
 	Dao<Player, Long> pDao;
 	Dao<Team, Long> tDao;
-	List<SessionMember> sMembers;
+	List<SessionMember> sMembers = new ArrayList<SessionMember>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class Detail_Session extends MenuContainerActivity {
 	        	for(SessionMember member: sMembers) {
 	        		pDao.refresh(member.getPlayer());
 	        	}
+	        	
 		    }
 			catch (SQLException e){
 				Toast.makeText(getApplicationContext(), 
@@ -135,30 +138,64 @@ public class Detail_Session extends MenuContainerActivity {
 
 		TextView tv;
 		
+		sMembers = foldRoster(sMembers);
+		
 		for (SessionMember member: sMembers) {
-			tv = new TextView(sv.getContext());
-			tv.setText( member.getPlayer().getNickName() );
-			tv.setId(member.getPlayerSeed()+1);
-			tv.setGravity(Gravity.RIGHT);
-			tv.setTextAppearance(sv.getContext(), android.R.style.TextAppearance_Medium);
-			if (member.getPlayerSeed() % 2 == 0) {
-				tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_top_player));
-			} else {
-				tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_bottom_player));
-			}
-			
-			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
-			if (member.getPlayerSeed() != 0) {
-				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-				lp.addRule(RelativeLayout.BELOW, member.getPlayerSeed());
-				lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
-				rl.addView(tv, lp);
-			} else {
-				tv.setWidth(250);
-				rl.addView(tv);
+			if (member != null) {
+				tv = new TextView(sv.getContext());
+				tv.setText("(" + String.valueOf(member.getPlayerSeed()+1) + ") " + member.getPlayer().getNickName() );
+				tv.setId(member.getPlayerSeed()+1);
+				tv.setGravity(Gravity.RIGHT);
+				tv.setTextAppearance(sv.getContext(), android.R.style.TextAppearance_Medium);
+				if (member.getPlayerSeed() % 2 == 0) {
+					tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_top_player));
+				} else {
+					tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_bottom_player));
+				}
+				
+				tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+				if (member.getPlayerSeed() != 0) {
+					RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+					        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+					lp.addRule(RelativeLayout.BELOW, member.getPlayerSeed());
+					lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
+					rl.addView(tv, lp);
+				} else {
+					tv.setWidth(350);
+					rl.addView(tv);
+				}
 			}
 		}
 		
+	}
+	
+	public List<SessionMember> foldRoster(List<SessionMember> sMembers) {
+		// expand the list size to the next power of two
+		Integer n = factorTwos(sMembers.size());
+		while (sMembers.size() < Math.pow(2, n)) {
+			sMembers.add(null);
+		}
+		List<SessionMember> tempRoster = new ArrayList<SessionMember>();
+		for (Integer i=0; i < n; i++) {
+			tempRoster.clear();
+			while (sMembers.size() > 0) {
+				tempRoster.add(sMembers.get(0));
+				tempRoster.add(sMembers.get(sMembers.size()-1));
+				sMembers.remove(0);
+				sMembers.remove(sMembers.size()-1);
+				Log.i("SessionDetails", "sMembers: " + sMembers.size() + " members, tempRoster: " + tempRoster.size() + " members.");
+			}
+			sMembers = tempRoster;
+			Log.i("SessionDetails", "n=" + i +", sMembers: " + sMembers.size() + " members, tempRoster: " + tempRoster.size() + " members.");
+		}
+		return sMembers;
+	}
+	
+	public Integer factorTwos(Integer rosterSize) {
+		Integer n = 1;
+		while (Math.pow(2,n) < rosterSize) {
+			n++;
+		}
+		return n;
 	}
 }
