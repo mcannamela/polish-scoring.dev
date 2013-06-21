@@ -196,10 +196,12 @@ public class SimpleSettings extends MenuContainerActivity {
 		List<Long> badThrows = null;
 		Dao<Game, Long> gDao;
 		Dao<Throw, Long> tDao;
+		Context context = getApplicationContext();
 		try{
-			gDao = getHelper().getGameDao();
-			tDao = getHelper().getThrowDao();
-			badGames = DatabaseUpgrader.updateScores(gDao, getApplicationContext());
+			
+			gDao = Game.getDao(context);
+			tDao = Throw.getDao(context);
+			badGames = DatabaseUpgrader.updateScores(gDao, context);
 			if (badGames.size()>0){
 				Log.w("SimpleSettings",
 						"The following games had different scores after upgrade: "+badGames.toString());
@@ -208,7 +210,7 @@ public class SimpleSettings extends MenuContainerActivity {
 				Log.i("SimpleSettings", "All game scores unchanged after upgrade!");
 			}
 			
-			badThrows = DatabaseUpgrader.checkThrows(tDao, getApplicationContext());
+			badThrows = DatabaseUpgrader.checkThrows(tDao, context);
 			if (badThrows.size() > 0){
 				Log.w("SimpleSettings",
 						"The following throws are not valid: "+badThrows.toString());
@@ -217,7 +219,6 @@ public class SimpleSettings extends MenuContainerActivity {
 			}
     	}
     	catch (SQLException e){
-    		Context context = getApplicationContext();
     		int duration = Toast.LENGTH_LONG;
     		Toast.makeText(context, e.getMessage(), duration).show();
     		Log.e(PolishScorebook.class.getName(), "Update of scores failed", e);
