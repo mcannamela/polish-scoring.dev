@@ -104,6 +104,9 @@ public class NewPlayer extends MenuContainerActivity {
     	Boolean prefersRightSide = prefR.isChecked();
     	Boolean prefersLeftSide = prefL.isChecked();
     	
+    	byte[] emptyImage = new byte[0];
+    	Integer color = R.color.Black;
+    	
     	Boolean isActive = isActiveCB.isChecked();
     	
     	String s = name.getText().toString();
@@ -153,8 +156,8 @@ public class NewPlayer extends MenuContainerActivity {
     		
     	} else {
 	    	newPlayer = new Player(firstName, lastName, nickname, 
-	    							throwsRightHanded, throwsLeftHanded, 
-	    							height_cm, weight_kg);
+							throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide,
+							height_cm, weight_kg, emptyImage, color);
 	    	
 	    	try{
 	    		Dao<Player, Long> dao = getHelper().getPlayerDao();

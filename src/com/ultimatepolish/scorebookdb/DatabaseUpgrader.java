@@ -11,6 +11,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.ultimatepolish.polishscorebook.R;
 
 public class DatabaseUpgrader {
 	public static void increment_09( 
@@ -53,10 +54,11 @@ public class DatabaseUpgrader {
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN isActive BOOLEAN DEFAULT 1;");
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN prefersRightSide BOOLEAN DEFAULT 0;");
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN prefersLeftSide BOOLEAN DEFAULT 0;");
+		pDao.executeRaw("ALTER TABLE player ADD COLUMN color INTEGER DEFAULT "+ R.color.Black + ";");
 		pDao.executeRaw("ALTER TABLE player RENAME TO temp;");
 		TableUtils.createTable(connectionSource, Player.class);
-		pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide, height_cm, weight_kg, isActive) " +
-				"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide, height_cm, weight_kg, isActive FROM temp;");
+		pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide, height_cm, weight_kg, color, isActive) " +
+				"SELECT id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide, height_cm, weight_kg, color, isActive FROM temp;");
 		pDao.executeRaw("DROP TABLE temp;");
 
 		// session table

@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/21 06:55:22
+# generated on 2013/06/22 10:14:25
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -48,6 +48,9 @@ fieldName=weight_kg
 # --field-start--
 fieldName=imageBytes
 dataPersister=BYTE_ARRAY
+# --field-end--
+# --field-start--
+fieldName=color
 # --field-end--
 # --field-start--
 fieldName=isActive
