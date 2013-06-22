@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
@@ -54,7 +55,7 @@ public class DatabaseUpgrader {
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN isActive BOOLEAN DEFAULT 1;");
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN prefersRightSide BOOLEAN DEFAULT 0;");
 		pDao.executeRaw("ALTER TABLE player ADD COLUMN prefersLeftSide BOOLEAN DEFAULT 0;");
-		pDao.executeRaw("ALTER TABLE player ADD COLUMN color INTEGER DEFAULT "+ R.color.Black + ";");
+		pDao.executeRaw("ALTER TABLE player ADD COLUMN color INTEGER DEFAULT "+ Color.BLACK + ";");
 		pDao.executeRaw("ALTER TABLE player RENAME TO temp;");
 		TableUtils.createTable(connectionSource, Player.class);
 		pDao.executeRaw("INSERT INTO player(id, firstName, lastName, nickName, throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide, height_cm, weight_kg, color, isActive) " +
