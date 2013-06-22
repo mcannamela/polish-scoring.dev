@@ -160,8 +160,8 @@ public class Detail_Session extends MenuContainerActivity {
 			}
 		}
 		
-		TextView tv = (TextView) ((LinearLayout) findViewById(1)).getChildAt(0);
-		tv.getBackground().setColorFilter(Color.BLUE, Mode.MULTIPLY);
+//		TextView tv = (TextView) ((LinearLayout) findViewById(1)).getChildAt(0);
+//		tv.getBackground().setColorFilter(Color.BLUE, Mode.MULTIPLY);
 		
 	}
 	

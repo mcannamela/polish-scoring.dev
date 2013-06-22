@@ -151,16 +151,17 @@ public class SimpleSettings extends MenuContainerActivity {
     }
 	public void doPopulateTest(View view){
     	Dao<Player, Long> playerDao=null;
+    	byte[] emptyImage = new byte[0];
     	Player[] players = {
-	    	new Player("michael", "cannamela", "mike c", true, false,170, 70 ),
-	    	new Player("erin", "arai", "samu", true, false,160, 50 ),
-	    	new Player("matt", "tuttle", "king tut", true, false, 182, 63),
-	    	new Player("andrew", "o'brien", "dru", true, false, 182, 63),
-	    	new Player("matt", "miguez", "murder", true, false, 182, 63),
-	    	new Player("julian", "spring", "juice", false, true, 182, 63),
-	    	new Player("mike", "freeman", "freeeedom", true, false, 182, 63),
-	    	new Player("phillip", "anderson", "pillip", false, true, 182, 63),
-	    	new Player("jon", "sukovich", "sukes appeal", true, false, 182, 63)
+	    	new Player("michael", "cannamela", "mike c", true, false, true, false, 170, 70, emptyImage, R.color.Aqua),
+	    	new Player("erin", "arai", "samu", true, false, true, false, 160, 50, emptyImage, R.color.BlanchedAlmond),
+	    	new Player("matt", "tuttle", "king tut", true, false, true, false, 182, 63, emptyImage, R.color.CornflowerBlue),
+	    	new Player("andrew", "o'brien", "dru", true, false, true, false, 182, 63, emptyImage, R.color.DodgerBlue),
+	    	new Player("matt", "miguez", "murder", true, false, true, false, 182, 63, emptyImage, R.color.FireBrick),
+	    	new Player("julian", "spring", "juice", false, true, true, false, 182, 63, emptyImage, R.color.Goldenrod),
+	    	new Player("mike", "freeman", "freeeedom", true, false, true, false, 182, 63, emptyImage, R.color.HotPink),
+	    	new Player("phillip", "anderson", "pillip", false, true, true, false, 182, 63, emptyImage, R.color.Indigo),
+	    	new Player("jon", "sukovich", "sukes appeal", true, false, true, false, 182, 63, emptyImage, R.color.Khaki)
     	};
     	Dao<Session, Long> sessionDao=null;
     	Session s1 = new Session("league", 1, new Date(), false);

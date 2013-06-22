@@ -56,6 +56,9 @@ public class Player implements Comparable<Player>{
 	byte[] imageBytes;
 	
 	@DatabaseField
+	public int color;
+	
+	@DatabaseField
 	private boolean isActive = true;
 
 	Player(){}
@@ -64,17 +67,25 @@ public class Player implements Comparable<Player>{
 					String lastName, 
 					String nickName,
 					boolean throwsRightHanded, 
-					boolean throwsLeftHanded, 
+					boolean throwsLeftHanded,
+					boolean prefersRightSide,
+					boolean prefersLeftSide,
 					int height_cm,
-					int weight_kg) {
+					int weight_kg,
+					byte[] imageBytes,
+					int color) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.nickName = nickName;
 		this.throwsRightHanded = throwsRightHanded;
 		this.throwsLeftHanded = throwsLeftHanded;
+		this.prefersRightSide = prefersRightSide;
+		this.prefersLeftSide = prefersLeftSide;
 		this.height_cm = height_cm;
 		this.weight_kg = weight_kg;
+		this.imageBytes = imageBytes;
+		this.color = color;
 	}
 	
 	public static Dao<Player, Long> getDao(Context context) throws SQLException{
@@ -228,6 +239,14 @@ public class Player implements Comparable<Player>{
 
 	public void setImageBytes(byte[] imageBytes) {
 		this.imageBytes = imageBytes;
+	}
+	
+	public int getColor() {
+		return color;
+	}
+
+	public void setColor(int color) {
+		this.color = color;
 	}
 	
 	public boolean getIsActive() {
