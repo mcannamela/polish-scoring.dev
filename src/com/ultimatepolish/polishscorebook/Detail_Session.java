@@ -138,19 +138,15 @@ public class Detail_Session extends MenuContainerActivity {
 	public void refreshSingleElimBracket(){
 		View sv = findViewById(R.id.scrollView1);
 		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
-
 		LinearLayout ll;
 		
 		foldRoster();
 		
+		// create the lowest tier
 		for (Integer i=0; i < sMembers.size()-1; i+=2) {
-//			Log.i("SessionDetails", "Match " + String.valueOf(i/2 + 1) + ", " +
-//					sMembers.get(i).getPlayer().getNickName() + " vs " +
-//					sMembers.get(i+1).getPlayer().getNickName());
 			Log.i("SessionDetails", "Match " + String.valueOf(i/2 + 1) + ", " +
 					sMembers.get(i).getPlayerSeed() + " vs " +
 					sMembers.get(i+1).getPlayerSeed());
-//			Log.i("SessionDetails", sMembers.toString());
 			ll = makeMatchBracket(sv.getContext(), sMembers.get(i), sMembers.get(i+1));
 			ll.setId(i/2 + 1);
 			if (i != 0) {
@@ -163,6 +159,9 @@ public class Detail_Session extends MenuContainerActivity {
 				rl.addView(ll);
 			}
 		}
+		
+		TextView tv = (TextView) ((LinearLayout) findViewById(1)).getChildAt(0);
+		tv.getBackground().setColorFilter(Color.BLUE, Mode.MULTIPLY);
 		
 	}
 	
@@ -206,32 +205,45 @@ public class Detail_Session extends MenuContainerActivity {
 		TextView tv;
 		
 		if (bottomMember.getPlayerSeed() == -1) {
+			// this is a bye match
+			// view for player with the bye
 			tv = new TextView(llContext);
 			tv.setText("(" + String.valueOf(topMember.getPlayerSeed()+1) + ") " + topMember.getPlayer().getNickName() );
 			tv.setGravity(Gravity.RIGHT);
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
+			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bye));
+			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 			ll.addView(tv);
 			
-			ll.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bottom_player));
-			ll.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+			// and an empty view
+			tv = new TextView(llContext);
+			tv.setGravity(Gravity.RIGHT);
+			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
+			tv.setWidth(350);
+			tv.setVisibility(View.GONE);
+			ll.addView(tv);
 		} else {
+			// this is a normal match
+			// view for the top player
 			tv = new TextView(llContext);
 			tv.setText("(" + String.valueOf(topMember.getPlayerSeed()+1) + ") " + topMember.getPlayer().getNickName() );
 			tv.setGravity(Gravity.RIGHT);
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
+			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_top_player));
+			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 			ll.addView(tv);
 			
+			// view for the bottom player
 			tv = new TextView(llContext);
 			tv.setText("(" + String.valueOf(bottomMember.getPlayerSeed()+1) + ") " + bottomMember.getPlayer().getNickName() );
 			tv.setGravity(Gravity.RIGHT);
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
+			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bottom_player));
+			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 			ll.addView(tv);
-			
-			ll.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_top_player));
-			ll.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
 		}
 		return ll;
 	}
