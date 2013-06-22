@@ -2,8 +2,10 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -136,59 +139,56 @@ public class Detail_Session extends MenuContainerActivity {
 		View sv = findViewById(R.id.scrollView1);
 		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
 
-		TextView tv;
+		LinearLayout ll;
 		
-		sMembers = foldRoster(sMembers);
+		foldRoster();
 		
-		for (SessionMember member: sMembers) {
-			if (member != null) {
-				tv = new TextView(sv.getContext());
-				tv.setText("(" + String.valueOf(member.getPlayerSeed()+1) + ") " + member.getPlayer().getNickName() );
-				tv.setId(member.getPlayerSeed()+1);
-				tv.setGravity(Gravity.RIGHT);
-				tv.setTextAppearance(sv.getContext(), android.R.style.TextAppearance_Medium);
-				if (member.getPlayerSeed() % 2 == 0) {
-					tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_top_player));
-				} else {
-					tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_bottom_player));
-				}
-				
-				tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
-				if (member.getPlayerSeed() != 0) {
-					RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-					        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-					lp.addRule(RelativeLayout.BELOW, member.getPlayerSeed());
-					lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
-					rl.addView(tv, lp);
-				} else {
-					tv.setWidth(350);
-					rl.addView(tv);
-				}
+		for (Integer i=0; i < sMembers.size()-1; i+=2) {
+//			Log.i("SessionDetails", "Match " + String.valueOf(i/2 + 1) + ", " +
+//					sMembers.get(i).getPlayer().getNickName() + " vs " +
+//					sMembers.get(i+1).getPlayer().getNickName());
+			Log.i("SessionDetails", "Match " + String.valueOf(i/2 + 1) + ", " +
+					sMembers.get(i).getPlayerSeed() + " vs " +
+					sMembers.get(i+1).getPlayerSeed());
+//			Log.i("SessionDetails", sMembers.toString());
+			ll = makeMatchBracket(sv.getContext(), sMembers.get(i), sMembers.get(i+1));
+			ll.setId(i/2 + 1);
+			if (i != 0) {
+				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				lp.addRule(RelativeLayout.BELOW, i/2);
+				lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
+				rl.addView(ll, lp);
+			} else {
+				rl.addView(ll);
 			}
 		}
 		
 	}
 	
-	public List<SessionMember> foldRoster(List<SessionMember> sMembers) {
+	public void foldRoster() {
 		// expand the list size to the next power of two
 		Integer n = factorTwos(sMembers.size());
 		while (sMembers.size() < Math.pow(2, n)) {
-			sMembers.add(null);
+			SessionMember s = new SessionMember();
+			s.setPlayerSeed(-1);
+			sMembers.add(s);
 		}
 		List<SessionMember> tempRoster = new ArrayList<SessionMember>();
-		for (Integer i=0; i < n; i++) {
+		for (Integer i=0; i < n-1; i++) {
 			tempRoster.clear();
-			while (sMembers.size() > 0) {
-				tempRoster.add(sMembers.get(0));
-				tempRoster.add(sMembers.get(sMembers.size()-1));
-				sMembers.remove(0);
-				sMembers.remove(sMembers.size()-1);
-				Log.i("SessionDetails", "sMembers: " + sMembers.size() + " members, tempRoster: " + tempRoster.size() + " members.");
+			for (Integer j=0; j < sMembers.size()/Math.pow(2, i+1); j++) {
+				tempRoster.addAll(sMembers.subList(j*(int) Math.pow(2,i), (j+1)*(int) Math.pow(2,i)));
+				tempRoster.addAll(sMembers.subList(sMembers.size()-(j+1)*(int) Math.pow(2, i), sMembers.size()-(j)*(int) Math.pow(2, i)));
+				Log.i("SessionDetails", "i=" + i +", sMembers: " + sMembers.size() + " members, tempRoster: " + tempRoster.size() + " members.");
 			}
-			sMembers = tempRoster;
+			sMembers.clear();
+			sMembers.addAll(tempRoster);
+			for (SessionMember member: sMembers) {
+				Log.i("SessionDetails", "sMember seed is " + member.getPlayerSeed());
+			}
 			Log.i("SessionDetails", "n=" + i +", sMembers: " + sMembers.size() + " members, tempRoster: " + tempRoster.size() + " members.");
 		}
-		return sMembers;
 	}
 	
 	public Integer factorTwos(Integer rosterSize) {
@@ -197,5 +197,42 @@ public class Detail_Session extends MenuContainerActivity {
 			n++;
 		}
 		return n;
+	}
+	
+	public LinearLayout makeMatchBracket(Context context, SessionMember topMember, SessionMember bottomMember) {
+		LinearLayout ll = new LinearLayout(context);
+		ll.setOrientation(LinearLayout.VERTICAL);
+		Context llContext = ll.getContext();
+		TextView tv;
+		
+		if (bottomMember.getPlayerSeed() == -1) {
+			tv = new TextView(llContext);
+			tv.setText("(" + String.valueOf(topMember.getPlayerSeed()+1) + ") " + topMember.getPlayer().getNickName() );
+			tv.setGravity(Gravity.RIGHT);
+			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
+			tv.setWidth(350);
+			ll.addView(tv);
+			
+			ll.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bottom_player));
+			ll.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+		} else {
+			tv = new TextView(llContext);
+			tv.setText("(" + String.valueOf(topMember.getPlayerSeed()+1) + ") " + topMember.getPlayer().getNickName() );
+			tv.setGravity(Gravity.RIGHT);
+			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
+			tv.setWidth(350);
+			ll.addView(tv);
+			
+			tv = new TextView(llContext);
+			tv.setText("(" + String.valueOf(bottomMember.getPlayerSeed()+1) + ") " + bottomMember.getPlayer().getNickName() );
+			tv.setGravity(Gravity.RIGHT);
+			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
+			tv.setWidth(350);
+			ll.addView(tv);
+			
+			ll.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_top_player));
+			ll.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+		}
+		return ll;
 	}
 }

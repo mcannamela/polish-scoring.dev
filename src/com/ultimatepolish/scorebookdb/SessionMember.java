@@ -74,9 +74,9 @@ public class SessionMember {
 		return playerSeed;
 	}
 
-//	public void setPlayerSeed(int playerSeed) {
-//		this.playerSeed = playerSeed;
-//	}
+	public void setPlayerSeed(int playerSeed) {
+		this.playerSeed = playerSeed;
+	}
 	
 	public int getPlayerRank() {
 		return playerRank;
