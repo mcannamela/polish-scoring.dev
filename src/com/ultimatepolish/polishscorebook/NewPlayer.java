@@ -3,9 +3,11 @@ package com.ultimatepolish.polishscorebook;
 import java.sql.SQLException;
 import java.util.Locale;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -31,6 +33,8 @@ public class NewPlayer extends MenuContainerActivity {
 	CheckBox lh;
 	CheckBox prefL;
 	CheckBox prefR;
+	Button playerColorBtn;
+	int playerColor = Color.BLACK;
 	CheckBox isActiveCB;
 	
 	@Override
@@ -47,6 +51,7 @@ public class NewPlayer extends MenuContainerActivity {
 		lh = (CheckBox) findViewById(R.id.checkBox_throwsLeftHanded);
 		prefR = (CheckBox) findViewById(R.id.checkBox_prefersRightSide);
 		prefL = (CheckBox) findViewById(R.id.checkBox_prefersLeftSide);
+		playerColorBtn = (Button) findViewById(R.id.newPlayer_colorPicker);
 		isActiveCB = (CheckBox) findViewById(R.id.newPlayer_isActive);
 		
 		
@@ -73,6 +78,8 @@ public class NewPlayer extends MenuContainerActivity {
 				if (p.prefersRightSide == true) {
 					prefR.setChecked(true);
 				}
+				playerColorBtn.setBackgroundColor(p.getColor());
+				playerColor = p.getColor();
 				isActiveCB.setVisibility(View.VISIBLE);
 				isActiveCB.setChecked(p.getIsActive());
 			}
@@ -89,6 +96,7 @@ public class NewPlayer extends MenuContainerActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
 	public void createNewPlayer(View view) {
 		Context context = getApplicationContext();
 		Player newPlayer = null;
@@ -105,7 +113,6 @@ public class NewPlayer extends MenuContainerActivity {
     	Boolean prefersLeftSide = prefL.isChecked();
     	
     	byte[] emptyImage = new byte[0];
-    	Integer color = R.color.Black;
     	
     	Boolean isActive = isActiveCB.isChecked();
     	
@@ -143,6 +150,7 @@ public class NewPlayer extends MenuContainerActivity {
     		p.setRightHanded(throwsRightHanded);
     		p.setPrefersLeftSide(prefersLeftSide);
     		p.setPrefersRightSide(prefersRightSide);
+    		p.setColor(playerColor);
     		p.setIsActive(isActive);
     		try {
 				pDao.update(p);
@@ -157,7 +165,7 @@ public class NewPlayer extends MenuContainerActivity {
     	} else {
 	    	newPlayer = new Player(firstName, lastName, nickname, 
 							throwsRightHanded, throwsLeftHanded, prefersRightSide, prefersLeftSide,
-							height_cm, weight_kg, emptyImage, color);
+							height_cm, weight_kg, emptyImage, playerColor);
 	    	
 	    	try{
 	    		Dao<Player, Long> dao = getHelper().getPlayerDao();
@@ -184,4 +192,24 @@ public class NewPlayer extends MenuContainerActivity {
 			 }
     	}
     }
+
+	public void showColorPicker(View view) {
+		// initialColor is the initially-selected color to be shown in the rectangle on the left of the arrow.
+		// for example, 0xff000000 is black, 0xff0000ff is blue. Please be aware of the initial 0xff which is the alpha.
+		AmbilWarnaDialog dialog = new AmbilWarnaDialog(view.getContext(), playerColor, new OnAmbilWarnaListener() {
+		        @Override
+		        public void onOk(AmbilWarnaDialog dialog, int color) {
+		        	playerColor = color;
+		        	playerColorBtn.setBackgroundColor(color);
+		        }
+		                
+		        @Override
+		        public void onCancel(AmbilWarnaDialog dialog) {
+	                // cancel was selected by the user
+		        }
+		});
+
+		dialog.show();
+	}
 }
+
