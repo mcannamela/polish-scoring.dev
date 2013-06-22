@@ -213,7 +213,7 @@ public class Detail_Session extends MenuContainerActivity {
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
 			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bye));
-			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+			tv.getBackground().setColorFilter(topMember.getPlayer().getColor(), Mode.MULTIPLY);
 			ll.addView(tv);
 			
 			// and an empty view
@@ -232,7 +232,7 @@ public class Detail_Session extends MenuContainerActivity {
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
 			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_top_player));
-			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+			tv.getBackground().setColorFilter(topMember.getPlayer().getColor(), Mode.MULTIPLY);
 			ll.addView(tv);
 			
 			// view for the bottom player
@@ -242,7 +242,7 @@ public class Detail_Session extends MenuContainerActivity {
 			tv.setTextAppearance(llContext, android.R.style.TextAppearance_Medium);
 			tv.setWidth(350);
 			tv.setBackgroundDrawable(llContext.getResources().getDrawable(R.drawable.bracket_bottom_player));
-			tv.getBackground().setColorFilter(Color.RED, Mode.MULTIPLY);
+			tv.getBackground().setColorFilter(bottomMember.getPlayer().getColor(), Mode.MULTIPLY);
 			ll.addView(tv);
 		}
 		return ll;
