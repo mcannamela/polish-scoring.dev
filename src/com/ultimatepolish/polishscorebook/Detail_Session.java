@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +103,7 @@ public class Detail_Session extends MenuContainerActivity {
     	super.onResume();
     	refreshDetails();
     	if (s.sessionType == SessionType.SNGL_ELIM) {
-//			refreshSingleElimBracket();
+			refreshSingleElimBracket();
 		}
     }
 	
@@ -234,19 +235,56 @@ public class Detail_Session extends MenuContainerActivity {
 	
 	public void refreshSingleElimBracket(){
 		TextView tv;
-		Integer matchId;
+		Integer matchIdx;
+		View sv = findViewById(R.id.scrollView1);
+		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
+		RelativeLayout.LayoutParams lp;
+		
 		// for players with byes, move their labeled view up to the next tier
 		for (Integer i=0; i < sMembers.size()-1; i+=2) {
-			matchId = i/2 + 1;
+			matchIdx = i/2;
 			if (sMembers.get(i+1).getPlayerSeed() == -1) {
-				tv = (TextView) findViewById(matchId);
+				tv = (TextView) findViewById(matchIdx + 1000);
 				tv.setText(null);
 				tv.setBackgroundDrawable(null);
-				tv = (TextView) findViewById(getChildBracket(matchId));
-				tv.setWidth(350);
-//				tv.setVisibility(View.GONE);
+
+				tv = (TextView) findViewById(matchIdx + 2000);
+				tv.setText(null);
+				tv.setBackgroundDrawable(null);
+				
+				Integer childId = getChildBracketId(matchIdx);
+				tv = (TextView) findViewById(childId);
+				lp = (LayoutParams) tv.getLayoutParams();
+				rl.removeView(tv);
+				
+				Boolean onTop = true;
+				if (childId >= 2000) {onTop = false;}
+				Log.i("bracket", "matchIdx: " + matchIdx + ", childId: " + childId);
+				
+				tv = makeHalfBracket(sv.getContext(), sMembers.get(i), onTop, true);
+				tv.setId(childId);
+
+				lp = new RelativeLayout.LayoutParams(
+				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				lp.addRule(RelativeLayout.ALIGN_RIGHT, getTier(matchIdx)+2);
+								
+				if (onTop) {
+					lp.addRule(RelativeLayout.ALIGN_TOP, matchIdx + 1000);
+					if (matchIdx != 0) {
+						lp.setMargins(0, -2, 0, 0);
+					}
+				} else {
+					lp.addRule(RelativeLayout.BELOW, childId - 1000);
+					lp.setMargins(0, 0, 0, -2);
+				}
+
+				rl.addView(tv, lp);
 			}
 		}
+		
+		// TODO: remove and re-add views from higher tiers so that they are drawn above lower tiers
+		// TODO: pull all games from the session and figure out how to manage those
+		
 //		((LinearLayout) findViewById(13)).getChildAt(0).getBackground().setColorFilter(Color.GREEN, Mode.MULTIPLY);
 	}
 	
@@ -377,13 +415,13 @@ public class Detail_Session extends MenuContainerActivity {
 		return topParentMatch;
 	}
 	
-	public Integer getChildBracket(Integer matchIdx) {
+	public Integer getChildBracketId(Integer matchIdx) {
 		Integer tier = getTier(matchIdx);
 		Integer topOfTier = getTopGameOfTier(tier);
 		Integer topOfNextTier = getTopGameOfTier(tier+1);
 		
-		Integer childBracket = topOfNextTier + (matchIdx - topOfTier)/2;
-		if (matchIdx % 2 == 0) {
+		Integer childBracket = topOfNextTier + (matchIdx - topOfTier)/2 + 1000;
+		if (matchIdx % 2 != 0) {
 			childBracket += 1000;
 		}
 		return childBracket;
