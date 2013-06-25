@@ -19,7 +19,7 @@ import com.ultimatepolish.polishscorebook.R;
 
 public class Throw implements Comparable<Throw>{
 	public static final String THROW_INDEX = "throwIdx";
-	public static final String GAME = "game_id";
+	public static final String GAME_ID = "game_id";
 	public static final String OFFENSIVE_PLAYER = "offensivePlayer_id";
 	public static final String DEFENSIVE_PLAYER = "defensivePlayer_id";
 
@@ -140,7 +140,7 @@ public class Throw implements Comparable<Throw>{
 	public HashMap<String, Object> getQueryMap(){
         HashMap<String,Object> m = new HashMap<String,Object>();
         m.put(Throw.THROW_INDEX, getThrowIdx());
-        m.put(Throw.GAME, getGame());
+        m.put(Throw.GAME_ID, getGame());
         return m;
 	}
 	

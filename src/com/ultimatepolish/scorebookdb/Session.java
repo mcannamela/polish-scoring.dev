@@ -8,7 +8,9 @@ import java.util.List;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
@@ -35,6 +37,9 @@ public class Session {
 	
 	@DatabaseField
 	private boolean isActive = true;
+	
+	@ForeignCollectionField
+    ForeignCollection<Game> games;
 	
 	public Session(){}
 
@@ -112,5 +117,9 @@ public class Session {
 
 	public void setIsActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+	
+	public ForeignCollection<Game> getGames() {
+		return games;
 	}
 }

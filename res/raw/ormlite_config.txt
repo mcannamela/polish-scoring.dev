@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/22 10:14:25
+# generated on 2013/06/25 10:16:28
 #
 # --table-start--
 dataClass=com.ultimatepolish.scorebookdb.Player
@@ -300,6 +300,10 @@ fieldName=isTeam
 # --field-end--
 # --field-start--
 fieldName=isActive
+# --field-end--
+# --field-start--
+fieldName=games
+foreignCollection=true
 # --field-end--
 # --table-fields-end--
 # --table-end--

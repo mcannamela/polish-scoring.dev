@@ -20,7 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
 import com.ultimatepolish.scorebookdb.SessionMember;
@@ -294,7 +296,8 @@ public class Detail_Session extends MenuContainerActivity {
 		}
 		
 		// TODO: pull all games from the session and figure out how to manage those
-		
+		ForeignCollection<Game> sGames = s.getGames();
+		Log.i("bracket", "session has " + sGames.size() + " games.");
 //		((LinearLayout) findViewById(13)).getChildAt(0).getBackground().setColorFilter(Color.GREEN, Mode.MULTIPLY);
 	}
 	
