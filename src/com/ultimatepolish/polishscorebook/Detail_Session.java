@@ -9,11 +9,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -140,27 +140,29 @@ public class Detail_Session extends MenuContainerActivity {
 	public void createSingleElimBracket(){
 		View sv = findViewById(R.id.scrollView1);
 		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
-		LinearLayout ll;
+		RelativeLayout.LayoutParams lp;
 		TextView tv;
+		Integer matchIdx;
 		
 		foldRoster();
+		makeInvisibleHeaders(rl);
 		
 		// create the lowest tier
 		for (Integer i=0; i < sMembers.size()-1; i+=2) {
 			Log.i("SessionDetails", "Match idx " + String.valueOf(i/2) + ", " +
 					sMembers.get(i).getPlayerSeed() + " vs " +
 					sMembers.get(i+1).getPlayerSeed());
-			
+			matchIdx = i/2;
 			// upper half of match bracket
 			tv = makeHalfBracket(sv.getContext(), sMembers.get(i), true, true);
-			tv.setId(i/2 + 1); // sorry mike, but ids must be positive so i had to start at 1
+			tv.setId(matchIdx + 1000);
 			
 			if (i != 0) {
-				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+				lp = new RelativeLayout.LayoutParams(
 				        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-				lp.addRule(RelativeLayout.BELOW, i/2 + 1000);
-				lp.addRule(RelativeLayout.ALIGN_RIGHT, 0);
-//				lp.setMargins(0, 8, 0, 8);
+				lp.addRule(RelativeLayout.BELOW, matchIdx - 1 + 2000);
+				lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
+				lp.setMargins(0, 8, 0, 0);
 				rl.addView(tv, lp);
 			} else {
 				rl.addView(tv);
@@ -168,13 +170,13 @@ public class Detail_Session extends MenuContainerActivity {
 			
 			// lower half of match bracket
 			tv = makeHalfBracket(sv.getContext(), sMembers.get(i+1), false, true);
-			tv.setId(i/2 + 1001); // (bottom id same as top but offset by 1000)
+			tv.setId(matchIdx + 2000); // (bottom id same as top but offset by 1000)
 			
-			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+			lp = new RelativeLayout.LayoutParams(
 			        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, i/2+1);
-			lp.addRule(RelativeLayout.ALIGN_RIGHT, 0);
-//			lp.setMargins(0, 8, 0, 8);
+			lp.addRule(RelativeLayout.BELOW, matchIdx + 1000);
+			lp.addRule(RelativeLayout.ALIGN_RIGHT, 1);
+			lp.setMargins(0, 0, 0, 8);
 			rl.addView(tv, lp);
 			
 		}
@@ -182,53 +184,69 @@ public class Detail_Session extends MenuContainerActivity {
 		// create higher tiers
 		SessionMember dummySessionMember = new SessionMember();
 		dummySessionMember.setPlayerSeed(-2);
-		RelativeLayout.LayoutParams lp;
-		for (Integer i=sMembers.size()/2 +1; i < sMembers.size(); i++) {
-			Integer topParent = getTopParent(i);
-			Integer bottomParent = getTopParent(i)+1;
+		for (Integer i=sMembers.size()/2; i < sMembers.size()-1; i++) {
+			matchIdx = i;
+			Integer topParentMatch = getTopParentMatch(matchIdx);
+			Integer bottomParentMatch = getTopParentMatch(matchIdx)+1;
 			
 			// upper half of match bracket
 			tv = makeHalfBracket(sv.getContext(), dummySessionMember, true, false);
-			tv.setId(i);
+			tv.setId(matchIdx + 1000);
 
 			lp = new RelativeLayout.LayoutParams(
 			        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.RIGHT_OF, topParent);
-			lp.addRule(RelativeLayout.ALIGN_BOTTOM, topParent+1000);
-			lp.addRule(RelativeLayout.BELOW, topParent);
-			lp.setMargins(-14, -2, 0, 0);
+			lp.addRule(RelativeLayout.ALIGN_LEFT, getTier(matchIdx)+1);
+			lp.addRule(RelativeLayout.ALIGN_RIGHT, getTier(matchIdx)+1);
+			lp.addRule(RelativeLayout.ALIGN_BOTTOM, topParentMatch + 2000);
+			lp.addRule(RelativeLayout.BELOW, topParentMatch + 1000);
+			lp.setMargins(0, -2, 0, 0);
 			rl.addView(tv, lp);
 			
 			// lower half of match bracket
 			tv = makeHalfBracket(sv.getContext(), dummySessionMember, false, false);
-			tv.setId(i+1000);
+			tv.setId(i + 2000);
 
 			lp = new RelativeLayout.LayoutParams(
 			        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.RIGHT_OF, topParent);
-			lp.addRule(RelativeLayout.ABOVE, bottomParent+1000);
-			lp.addRule(RelativeLayout.BELOW, i);
-			lp.setMargins(-14, 0, 0, -2);
+			lp.addRule(RelativeLayout.ALIGN_LEFT, getTier(matchIdx)+1);
+			lp.addRule(RelativeLayout.ALIGN_RIGHT, getTier(matchIdx)+1);
+			lp.addRule(RelativeLayout.ABOVE, bottomParentMatch + 2000);
+			lp.addRule(RelativeLayout.BELOW, matchIdx + 1000);
+			lp.setMargins(0, 0, 0, -2);
 			rl.addView(tv, lp);
 			
-			Log.i("bracket", "Game " + i + ", topParent = " + topParent + ", bottomParent = " + bottomParent);
+			Log.i("bracket", "Game " + i + ", topParent = " + topParentMatch + ", bottomParent = " + bottomParentMatch);
 		}
 		
 		// create winner view
-		Integer topParent = getTopParent(sMembers.size());
+		Integer topParent = getTopParentMatch(sMembers.size()-1);
 		tv = new TextView(sv.getContext());
 		tv.setBackgroundDrawable(sv.getContext().getResources().getDrawable(R.drawable.bracket_endpoint));
 		tv.getBackground().setColorFilter(Color.LTGRAY, Mode.MULTIPLY);
 		lp = new RelativeLayout.LayoutParams(
 		        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		lp.addRule(RelativeLayout.RIGHT_OF, topParent);
-		lp.addRule(RelativeLayout.ALIGN_BOTTOM, topParent);
-		lp.setMargins(-12, 0, 0, -19);
+		lp.addRule(RelativeLayout.ALIGN_LEFT, getTier(sMembers.size()-1)+1);
+		lp.addRule(RelativeLayout.ALIGN_RIGHT, getTier(sMembers.size()-1)+1);
+		lp.addRule(RelativeLayout.ALIGN_BOTTOM, topParent + 1000);
+		lp.setMargins(0, 0, 0, -19);
 		rl.addView(tv, lp);
 	}
 	
 	public void refreshSingleElimBracket(){
-
+		TextView tv;
+		Integer matchId;
+		// for players with byes, move their labeled view up to the next tier
+		for (Integer i=0; i < sMembers.size()-1; i+=2) {
+			matchId = i/2 + 1;
+			if (sMembers.get(i+1).getPlayerSeed() == -1) {
+				tv = (TextView) findViewById(matchId);
+				tv.setText(null);
+				tv.setBackgroundDrawable(null);
+				tv = (TextView) findViewById(getChildBracket(matchId));
+				tv.setWidth(350);
+//				tv.setVisibility(View.GONE);
+			}
+		}
 //		((LinearLayout) findViewById(13)).getChildAt(0).getBackground().setColorFilter(Color.GREEN, Mode.MULTIPLY);
 	}
 	
@@ -259,7 +277,49 @@ public class Detail_Session extends MenuContainerActivity {
 		}
 		return n;
 	}
-	
+
+	public void makeInvisibleHeaders(RelativeLayout rl) {
+		// invisible headers are for spacing the bracket.
+		Context context = rl.getContext();
+		TextView tv;
+		RelativeLayout.LayoutParams lp;
+		
+		// header for the labeled brackets on tier 0
+		tv = new TextView(context);
+		tv.setWidth(350);
+		tv.setHeight(0);
+		tv.setId(1);
+		tv.setBackgroundColor(Color.BLACK);
+		lp = new RelativeLayout.LayoutParams(
+		        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 1);
+		lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 1);
+		rl.addView(tv, lp);
+		
+		// headers for the remaining tiers
+		Integer nTiers = factorTwos(sMembers.size());
+		
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+		// tier width = (screen width - label width - arbitrary side spacing) / number tiers
+		Integer tierWidth = (metrics.widthPixels - 350 - 100) / nTiers;
+		
+		for (Integer i = 0; i < nTiers; i++) {
+			tv = new TextView(context);
+			tv.setWidth(tierWidth);
+			tv.setHeight(0);
+			tv.setId(i+2);
+			tv.setBackgroundColor(Color.RED);
+			lp = new RelativeLayout.LayoutParams(
+			        RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 1);
+			lp.addRule(RelativeLayout.RIGHT_OF, i+1);
+			lp.setMargins(-14, 0, 0, 0);
+			rl.addView(tv, lp);
+		}
+	}
+			
 	public TextView makeHalfBracket(Context context, SessionMember member, Boolean onTop, Boolean addLabels) {
 		TextView tv = new TextView(context);
 		
@@ -298,22 +358,34 @@ public class Detail_Session extends MenuContainerActivity {
 		return tv;
 	}
 	
-	public Integer getTier(Integer gameNum) {
-		return ((Double) Math.floor(-Math.log(1-((double)gameNum-1)/sMembers.size())/Math.log(2))).intValue();
+	public Integer getTier(Integer matchIdx) {
+		return ((Double) Math.floor(-Math.log(1-((double)matchIdx)/sMembers.size())/Math.log(2))).intValue();
 	}
 	
 	public Integer getTopGameOfTier(Integer tier) {
 		// note that tier numbering starts from 0 but games start from 1 
 		// because games are identified by view id and must be positive integers
-		return (int) (sMembers.size()*(1-Math.pow(2, -tier+1))+1);
+		return (int) (sMembers.size()*(1-Math.pow(2, -tier+1)));
 	}
 	
-	public Integer getTopParent(Integer gameNum) {
-		Integer tier = getTier(gameNum);
+	public Integer getTopParentMatch(Integer matchIdx) {
+		Integer tier = getTier(matchIdx);
 		Integer topOfTier = getTopGameOfTier(tier);
 		Integer topOfPrevTier = getTopGameOfTier(tier-1);
 		
-		Integer topParent = topOfPrevTier + 2*(gameNum - topOfTier);
-		return topParent;
+		Integer topParentMatch = topOfPrevTier + 2*(matchIdx - topOfTier);
+		return topParentMatch;
+	}
+	
+	public Integer getChildBracket(Integer matchIdx) {
+		Integer tier = getTier(matchIdx);
+		Integer topOfTier = getTopGameOfTier(tier);
+		Integer topOfNextTier = getTopGameOfTier(tier+1);
+		
+		Integer childBracket = topOfNextTier + (matchIdx - topOfTier)/2;
+		if (matchIdx % 2 == 0) {
+			childBracket += 1000;
+		}
+		return childBracket;
 	}
 }
