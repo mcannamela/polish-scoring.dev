@@ -282,7 +282,17 @@ public class Detail_Session extends MenuContainerActivity {
 			}
 		}
 		
-		// TODO: remove and re-add views from higher tiers so that they are drawn above lower tiers
+		// remove and re-add views in order so that they are drawn above lower tiers
+		for (Integer i = 0; i < sMembers.size()-1; i++) {
+			tv = (TextView) findViewById(i+1000);
+			rl.removeView(tv);
+			rl.addView(tv);
+			
+			tv = (TextView) findViewById(i+2000);
+			rl.removeView(tv);
+			rl.addView(tv);
+		}
+		
 		// TODO: pull all games from the session and figure out how to manage those
 		
 //		((LinearLayout) findViewById(13)).getChildAt(0).getBackground().setColorFilter(Color.GREEN, Mode.MULTIPLY);
