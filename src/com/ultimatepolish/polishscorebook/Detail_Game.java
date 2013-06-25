@@ -120,7 +120,7 @@ public class Detail_Game extends MenuContainerActivity {
 					try{
 						Dao<Throw, Long> tDao = Throw.getDao(getApplicationContext());
 						DeleteBuilder<Throw, Long> tdb = tDao.deleteBuilder();
-				        tdb.where().eq("gameId", g.getId());
+				        tdb.where().eq(Throw.GAME_ID, g.getId());
 				        tDao.delete(tdb.prepare());
 				        
 						gDao.deleteById(g.getId());
