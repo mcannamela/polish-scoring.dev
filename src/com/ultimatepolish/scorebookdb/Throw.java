@@ -101,6 +101,7 @@ public class Throw implements Comparable<Throw>{
 	@DatabaseField
 	private int initialDefensivePlayerScore = 0;
 	
+	
 	Throw(){}
 	
 	public Throw(int throwIdx, Game game, Player offensivePlayer, Player defensivePlayer, Date timestamp,
@@ -145,22 +146,26 @@ public class Throw implements Comparable<Throw>{
 	}
 	
 	public void setFireCounts(Throw previousThrow){
-		int newDefenseCount = previousThrow.getOffenseFireCount();
-		if (previousThrow.getDefenseFireCount() < 3) {
-			if (previousThrow.isStoking()) {
-				newDefenseCount += 1;
-			} else { 
+		int oldOffenseCount = previousThrow.getDefenseFireCount();
+		int oldDefenseCount = previousThrow.getOffenseFireCount();
+		int newOffenseCount = oldOffenseCount;
+		int newDefenseCount = oldDefenseCount;
+		
+		if (oldDefenseCount<3){
+			if (stokesOffensiveFire()){
+				newOffenseCount++;
+			}
+			else{
+				newOffenseCount=0;
+			}
+			if (quenchesDefensiveFire()){
 				newDefenseCount = 0;
 			}
 		}
-		
-		int newOffenseCount = previousThrow.getDefenseFireCount();
-		if (previousThrow.isQuenching()) {
-			newOffenseCount = 0;
-		}
-//		Log.d("Throw.db()", "setFireCounts: (" + throwIdx + ") [" + newOffenseCount + ", " + newDefenseCount + "]");
 		setOffenseFireCount(newOffenseCount);
 		setDefenseFireCount(newDefenseCount);
+		
+//		Log.i("Throw.setFireCounts()", "o="+newOffenseCount+", d="+newDefenseCount);
 	}
 
 	public void setInitialScores(Throw previousThrow){
@@ -187,15 +192,18 @@ public class Throw implements Comparable<Throw>{
 		case ThrowResult.NA:
 			if (throwType == ThrowType.TRAP) {
 				diffs[0] = -1;
-			} else if (offenseFireCount >= 3) {
-				switch (throwType) {
-				case ThrowType.BOTTLE:
-					diffs[0] = 3;
-					break;
-				case ThrowType.CUP:
-				case ThrowType.POLE:
-					diffs[0] = 2;
-					break;
+			} 
+			else if (offenseFireCount >= 3) {
+				if (!isTipped){
+					switch (throwType) {
+					case ThrowType.BOTTLE:
+						diffs[0] = 3;
+						break;
+					case ThrowType.CUP:
+					case ThrowType.POLE:
+						diffs[0] = 2;
+						break;
+					}
 				}
 			}
 			break;
@@ -311,6 +319,19 @@ public class Throw implements Comparable<Throw>{
 			isBlocked = true;
 		}
 		return isBlocked;
+	}
+	public boolean isOffensiveError(){
+		return (isOffensiveBottleKnocked || isOffensivePoleKnocked || 
+				isOffensivePoleKnocked || isOffensiveBreakError || 
+				isOffensiveDrinkDropped || isLineFault);
+	}
+	public boolean isDefensiveError(){
+		return (isDefensiveBottleKnocked || isDefensivePoleKnocked || 
+				isDefensivePoleKnocked || isDefensiveBreakError || 
+				isDefensiveDrinkDropped || isDrinkHit);
+	}
+	public boolean isStackHit(){
+		return (throwType==ThrowType.POLE ||throwType==ThrowType.CUP || throwType==ThrowType.BOTTLE);
 	}
 	
 	public String getSpecialString(){
@@ -494,7 +515,6 @@ public class Throw implements Comparable<Throw>{
 			}
 			
 			break;
-			
 		case ThrowType.POLE:
 		case ThrowType.CUP:
 		case ThrowType.BOTTLE:
@@ -526,7 +546,7 @@ public class Throw implements Comparable<Throw>{
 			if (isTipped && throwResult == ThrowResult.STALWART) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Not possible to stalwart on a tip");
-				Toast.makeText(context, "(" + throwIdx + ") Not possible to stalwart on a tip", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "(" + throwIdx + ") Not possisOffensiveErrorible to stalwart on a tip", Toast.LENGTH_LONG).show();
 			}
 			if (isGoaltend && throwResult == ThrowResult.STALWART) {
 				valid = false;
@@ -698,34 +718,40 @@ public class Throw implements Comparable<Throw>{
 		return isP1Throw(throwIdx);
 	}
 	
-	public boolean isStoking(){
-		boolean isHit = false;
-		if (deadType == 0 && !isLineFault &&
-				!isOffensiveDrinkDropped && !isOffensivePoleKnocked &&
-				!isOffensiveBottleKnocked && !isOffensiveBreakError) {
-			if (throwType == ThrowType.POLE || 
-					throwType == ThrowType.CUP || 
-					throwType == ThrowType.BOTTLE) {
-				isHit = true;
-			} else if (isTipped) {
-				isHit = true;
-			}
-		}
-		
-		return isHit;
+	public boolean stokesOffensiveFire(){
+		//you didn't quench yourself, hit the stack, your opponent didn't stalwart  
+		boolean stokes = (!quenchesOffensiveFire() && 
+							isStackHit() && 
+							!(throwResult==ThrowResult.STALWART) );
+		return stokes;
+	}
+//	public boolean nursesOffensiveFire(){
+//		//you didn't quench yourself, you tipped and are already on fire and hit the stack
+//		boolean isTip = (!quenchesOffensiveFire() && 
+//						isTipped && 
+//						offenseFireCount>=3 && 
+//						isStackHit());	
+//		return isTip;
+//	}
+	
+	public boolean quenchesOffensiveFire(){
+		boolean quenches = isOffensiveError() || (deadType!=DeadType.ALIVE);
+		return quenches;
 	}
 	
-	public boolean isQuenching(){
-		boolean quenches = false;
-		if (throwResult == ThrowResult.DROP || offenseFireCount >= 3) {
-			if (throwType == ThrowType.POLE || 
-					throwType == ThrowType.CUP || 
-					throwType == ThrowType.BOTTLE) {
-				quenches = true;
-			}
-		} else if (isDrinkHit) {
-			quenches = true;
-		}
+	
+	public boolean quenchesDefensiveFire(){
+		//offense hit the stack and defense failed to defend, or offense was on fire 
+		
+		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
+								(throwResult == ThrowResult.BROKEN)|| 
+								(offenseFireCount>=3 && !isTipped);
+		
+		boolean quenches = isStackHit() && defenseFailed;
+		
+		//defensive error will also quench 
+		quenches = quenches || isDefensiveError();
+		 
 		return quenches;
 	}
 }

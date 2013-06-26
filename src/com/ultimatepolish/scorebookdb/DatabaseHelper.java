@@ -96,7 +96,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	
 	private void increment_09(SQLiteDatabase sqliteDatabase, 
 			ConnectionSource connectionSource){
-		ArrayList<Long> badGames = null;
 		try {
 			Log.i("DatabaseHelper.increment_09", "Attempting to upgrade from version 09 to version 10");
 			Dao<Game, Long> gDao = getGameDao();
@@ -108,12 +107,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			DatabaseUpgrader.increment_09(connectionSource, gDao, pDao, sDao, vDao, tDao);
 			
 			createAll();
-//			badGames = DatabaseUpgrader.updateScores(gDao, myContext);
-//			if (badGames.size()>0){
-//				Log.w("DatabaseHelper.increment_09",
-//						"The following games had different scores after upgrade: "+badGames.toString());
-//				throw new RuntimeException("Scores changed on upgrade 09->10");
-//			}
 			
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 9 + " to "
@@ -122,19 +115,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 	
 	private void increment_10(SQLiteDatabase sqliteDatabase, ConnectionSource connectionSource){
-		ArrayList<Long> badGames = null;
 		try {
 			Log.i("DatabaseHelper.increment_10", "Attempting to upgrade from version 10 to version 11");
 			// throw table
 			Dao<Game, Long> gDao = getGameDao();
 			Dao<Throw, Long> tDao = getThrowDao();
 			DatabaseUpgrader.increment_10(connectionSource, gDao, tDao);
-//			badGames = DatabaseUpgrader.updateScores(gDao, myContext);
-//			if (badGames.size()>0){
-//				Log.w("DatabaseHelper.increment_09",
-//						"The following games had different scores after upgrade: "+badGames.toString());
-//				throw new RuntimeException("Scores changed on upgrade 09->10");
-//			}
 
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + 10 + " to "

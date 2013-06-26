@@ -96,7 +96,6 @@ public class DatabaseUpgrader {
 			//throw table
 			// add all the new column types. after populating the new columns, the table gets rebuilt
 			// these are easy. tipped and linefault were not tracked at all previously.
-			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.CATCH +" WHERE id=1376;"); // stalwart was entered improperly
 			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.NOT_THROWN +" WHERE throwType=8;"); // NOT_THROWN moved from 8 to 11
 		
 			tDao.executeRaw(addBooleanDefaultZeroColumn("throw", "isTipped"));
@@ -143,12 +142,27 @@ public class DatabaseUpgrader {
 				tDao.executeRaw(replaceNulls("throw", columnNames[i], "0"));
 			}
 			
-			// migrate offensive errors. drink drop and break errors werent tracked before so stay false.
-			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.BROKEN+" WHERE isBroken=1;");
+			////////////////////////////////////////////////////////////////////
+			//////////////// MIGRATE FIRE//////////////////////////
+			////////////////////////////////////////////////////////////////////
+			tDao.executeRaw("UPDATE throw SET isTipped=1 WHERE isOnFire=1 AND throwResult="+ThrowResult.CATCH+" AND "+
+					"(throwType="+ThrowType.POLE+" OR "+
+					"throwType="+ThrowType.CUP+" OR "+
+					"throwType="+ThrowType.BOTTLE+")"+
+					";");
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isOnFire=1 OR isFiredOn=1;");
+			
+			////////////////////////////////////////////////////////////////////
+			//////////////// MIGRATE OFFENSIVE ERRORS //////////////////////////
+			////////////////////////////////////////////////////////////////////
+			//drink drop and break errors werent tracked before so stay false.
+			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.BROKEN+" WHERE isBroken=1;");//catches cases where onFire overwrote result with NA
 			tDao.executeRaw("UPDATE throw SET isOffensivePoleKnocked=1 WHERE ownGoalScore=2 AND isOwnGoal=1;");
 			tDao.executeRaw("UPDATE throw SET isOffensiveBottleKnocked=1 WHERE ownGoalScore=3 AND isOwnGoal=1;");
 			
-			//migrate short/trap
+			////////////////////////////////////////////////////////////////////
+			//////////////// MIGRATE SHORT/TRAPPED //////////////////////////
+			////////////////////////////////////////////////////////////////////
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.HIGH+
 					" WHERE isShort=1 AND throwType="+ThrowType.BALL_HIGH+";");
 			tDao.executeRaw("UPDATE throw SET deadType="+DeadType.RIGHT+
@@ -261,7 +275,6 @@ public class DatabaseUpgrader {
 		String msg;
 		List<Long> badThrows = new ArrayList<Long>();
 		for(Throw t:tDao){
-//			Log.i("DatabaseUpgrader.updateScores()","processing game "+g.getId());
 			if (!t.getIsValid(context)){
 				msg = "bad throw: " + t.getId();
 				Log.w("DatabaseUpgrader.checkThrows()", msg);
