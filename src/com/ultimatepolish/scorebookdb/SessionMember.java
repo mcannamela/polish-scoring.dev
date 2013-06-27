@@ -17,6 +17,9 @@ public class SessionMember {
 	public static final String PLAYER_SEED = "playerSeed";
 	public static final String PLAYER_RANK = "playerRank";
 	
+	@DatabaseField(generatedId=true)
+	private long id;
+	
 	@DatabaseField(canBeNull=false,uniqueCombo=true,foreign=true)
 	private Session session;
 	
@@ -58,6 +61,10 @@ public class SessionMember {
 		return sessionMembers;
 	}
 
+	public long getId() {
+		return id;
+	}
+	
 	public Session getSessionId() {
 		return session;
 	}
