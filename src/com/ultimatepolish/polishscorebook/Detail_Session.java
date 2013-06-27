@@ -2,6 +2,7 @@ package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
@@ -20,14 +21,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.ultimatepolish.scorebookdb.Game;
 import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
 import com.ultimatepolish.scorebookdb.SessionMember;
 import com.ultimatepolish.scorebookdb.SessionType;
-import com.ultimatepolish.scorebookdb.Team;
+import com.ultimatepolish.scorebookdb.Throw;
 
 public class Detail_Session extends MenuContainerActivity {
 	Long sId;
@@ -35,13 +35,14 @@ public class Detail_Session extends MenuContainerActivity {
 	Dao<Session, Long> sDao;
 	Dao<SessionMember, Long> smDao;
 	Dao<Player, Long> pDao;
-	Dao<Team, Long> tDao;
+	Dao<Game, Long> gDao;
 	List<SessionMember> sMembers = new ArrayList<SessionMember>();
+	HashMap<SessionMember, Integer> bracketMap = new HashMap<SessionMember, Integer>();
+	HashMap<Long, SessionMember> sMemberMap = new HashMap<Long, SessionMember>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.activity_detail_session);
 		
 		Intent intent = getIntent();
 		sId = intent.getLongExtra("SID", -1);
@@ -51,6 +52,7 @@ public class Detail_Session extends MenuContainerActivity {
 				sDao = Session.getDao(getApplicationContext());
 				smDao = SessionMember.getDao(getApplicationContext());
 				pDao = Player.getDao(getApplicationContext());
+				gDao = Game.getDao(getApplicationContext());
 				
 				s = sDao.queryForId(sId);
 				
@@ -62,13 +64,12 @@ public class Detail_Session extends MenuContainerActivity {
 		        
 	        	for(SessionMember member: sMembers) {
 	        		pDao.refresh(member.getPlayer());
+	        		sMemberMap.put(member.getPlayer().getId(), member);
 	        	}
 	        	
 		    }
-			catch (SQLException e){
-				Toast.makeText(getApplicationContext(), 
-						e.getMessage(), 
-						Toast.LENGTH_LONG).show();
+			catch (SQLException e) {
+				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 			}
 		}
 		
@@ -108,7 +109,21 @@ public class Detail_Session extends MenuContainerActivity {
 			refreshSingleElimBracket();
 		}
     }
-	
+
+    @Override
+	protected void onPause() {
+		super.onPause();
+		
+		try {
+			for (SessionMember sm: sMembers) {
+				smDao.update(sm);
+			}
+		}
+		catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+	}
+    
 	public void refreshDetails(){
 		TextView sName = (TextView) findViewById(R.id.sDet_name);
 		sName.setText(s.getSessionName());
@@ -141,6 +156,10 @@ public class Detail_Session extends MenuContainerActivity {
 	}
 	
 	public void createSingleElimBracket(){
+		// matches are numbered top to bottom starting at tier 0 and continuing in higher tiers
+		// the upper bracket of a match is given the id = 1000 + matchId
+		// similarly, the lower bracket is given the id = 2000 + matchId
+		
 		View sv = findViewById(R.id.scrollView1);
 		RelativeLayout rl = (RelativeLayout) findViewById(R.id.sDet_bracket);
 		RelativeLayout.LayoutParams lp;
@@ -148,6 +167,7 @@ public class Detail_Session extends MenuContainerActivity {
 		Integer matchIdx;
 		
 		foldRoster();
+		
 		makeInvisibleHeaders(rl);
 		
 		// create the lowest tier
@@ -156,6 +176,13 @@ public class Detail_Session extends MenuContainerActivity {
 					sMembers.get(i).getPlayerSeed() + " vs " +
 					sMembers.get(i+1).getPlayerSeed());
 			matchIdx = i/2;
+			
+			// populate the bracket map
+			bracketMap.put(sMembers.get(i), matchIdx + 1000);
+			if (sMembers.get(i+1).getPlayerSeed() >= 0) {
+				bracketMap.put(sMembers.get(i+1), matchIdx + 2000);
+			}
+			
 			// upper half of match bracket
 			tv = makeHalfBracket(sv.getContext(), sMembers.get(i), true, true);
 			tv.setId(matchIdx + 1000);
@@ -187,6 +214,7 @@ public class Detail_Session extends MenuContainerActivity {
 		// create higher tiers
 		SessionMember dummySessionMember = new SessionMember();
 		dummySessionMember.setPlayerSeed(-2);
+		dummySessionMember.setPlayerRank(-1000);
 		for (Integer i=sMembers.size()/2; i < sMembers.size()-1; i++) {
 			matchIdx = i;
 			Integer topParentMatch = getTopParentMatch(matchIdx);
@@ -246,6 +274,10 @@ public class Detail_Session extends MenuContainerActivity {
 		for (Integer i=0; i < sMembers.size()-1; i+=2) {
 			matchIdx = i/2;
 			if (sMembers.get(i+1).getPlayerSeed() == -1) {
+				sMembers.get(i).setPlayerRank(1);
+				bracketMap.remove(sMembers.get(i));
+				bracketMap.put(sMembers.get(i), getChildBracketId(matchIdx));
+				
 				tv = (TextView) findViewById(matchIdx + 1000);
 				tv.setText(null);
 				tv.setBackgroundDrawable(null);
@@ -295,19 +327,62 @@ public class Detail_Session extends MenuContainerActivity {
 			rl.addView(tv);
 		}
 		
-		// TODO: pull all games from the session and figure out how to manage those
-		ForeignCollection<Game> sGames = s.getGames();
-		Log.i("bracket", "session has " + sGames.size() + " games.");
-//		((LinearLayout) findViewById(13)).getChildAt(0).getBackground().setColorFilter(Color.GREEN, Mode.MULTIPLY);
+		// get all the completed games for the session, ordered by date played
+		List<Game> sGamesList = new ArrayList<Game>();
+		try {
+			sGamesList = gDao.queryBuilder().orderBy(Game.DATE_PLAYED, true).where().eq(Game.SESSION, s.getId()).and().eq(Game.IS_COMPLETE, true).query();
+			for (Game g: sGamesList) {
+				gDao.refresh(g);
+			}
+		} catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+		
+		// step through the games, promoting and eliminating players
+		SessionMember winner;
+		SessionMember loser;
+		Integer newWinnerBracket;
+
+		for (Game g: sGamesList) {
+			winner = sMemberMap.get(g.getWinner().getId());
+			loser = sMemberMap.get(g.getLoser().getId());
+			
+			newWinnerBracket = getChildBracketId(bracketMap.get(winner));
+			tv = (TextView) findViewById(newWinnerBracket);
+			tv.getBackground().setColorFilter(winner.getPlayer().color, Mode.MULTIPLY);
+			bracketMap.remove(winner);
+			bracketMap.put(winner, newWinnerBracket);
+			sMembers.get(sMembers.indexOf(winner)).setPlayerRank(getTier(newWinnerBracket));
+			
+			tv = (TextView) findViewById(bracketMap.get(loser));
+			if ( bracketMap.get(loser) % 1000 < sMembers.size()/2 ) {
+				if (bracketMap.get(loser) >= 2000) {
+					tv.setBackgroundDrawable(tv.getResources().getDrawable(R.drawable.bracket_bottom_eliminated_labeled));
+				}
+				else {
+					tv.setBackgroundDrawable(tv.getResources().getDrawable(R.drawable.bracket_top_eliminated_labeled));
+				}
+			}
+			else {
+				if (bracketMap.get(loser) >= 2000) {
+					tv.setBackgroundDrawable(tv.getResources().getDrawable(R.drawable.bracket_bottom_eliminated));
+				}
+				else {
+					tv.setBackgroundDrawable(tv.getResources().getDrawable(R.drawable.bracket_top_eliminated));
+				}
+			}
+			tv.getBackground().setColorFilter(loser.getPlayer().color, Mode.MULTIPLY);
+		}
 	}
 	
 	public void foldRoster() {
 		// expand the list size to the next power of two
 		Integer n = factorTwos(sMembers.size());
 		while (sMembers.size() < Math.pow(2, n)) {
-			SessionMember s = new SessionMember();
-			s.setPlayerSeed(-1);
-			sMembers.add(s);
+			SessionMember dummySessionMember = new SessionMember();
+			dummySessionMember.setPlayerSeed(-1);
+			dummySessionMember.setPlayerRank(-1000);
+			sMembers.add(dummySessionMember);
 		}
 		List<SessionMember> tempRoster = new ArrayList<SessionMember>();
 		for (Integer i=0; i < n-1; i++) {
@@ -409,29 +484,33 @@ public class Detail_Session extends MenuContainerActivity {
 		return tv;
 	}
 	
-	public Integer getTier(Integer matchIdx) {
+	public Integer getTier(Integer bracketIdx) {
+		// can take bracket idx or match idx
+		Integer matchIdx = bracketIdx % 1000;
 		return ((Double) Math.floor(-Math.log(1-((double)matchIdx)/sMembers.size())/Math.log(2))).intValue();
 	}
 	
-	public Integer getTopGameOfTier(Integer tier) {
-		// note that tier numbering starts from 0 but games start from 1 
-		// because games are identified by view id and must be positive integers
+	public Integer getTopMatchOfTier(Integer tier) {
 		return (int) (sMembers.size()*(1-Math.pow(2, -tier+1)));
 	}
 	
-	public Integer getTopParentMatch(Integer matchIdx) {
+	public Integer getTopParentMatch(Integer bracketIdx) {
+		// can take bracket idx or match idx
+		Integer matchIdx = bracketIdx % 1000;
 		Integer tier = getTier(matchIdx);
-		Integer topOfTier = getTopGameOfTier(tier);
-		Integer topOfPrevTier = getTopGameOfTier(tier-1);
+		Integer topOfTier = getTopMatchOfTier(tier);
+		Integer topOfPrevTier = getTopMatchOfTier(tier-1);
 		
 		Integer topParentMatch = topOfPrevTier + 2*(matchIdx - topOfTier);
 		return topParentMatch;
 	}
 	
-	public Integer getChildBracketId(Integer matchIdx) {
+	public Integer getChildBracketId(Integer bracketIdx) {
+		// this can take in a bracket or match idx
+		Integer matchIdx = bracketIdx % 1000;
 		Integer tier = getTier(matchIdx);
-		Integer topOfTier = getTopGameOfTier(tier);
-		Integer topOfNextTier = getTopGameOfTier(tier+1);
+		Integer topOfTier = getTopMatchOfTier(tier);
+		Integer topOfNextTier = getTopMatchOfTier(tier+1);
 		
 		Integer childBracket = topOfNextTier + (matchIdx - topOfTier)/2 + 1000;
 		if (matchIdx % 2 != 0) {
