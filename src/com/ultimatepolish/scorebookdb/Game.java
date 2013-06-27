@@ -19,6 +19,8 @@ public class Game {
 	public static final String SECOND_PLAYER = "secondPlayer_id";
 	public static final String SESSION = "session_id";
 	public static final String VENUE = "venue_id";
+	public static final String DATE_PLAYED = "datePlayed";
+	public static final String IS_COMPLETE = "isComplete";
 	
 	@DatabaseField(generatedId=true)
 	private long id;
@@ -277,5 +279,13 @@ public class Game {
 			winner = secondPlayer;
 		}
 		return winner;
+	}
+	
+	public Player getLoser() {
+		Player loser = firstPlayer;
+		if (getSecondPlayerScore() < getFirstPlayerScore()) {
+			loser = secondPlayer;
+		}
+		return loser;
 	}
 }
