@@ -43,7 +43,15 @@ public class SessionMember {
 		this.session = session;
 		this.player = player;
 		this.playerSeed = playerSeed;
-		this.playerRank = playerSeed;
+		this.playerRank = 0;
+	}
+	
+	public SessionMember(Session session, Player player, int playerSeed, int playerRank) {
+		super();
+		this.session = session;
+		this.player = player;
+		this.playerSeed = playerSeed;
+		this.playerRank = playerRank;
 	}
 	
 	public static Dao<SessionMember, Long> getDao(Context context) throws SQLException{
