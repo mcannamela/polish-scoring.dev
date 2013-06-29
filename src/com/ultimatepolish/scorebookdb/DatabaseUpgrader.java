@@ -276,8 +276,8 @@ public class DatabaseUpgrader {
 		String msg;
 		List<Long> badThrows = new ArrayList<Long>();
 		for(Throw t:tDao){
-			if (!t.isValid(context)){
-				msg = "bad throw: " + t.getId();
+			if (!t.isValid()){
+				msg = "bad throw: " + t.getId()+"- "+t.getInvalidMessage();
 				Log.w("DatabaseUpgrader.checkThrows()", msg);
 				badThrows.add(t.getId());
 			}
@@ -285,7 +285,7 @@ public class DatabaseUpgrader {
 		if (badThrows.size() > 0) {
 			//these have to be done after firecounts are updated
 			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
-				" WHERE offenseFireCount>=3 AND throwResult != " + ThrowResult.BROKEN + ";");
+				" WHERE offenseFireCount>3 AND throwResult != " + ThrowResult.BROKEN + ";");
 			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
 					", throwResult= " + ThrowResult.NA + " WHERE defenseFireCount>=3;");
 		}
