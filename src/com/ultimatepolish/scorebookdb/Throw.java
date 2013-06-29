@@ -48,7 +48,7 @@ public class Throw implements Comparable<Throw>{
 	private int throwResult;
 
 	@DatabaseField
-	private int deadType = 0;
+	private int deadType = DeadType.ALIVE;
 	
 	@DatabaseField
 	public boolean isTipped = false;
@@ -100,6 +100,8 @@ public class Throw implements Comparable<Throw>{
 
 	@DatabaseField
 	private int initialDefensivePlayerScore = 0;
+	
+	private String invalidMessage ="";
 	
 	
 	Throw(){}
@@ -211,7 +213,7 @@ public class Throw implements Comparable<Throw>{
 			if (!isLineFault) {
 				switch (throwType){
 					case ThrowType.STRIKE:
-						if (!isDropScoreBlocked() && deadType == 0){
+						if (!isDropScoreBlocked() && deadType == DeadType.ALIVE){
 							diffs[0] = 1;
 						}
 						break;
@@ -265,7 +267,9 @@ public class Throw implements Comparable<Throw>{
 			}
 			break;
 		case ThrowResult.STALWART:
-			diffs[1] = 1;
+			if (isStackHit()){
+				diffs[1] = 1;
+			}
 			break;
 		case ThrowResult.BROKEN:
 			if (!isLineFault) {
@@ -315,9 +319,17 @@ public class Throw implements Comparable<Throw>{
 		boolean isBlocked = false;
 		int oScore = initialOffensivePlayerScore;
 		int dScore = initialDefensivePlayerScore;
-		if (oScore>=10 && dScore<oScore){
+		
+		if (oScore<10 && dScore <10){
+			isBlocked = false;
+		}
+		else if (oScore>=10 && dScore<oScore && dScore<10){
 			isBlocked = true;
 		}
+		else if (oScore>=10 && dScore>=10 && oScore>dScore){
+			isBlocked = true;
+		}
+		
 		return isBlocked;
 	}
 	public boolean isOffensiveError(){
@@ -332,6 +344,53 @@ public class Throw implements Comparable<Throw>{
 	}
 	public boolean isStackHit(){
 		return (throwType==ThrowType.POLE ||throwType==ThrowType.CUP || throwType==ThrowType.BOTTLE);
+	}
+	
+	public boolean isOnFire(){
+		if (offenseFireCount>3){
+			assert defenseFireCount<3:"should not be possible to have both players with fire counts >=3";
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	public boolean isFiredOn(){
+		if (defenseFireCount>=3){
+			assert offenseFireCount<3:"should not be possible to have both players with fire counts >=3";
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public boolean stokesOffensiveFire(){
+		//you didn't quench yourself, hit the stack, your opponent didn't stalwart  
+		boolean stokes = (!quenchesOffensiveFire() && 
+							isStackHit() && 
+							!(throwResult==ThrowResult.STALWART) );
+		return stokes;
+	}
+	
+	public boolean quenchesOffensiveFire(){
+		boolean quenches = isOffensiveError() || (deadType!=DeadType.ALIVE);
+		return quenches;
+	}
+	
+	public boolean quenchesDefensiveFire(){
+		//offense hit the stack and defense failed to defend, or offense was on fire 
+		
+		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
+								(throwResult == ThrowResult.BROKEN)|| 
+								(offenseFireCount>=3 && !isTipped);
+		
+		boolean quenches = isStackHit() && defenseFailed;
+		
+		//defensive error will also quench 
+		quenches = quenches || isDefensiveError();
+		 
+		return quenches;
 	}
 	
 	public String getSpecialString(){
@@ -387,7 +446,7 @@ public class Throw implements Comparable<Throw>{
 	public void setThrowDrawable(ImageView iv){
 		List<Drawable> boxIconLayers = new ArrayList<Drawable>();
 		
-		if (!getIsValid(iv.getContext())) {
+		if (!isValid(iv.getContext())) {
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_badthrow));
 		}
 		switch (throwType) {
@@ -475,7 +534,10 @@ public class Throw implements Comparable<Throw>{
 		iv.setImageDrawable(new LayerDrawable(boxIconLayers.toArray(new Drawable[0])));
 	}
 	
-	public boolean getIsValid(Context context) {
+	public String getInvalidMessage(){
+		return invalidMessage;
+	}
+	public boolean isValid(Context context) {
 		boolean valid = true;
 		
 		if (offenseFireCount >= 3) {
@@ -491,7 +553,7 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.BALL_LOW:
 		case ThrowType.BALL_LEFT:
 		case ThrowType.STRIKE:
-			if (deadType != 0 && isDrinkHit){
+			if (deadType != DeadType.ALIVE && isDrinkHit){
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") drinkHit must be on a live throw");
 				Toast.makeText(context, "(" + throwIdx + ") drinkHit must be on a live throw", Toast.LENGTH_LONG).show();
@@ -533,7 +595,7 @@ public class Throw implements Comparable<Throw>{
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously");
 				Toast.makeText(context, "(" + throwIdx + ") PCB throws cant be tipped and goaltended simultaneously", Toast.LENGTH_LONG).show();
 			}
-			if (deadType != 0 && isGoaltend) {
+			if (deadType != DeadType.ALIVE && isGoaltend) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Dead throws cannot be goaltended");
 				Toast.makeText(context, "(" + throwIdx + ") Dead throws cannot be goaltended", Toast.LENGTH_LONG).show();
@@ -583,7 +645,7 @@ public class Throw implements Comparable<Throw>{
 		case ThrowType.FIRED_ON:
 			// fired_on is a dummy throw, so modifiers dont count and result must be NA
 			// errors could potentially happen while returning the disc, so those are allowed
-			if (isLineFault || isGoaltend || isTipped || isDrinkHit || deadType != 0) {
+			if (isLineFault || isGoaltend || isTipped || isDrinkHit || deadType != DeadType.ALIVE) {
 				valid = false;
 				Log.i("Throw.db()", "getIsValid: (" + throwIdx + ") Fired-on cannot be modified");
 				Toast.makeText(context, "(" + throwIdx + ") Fired-on cannot be modified", Toast.LENGTH_LONG).show();
@@ -718,40 +780,5 @@ public class Throw implements Comparable<Throw>{
 		return isP1Throw(throwIdx);
 	}
 	
-	public boolean stokesOffensiveFire(){
-		//you didn't quench yourself, hit the stack, your opponent didn't stalwart  
-		boolean stokes = (!quenchesOffensiveFire() && 
-							isStackHit() && 
-							!(throwResult==ThrowResult.STALWART) );
-		return stokes;
-	}
-//	public boolean nursesOffensiveFire(){
-//		//you didn't quench yourself, you tipped and are already on fire and hit the stack
-//		boolean isTip = (!quenchesOffensiveFire() && 
-//						isTipped && 
-//						offenseFireCount>=3 && 
-//						isStackHit());	
-//		return isTip;
-//	}
 	
-	public boolean quenchesOffensiveFire(){
-		boolean quenches = isOffensiveError() || (deadType!=DeadType.ALIVE);
-		return quenches;
-	}
-	
-	
-	public boolean quenchesDefensiveFire(){
-		//offense hit the stack and defense failed to defend, or offense was on fire 
-		
-		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
-								(throwResult == ThrowResult.BROKEN)|| 
-								(offenseFireCount>=3 && !isTipped);
-		
-		boolean quenches = isStackHit() && defenseFailed;
-		
-		//defensive error will also quench 
-		quenches = quenches || isDefensiveError();
-		 
-		return quenches;
-	}
 }
