@@ -151,6 +151,7 @@ public class DatabaseUpgrader {
 					"throwType="+ThrowType.BOTTLE+")"+
 					";");
 			tDao.executeRaw("UPDATE throw SET throwResult="+ThrowResult.NA+" WHERE isOnFire=1 OR isFiredOn=1;");
+			tDao.executeRaw("UPDATE throw SET throwType="+ThrowType.FIRED_ON+" WHERE isFiredOn=1;");
 			
 			////////////////////////////////////////////////////////////////////
 			//////////////// MIGRATE OFFENSIVE ERRORS //////////////////////////
@@ -275,7 +276,7 @@ public class DatabaseUpgrader {
 		String msg;
 		List<Long> badThrows = new ArrayList<Long>();
 		for(Throw t:tDao){
-			if (!t.getIsValid(context)){
+			if (!t.isValid(context)){
 				msg = "bad throw: " + t.getId();
 				Log.w("DatabaseUpgrader.checkThrows()", msg);
 				badThrows.add(t.getId());
