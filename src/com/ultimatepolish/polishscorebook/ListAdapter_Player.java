@@ -41,6 +41,8 @@ public class ListAdapter_Player extends BaseExpandableListAdapter {
       
      TextView playerId = (TextView) view.findViewById(R.id.textView_playerId);
      playerId.setText(playerInfo.getId().trim());
+     TextView playerColor = (TextView) view.findViewById(R.id.textView_playerColor);
+     playerColor.setBackgroundColor(playerInfo.getColor());
      TextView name = (TextView) view.findViewById(R.id.textView_name);
      name.setText(playerInfo.getName().trim());
      TextView nickName = (TextView) view.findViewById(R.id.textView_nickName);
