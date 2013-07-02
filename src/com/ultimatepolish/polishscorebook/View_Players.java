@@ -98,7 +98,7 @@ public class View_Players extends MenuContainerActivity {
         	playerDao = getHelper().getPlayerDao();
         	for (Player p: playerDao) {
         		addPlayer(p.getIsActive(), 
-        				String.valueOf(p.getId()), 
+        				String.valueOf(p.getId()), p.color,
         				p.getFirstName() + " " + p.getLastName(), 
         				"(" + p.getNickName() + ")"
         				);
@@ -149,7 +149,7 @@ public class View_Players extends MenuContainerActivity {
     	statusList.add(vhh_Player);
     	sHash.put(statusName, vhh_Player);
     }
-    private void addPlayer(Boolean isActive, String playerId, String playerName, String playerNick){
+    private void addPlayer(Boolean isActive, String playerId, Integer playerColor, String playerName, String playerNick){
     	//find the index of the player header
     	String sortBy;
     	if (isActive) {
@@ -163,6 +163,7 @@ public class View_Players extends MenuContainerActivity {
 	    //create a new child and add that to the group
 	    ViewHolder_Player playerInfo = new ViewHolder_Player();
 	    playerInfo.setId(playerId);
+	    playerInfo.setColor(playerColor);
 	    playerInfo.setName(playerName);
 	    playerInfo.setNickName(playerNick);
 	    playerList.add(playerInfo);

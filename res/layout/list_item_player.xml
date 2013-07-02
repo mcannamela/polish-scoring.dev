@@ -14,12 +14,21 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
+        android:id="@+id/textView_playerColor"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/textView_playerId"
+        android:layout_centerInParent="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
         android:id="@+id/textView_name"
         android:layout_width="200sp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/textView_playerId"
-        android:layout_alignBaseline="@+id/textView_playerId"
+        android:layout_toRightOf="@id/textView_playerColor"
+        android:layout_alignBaseline="@id/textView_playerId"
         android:hint="name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
