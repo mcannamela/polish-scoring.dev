@@ -153,8 +153,17 @@ public class Throw implements Comparable<Throw>{
 		int newOffenseCount = oldOffenseCount;
 		int newDefenseCount = oldDefenseCount;
 		
-		if (oldDefenseCount<3){
-			if (stokesOffensiveFire()){
+		//previous throw, opponent was or went on fire
+		if (oldDefenseCount>=3){
+			newOffenseCount = oldOffenseCount;
+			newDefenseCount = oldDefenseCount;
+		}
+		//opponent not on fire last throw so we have a chance to change things
+		else{
+			if (oldOffenseCount==3){
+				newOffenseCount++;
+			}
+			else if (stokesOffensiveFire()){
 				newOffenseCount++;
 			}
 			else{
@@ -164,10 +173,11 @@ public class Throw implements Comparable<Throw>{
 				newDefenseCount = 0;
 			}
 		}
+		
 		setOffenseFireCount(newOffenseCount);
 		setDefenseFireCount(newDefenseCount);
 		
-//		Log.i("Throw.setFireCounts()", "o="+newOffenseCount+", d="+newDefenseCount);
+		Log.i("Throw.setFireCounts()", "o="+newOffenseCount+", d="+newDefenseCount);
 	}
 
 	public void setInitialScores(Throw previousThrow){
@@ -195,7 +205,7 @@ public class Throw implements Comparable<Throw>{
 			if (throwType == ThrowType.TRAP) {
 				diffs[0] = -1;
 			} 
-			else if (offenseFireCount >= 3) {
+			else if (isOnFire()) {
 				if (!isTipped){
 					switch (throwType) {
 					case ThrowType.BOTTLE:
@@ -383,7 +393,7 @@ public class Throw implements Comparable<Throw>{
 		
 		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
 								(throwResult == ThrowResult.BROKEN)|| 
-								(offenseFireCount>=3 && !isTipped);
+								(isOnFire() && !isTipped);
 		
 		boolean quenches = isStackHit() && defenseFailed;
 		
@@ -460,7 +470,7 @@ public class Throw implements Comparable<Throw>{
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
 			break;
 		case ThrowType.STRIKE:
-			if (throwResult == ThrowResult.CATCH || offenseFireCount >= 3) {
+			if (throwResult == ThrowResult.CATCH || isOnFire()) {
 				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
 			}
 			break;
@@ -524,7 +534,7 @@ public class Throw implements Comparable<Throw>{
 			break;
 		}
 		
-		if (offenseFireCount >= 3) {
+		if (isOnFire()) {
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_fire));
 		}
 		if (isTipped) {
