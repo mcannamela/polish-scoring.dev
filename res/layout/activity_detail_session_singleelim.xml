@@ -63,13 +63,6 @@
     	android:layout_height="match_parent"
     	android:layout_alignParentBottom="true"
     	android:layout_below="@id/sDet_isActive"
-    	android:layout_marginTop="20dp" >
-
-    	<RelativeLayout
-    		android:id="@+id/sDet_bracket"
-    		android:layout_width="match_parent"
-    		android:layout_height="match_parent" />
-
-    </ScrollView>
+    	android:layout_marginTop="20dp" />
 
 </RelativeLayout>
