@@ -207,12 +207,6 @@ public class Bracket{
 		lp.addRule(RelativeLayout.ALIGN_BOTTOM, topParent + 1000);
 		lp.setMargins(0, 0, 0, -19);
 		rl.addView(tv, lp);
-	}
-	
-	public void refreshSingleElimBracket(){
-		TextView tv;
-		Integer matchIdx;
-		RelativeLayout.LayoutParams lp;
 		
 		// for players with byes, move their labeled view up to the next tier
 		for (Integer i=0; i < sMembers.size()-1; i+=2) {
@@ -270,6 +264,12 @@ public class Bracket{
 			rl.removeView(tv);
 			rl.addView(tv);
 		}
+	}
+	
+	public void refreshSingleElimBracket(){
+		TextView tv;
+		Integer matchIdx;
+		RelativeLayout.LayoutParams lp;
 		
 		// get all the completed games for the session, ordered by date played
 		List<Game> sGamesList = new ArrayList<Game>();
@@ -302,7 +302,7 @@ public class Bracket{
 			sMembers.get(sMembers.indexOf(winner)).setPlayerRank(getTier(newWinnerBracket));
 			
 			tv = (TextView) rl.findViewById(bracketMap.get(loser));
-			if ( bracketMap.get(loser) % 1000 < sMembers.size()/2 ) {
+			if ( tv.getText() != "" ) {
 				if (bracketMap.get(loser) >= 2000) {
 					tv.setBackgroundDrawable(tv.getResources().getDrawable(R.drawable.bracket_bottom_eliminated_labeled));
 				}
