@@ -198,6 +198,7 @@ public class Bracket{
 		// create winner view
 		Integer topParent = getTopParentMatch(sMembers.size()-1);
 		tv = new TextView(context);
+		tv.setId(sMembers.size()-1 + 1000);
 		tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.bracket_endpoint));
 		tv.getBackground().setColorFilter(Color.LTGRAY, Mode.MULTIPLY);
 		lp = new RelativeLayout.LayoutParams(
@@ -293,8 +294,10 @@ public class Bracket{
 		for (Game g: sGamesList) {
 			winner = sMemberMap.get(g.getWinner().getId());
 			loser = sMemberMap.get(g.getLoser().getId());
+			Log.i("bracket", "winner id is " + g.getWinner().getId() + ", loser id is " + g.getLoser().getId());
 			
 			newWinnerBracket = getChildBracketId(bracketMap.get(winner));
+			Log.i("bracket", "winner bracket id is " + newWinnerBracket);
 			tv = (TextView) rl.findViewById(newWinnerBracket);
 			tv.getBackground().setColorFilter(winner.getPlayer().color, Mode.MULTIPLY);
 			bracketMap.remove(winner);
