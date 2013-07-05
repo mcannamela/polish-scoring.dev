@@ -230,12 +230,24 @@
         android:onClick="buttonPressed"
         android:contentDescription="bottle" />
     
+	<ImageView 
+    	android:id="@+id/gip_na_indicator"
+    	android:layout_height="120dp"
+    	android:layout_width = "4dp"
+    	android:layout_alignParentLeft="true"
+    	android:layout_below="@id/gip_button_bottle"
+    	android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
+    	android:background="#00FF00"
+    	/>
+	
      <NumberPicker
          android:id="@+id/numPicker_catch"
-         android:layout_alignParentLeft="true"
+         android:layout_toRightOf="@id/gip_na_indicator"
          android:layout_below="@+id/gip_button_bottle"
-         android:layout_width="230dp"
+         android:layout_width="205dp"
          android:layout_height="120dp"
+         android:layout_marginLeft="10dp"
          android:layout_marginTop="25dp"
          android:layout_marginBottom="25dp" />
 

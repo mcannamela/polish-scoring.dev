@@ -1,8 +1,6 @@
 package com.ultimatepolish.polishscorebook;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,11 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.ultimatepolish.scorebookdb.Bracket;
-import com.ultimatepolish.scorebookdb.Player;
 import com.ultimatepolish.scorebookdb.Session;
-import com.ultimatepolish.scorebookdb.SessionMember;
 import com.ultimatepolish.scorebookdb.SessionType;
 
 public class Detail_Session extends MenuContainerActivity {
