@@ -51,6 +51,7 @@ public class GameInProgress extends MenuContainerActivity
 	private List<ThrowTableFragment> fragmentArray = new ArrayList<ThrowTableFragment>(0);
 	private ViewPager vp;
 	private View[] deadViews = new View[4];
+	private View naView;
 	
 	Game g;
 	ActiveGame ag;
@@ -94,6 +95,7 @@ public class GameInProgress extends MenuContainerActivity
 				// updateActiveThrow can change the result. Otherwise the
 				// numberpicker is ignored.
 				currentThrowResult = ThrowResult.CATCH;
+				naView.setBackgroundColor(Color.LTGRAY);
 			}
 			updateActiveThrow();
 		}
@@ -363,14 +365,7 @@ public class GameInProgress extends MenuContainerActivity
 	               public void onClick(DialogInterface dialog, int id) {
 
 	               }
-	           })
-//	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//	               @Override
-//	               public void onClick(DialogInterface dialog, int id) {
-//	                   
-//	               }
-//	           })
-	           ;
+	           });
     	AlertDialog dialog = builder.create();
     	dialog.show();
     	
@@ -398,14 +393,7 @@ public class GameInProgress extends MenuContainerActivity
 	               public void onClick(DialogInterface dialog, int id) {
 	                   
 	               }
-	           })
-//	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//	               @Override
-//	               public void onClick(DialogInterface dialog, int id) {
-//	                   
-//	               }
-//	           })
-	           ;
+	           });
     	AlertDialog dialog = builder.create();
     	dialog.show();
    }
@@ -545,6 +533,8 @@ public class GameInProgress extends MenuContainerActivity
 		deadViews[1] = findViewById(R.id.gip_dead_right);
 		deadViews[2] = findViewById(R.id.gip_dead_low);
 		deadViews[3] = findViewById(R.id.gip_dead_left);
+		
+		naView = findViewById(R.id.gip_na_indicator);
 	}
 	private void initNumPickers(){
 		// catch type numberpicker
@@ -700,6 +690,7 @@ public class GameInProgress extends MenuContainerActivity
 	private void applyUIThrowResultToThrow(Throw t){
 		if (currentFireCounts[1] >= 3) {
 			t.setThrowResult(ThrowResult.NA);
+			naView.setBackgroundColor(Color.RED);
 		} else {
 			// some error checking
 			switch (currentThrowType) {
@@ -719,6 +710,7 @@ public class GameInProgress extends MenuContainerActivity
 			case ThrowType.SHORT:
 			case ThrowType.FIRED_ON:
 				currentThrowResult = ThrowResult.NA;
+				naView.setBackgroundColor(Color.RED);
 				break;
 			default:
 					break;	
@@ -726,12 +718,14 @@ public class GameInProgress extends MenuContainerActivity
 	//		log("currentFireCounts: " + currentFireCounts[0] + ", " + currentFireCounts[1]);
 			if (currentFireCounts[0] >= 3) {
 				currentThrowResult = ThrowResult.NA;
+				naView.setBackgroundColor(Color.RED);
 			}
 			
 			if (currentThrowResult == ThrowResult.BROKEN) {
 				t.setThrowResult(ThrowResult.BROKEN);
 			} else if (currentThrowResult == ThrowResult.NA) {
 				t.setThrowResult(ThrowResult.NA);
+				naView.setBackgroundColor(Color.RED);
 			} else {
 				t.setThrowResult(getThrowResultFromNP());
 			}
@@ -906,6 +900,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	
 	public void setThrowResultToNP(int result) {
+		naView.setBackgroundColor(Color.LTGRAY);
 		switch (result) { 
 		case ThrowResult.DROP:
 			resultNp.setValue(0);
@@ -915,6 +910,9 @@ public class GameInProgress extends MenuContainerActivity
 			break;
 		case ThrowResult.STALWART:
 			resultNp.setValue(2);
+			break;
+		case ThrowResult.NA:
+			naView.setBackgroundColor(Color.RED);
 			break;
 		}
 	}
