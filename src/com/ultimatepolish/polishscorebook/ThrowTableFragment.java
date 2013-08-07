@@ -158,12 +158,12 @@ public class ThrowTableFragment extends Fragment {
 		}
 		
 		for (int i = range[0]; i < range[1]; i++){
-			logd( "Trying to render throw at idx " + i);
+//			logd( "Trying to render throw at idx " + i);
 			if (i > nThrows - 1){
 				break;
 			}
 			t = throwsList.get(i);
-			logd("Retrieved throw " + throwsList.get(i).getThrowIdx());
+//			logd("Retrieved throw " + throwsList.get(i).getThrowIdx());
 			renderThrow(t);
 		}
 	}
@@ -171,7 +171,7 @@ public class ThrowTableFragment extends Fragment {
 		try{
 			ThrowTableRow tr = getTableRow(t);
 			tr.updateText(t);
-			logd( "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
+//			logd( "renderThrow(): Rendered throw at idx " + t.getThrowIdx());
 		}
 		catch (IndexOutOfBoundsException e){
 			loge("renderThrow(): Throw idx " + t.getThrowIdx() + " has no view on this page", e);
