@@ -54,12 +54,12 @@ public class ActiveGame {
 			t = getThrow(i);
 			if (i == 0) {
 				t.setInitialScores();
-				t.setOffenseFireCount(0);
-				t.setDefenseFireCount(0);
+//				t.setOffenseFireCount(0);
+//				t.setDefenseFireCount(0);
 			} else {
 				u = getPreviousThrow(t);
 				t.setInitialScores(u);
-				t.setFireCounts(u);
+//				t.setFireCounts(u);
 			}
 		}
 		updateGameScore();

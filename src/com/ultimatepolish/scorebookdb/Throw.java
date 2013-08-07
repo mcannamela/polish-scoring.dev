@@ -89,11 +89,16 @@ public class Throw implements Comparable<Throw>{
 	@DatabaseField
 	public boolean isDefensiveBreakError = false;
 	
-	@DatabaseField
-	private int offenseFireCount = 0;
+	@DatabaseField 
+	public boolean isOnFire = false;
+	@DatabaseField 
+	public boolean isFiredOn = false;
 	
-	@DatabaseField
-	private int defenseFireCount = 0;
+//	@DatabaseField
+//	private int offenseFireCount = 0;
+//	
+//	@DatabaseField
+//	private int defenseFireCount = 0;
 	
 	@DatabaseField
 	private int initialOffensivePlayerScore = 0;
@@ -147,38 +152,54 @@ public class Throw implements Comparable<Throw>{
         return m;
 	}
 	
-	public void setFireCounts(Throw previousThrow){
-		int oldOffenseCount = previousThrow.getDefenseFireCount();
-		int oldDefenseCount = previousThrow.getOffenseFireCount();
-		int newOffenseCount = oldOffenseCount;
-		int newDefenseCount = oldDefenseCount;
-		
-		//previous throw, opponent was or went on fire
-		if (oldDefenseCount>=3){
-			newOffenseCount = oldOffenseCount;
-			newDefenseCount = oldDefenseCount;
-		}
-		//opponent not on fire last throw so we have a chance to change things
-		else{
-			if (oldOffenseCount==3){
-				newOffenseCount++;
-			}
-			else if (stokesOffensiveFire()){
-				newOffenseCount++;
-			}
-			else{
-				newOffenseCount=0;
-			}
-			if (quenchesDefensiveFire()){
-				newDefenseCount = 0;
-			}
-		}
-		
-		setOffenseFireCount(newOffenseCount);
-		setDefenseFireCount(newDefenseCount);
-		
-		Log.i("Throw.setFireCounts()", "o="+newOffenseCount+", d="+newDefenseCount);
-	}
+//	public void setFireCounts(Throw previousThrow){
+//		int previousCount = previousThrow.getDefenseFireCount();
+//		int previousOpponentCount = previousThrow.getOffenseFireCount();
+//		int newCount = previousCount;
+//		int newOpponentCount = previousOpponentCount;
+//		
+//		Log.i("Throw.setFireCounts()", "old: idx="+throwIdx+", o="+newCount+", d="+newOpponentCount);
+//		//previous throw, opponent went on fire
+//		if (previousOpponentCount==3){
+//			Log.i("Throw.setFireCounts()", "	opp on fire last thow=>oppCount++");
+//			newCount = previousCount;
+//			
+//			//get a shot at fire no matter what
+//			newOpponentCount++;
+//		}
+//		//previous throw, opponent was already on fire
+//		else if (previousOpponentCount>3){
+//			//lose fire if fail to stoke
+//			if (!previousThrow.stokesOffensiveFire()){
+//				Log.i("Throw.setFireCounts()", "	opp failed to stoke last throw=> oppCount=0");
+//				newOpponentCount = 0;
+//			} 
+//		}
+//		//previous throw, opponent was not on fire
+//		else {
+//			//we stoked last throw, so increment our counter regardless of our fire state
+//			if (stokesOffensiveFire()){
+//				Log.i("Throw.setFireCounts()", "	this throw stokes => count++");
+//				newCount++;
+//			}
+//			//we were not on fire last throw and did not stoke, so we lose our count
+//			else if (previousCount<3){
+//				Log.i("Throw.setFireCounts()", "	this throw doesn't stoke => count=0");
+//				newCount=0;
+//			}
+//		}
+//		
+//		//this throw stops our opponent's fire, so set his counter to 0
+//		if (quenchesDefensiveFire()){
+//			Log.i("Throw.setFireCounts()", "	quenches defensive=> oc=0");
+//			newOpponentCount = 0;
+//		}
+//		
+//		setOffenseFireCount(newCount);
+//		setDefenseFireCount(newOpponentCount);
+//		
+//		Log.i("Throw.setFireCounts()", "new: idx="+throwIdx+", o="+newCount+", d="+newOpponentCount);
+//	}
 
 	public void setInitialScores(Throw previousThrow){
 		int[] scores = previousThrow.getFinalScores();
@@ -205,7 +226,7 @@ public class Throw implements Comparable<Throw>{
 			if (throwType == ThrowType.TRAP) {
 				diffs[0] = -1;
 			} 
-			else if (isOnFire()) {
+			else if (isOnFire) {
 				if (!isTipped){
 					switch (throwType) {
 					case ThrowType.BOTTLE:
@@ -356,52 +377,52 @@ public class Throw implements Comparable<Throw>{
 		return (throwType==ThrowType.POLE ||throwType==ThrowType.CUP || throwType==ThrowType.BOTTLE);
 	}
 	
-	public boolean isOnFire(){
-		if (offenseFireCount>3){
-			assert defenseFireCount<3:"should not be possible to have both players with fire counts >=3";
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	public boolean isFiredOn(){
-		if (defenseFireCount>=3){
-			assert offenseFireCount<3:"should not be possible to have both players with fire counts >=3";
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
+//	public boolean isOnFire(){
+//		if (offenseFireCount>3){
+//			assert defenseFireCount<3:"should not be possible to have both players with fire counts >=3";
+//			return true;
+//		}
+//		else{
+//			return false;
+//		}
+//	}
+//	public boolean isFiredOn(){
+//		if (defenseFireCount>=3){
+//			assert offenseFireCount<3:"should not be possible to have both players with fire counts >=3";
+//			return true;
+//		}
+//		else{
+//			return false;
+//		}
+//	}
 	
-	public boolean stokesOffensiveFire(){
-		//you didn't quench yourself, hit the stack, your opponent didn't stalwart  
-		boolean stokes = (!quenchesOffensiveFire() && 
-							isStackHit() && 
-							!(throwResult==ThrowResult.STALWART) );
-		return stokes;
-	}
+//	public boolean stokesOffensiveFire(){
+//		//you didn't quench yourself, hit the stack, your opponent didn't stalwart  
+//		boolean stokes = (!quenchesOffensiveFire() && 
+//							isStackHit() && 
+//							!(throwResult==ThrowResult.STALWART) );
+//		return stokes;
+//	}
 	
-	public boolean quenchesOffensiveFire(){
-		boolean quenches = isOffensiveError() || (deadType!=DeadType.ALIVE);
-		return quenches;
-	}
-	
-	public boolean quenchesDefensiveFire(){
-		//offense hit the stack and defense failed to defend, or offense was on fire 
-		
-		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
-								(throwResult == ThrowResult.BROKEN)|| 
-								(isOnFire() && !isTipped);
-		
-		boolean quenches = isStackHit() && defenseFailed;
-		
-		//defensive error will also quench 
-		quenches = quenches || isDefensiveError();
-		 
-		return quenches;
-	}
+//	public boolean quenchesOffensiveFire(){
+//		boolean quenches = isOffensiveError() || (deadType!=DeadType.ALIVE);
+//		return quenches;
+//	}
+//	
+//	public boolean quenchesDefensiveFire(){
+//		//offense hit the stack and defense failed to defend, or offense was on fire 
+//		
+//		boolean defenseFailed = (throwResult == ThrowResult.DROP)||
+//								(throwResult == ThrowResult.BROKEN)|| 
+//								(isOnFire() && !isTipped);
+//		
+//		boolean quenches = isStackHit() && defenseFailed;
+//		
+//		//defensive error will also quench 
+//		quenches = quenches || isDefensiveError();
+//		 
+//		return quenches;
+//	}
 	
 	public String getSpecialString(){
 		String s = "";
@@ -470,7 +491,7 @@ public class Throw implements Comparable<Throw>{
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_pole));
 			break;
 		case ThrowType.STRIKE:
-			if (throwResult == ThrowResult.CATCH || isOnFire()) {
+			if (throwResult == ThrowResult.CATCH || isOnFire) {
 				boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_under_strike));
 			}
 			break;
@@ -534,7 +555,7 @@ public class Throw implements Comparable<Throw>{
 			break;
 		}
 		
-		if (isOnFire()) {
+		if (isOnFire) {
 			boxIconLayers.add(iv.getResources().getDrawable(R.drawable.bxs_over_fire));
 		}
 		if (isTipped) {
@@ -558,7 +579,7 @@ public class Throw implements Comparable<Throw>{
 		boolean valid = true;
 		invalidMessage = "(gameId=%d, throwIdx=%d)";
 		invalidMessage = String.format(invalidMessage, game.getId(), throwIdx);
-		if (isOnFire()) {
+		if (isOnFire) {
 			if (throwResult != ThrowResult.NA && throwResult != ThrowResult.BROKEN) {
 				valid = false;
 				invalidMessage += "OnFire => ThrowResult == NA or Broken. ";
@@ -575,7 +596,7 @@ public class Throw implements Comparable<Throw>{
 				invalidMessage += "drinkHit => live throw";
 			} else if (isGoaltend || isTipped) {
 				valid = false;
-				invalidMessage += "Goaltending || tipped => not SHRLL. ";
+				invalidMessage += "Goaltending || tipped => not KHRLL. ";
 			}
 			
 			switch (throwResult) {
@@ -583,9 +604,9 @@ public class Throw implements Comparable<Throw>{
 			case ThrowResult.CATCH:
 				break;
 			default:
-				if (!isOnFire()) {
+				if (!isOnFire) {
 					valid = false;
-					invalidMessage += "SHRLL => drop or catch. ";
+					invalidMessage += "KHRLL => drop or catch. ";
 				}
 				break;
 			}
@@ -610,7 +631,7 @@ public class Throw implements Comparable<Throw>{
 				valid = false;
 				invalidMessage += "Dead <=> not goaltended. ";
 			}
-			if (throwResult == ThrowResult.NA && !isOnFire()) {
+			if (throwResult == ThrowResult.NA && !isOnFire) {
 				valid = false;
 				invalidMessage += "PCB and not onFire => not NA result. ";
 			}
@@ -718,31 +739,31 @@ public class Throw implements Comparable<Throw>{
 		this.deadType = deadType;
 	}
 	
-	public int[] getFireCounts() {
-		int[] fireCounts = {offenseFireCount, defenseFireCount};
-		return fireCounts;
-	}
+//	public int[] getFireCounts() {
+//		int[] fireCounts = {offenseFireCount, defenseFireCount};
+//		return fireCounts;
+//	}
 
-	public void setFireCounts(int[] fireCounts) {
-		this.offenseFireCount = fireCounts[0];
-		this.defenseFireCount = fireCounts[1];
-	}
-	
-	public int getOffenseFireCount() {
-		return offenseFireCount;
-	}
-
-	public void setOffenseFireCount(int offenseFireCount) {
-		this.offenseFireCount = offenseFireCount;
-	}
-	
-	public int getDefenseFireCount() {
-		return defenseFireCount;
-	}
-
-	public void setDefenseFireCount(int defenseFireCount) {
-		this.defenseFireCount = defenseFireCount;
-	}
+//	public void setFireCounts(int[] fireCounts) {
+//		this.offenseFireCount = fireCounts[0];
+//		this.defenseFireCount = fireCounts[1];
+//	}
+//	
+//	public int getOffenseFireCount() {
+//		return offenseFireCount;
+//	}
+//
+//	public void setOffenseFireCount(int offenseFireCount) {
+//		this.offenseFireCount = offenseFireCount;
+//	}
+//	
+//	public int getDefenseFireCount() {
+//		return defenseFireCount;
+//	}
+//
+//	public void setDefenseFireCount(int defenseFireCount) {
+//		this.defenseFireCount = defenseFireCount;
+//	}
 	
 	public int getInitialOffensivePlayerScore() {
 		return initialOffensivePlayerScore;

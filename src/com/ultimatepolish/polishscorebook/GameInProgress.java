@@ -67,9 +67,9 @@ public class GameInProgress extends MenuContainerActivity
 	Dao<Venue, Long> vDao;
 
 	int currentThrowType = ThrowType.NOT_THROWN;
-	int currentThrowResult = ThrowResult.NA;
+	int currentThrowResult = ThrowResult.CATCH;
 	int currentDeadType = DeadType.ALIVE;
-	int[] currentFireCounts = {0, 0};
+//	int[] currentFireCounts = {0, 0};
 	boolean currentIsTipped;
 	
 	// ownGoals: 0) linefault, 1) drink drop, 2) knocked pole, 3) knocked bottle, 4) bottle break
@@ -540,12 +540,14 @@ public class GameInProgress extends MenuContainerActivity
 		// catch type numberpicker
 		resultNp = (NumberPicker) findViewById(R.id.numPicker_catch);
 		resultNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		String[] catchText = new String[3];
+		String[] catchText = new String[5];
 		catchText[0] = getString(R.string.gip_drop);
 		catchText[1] = getString(R.string.gip_catch);
 		catchText[2] = getString(R.string.gip_stalwart);
+		catchText[3] = getString(R.string.gip_broken);
+		catchText[4] = getString(R.string.gip_NA);
 		resultNp.setMinValue(0);
-		resultNp.setMaxValue(2);
+		resultNp.setMaxValue(4);
 		resultNp.setValue(1);
 		resultNp.setDisplayedValues(catchText);
 		resultNp.setOnValueChangedListener(numberPickerChangeListener); 
@@ -681,65 +683,46 @@ public class GameInProgress extends MenuContainerActivity
     	applyUISpecialMarksToThrow(t);
 	}
 	private void applyUIThrowTypeToThrow(Throw t){
-		if (currentFireCounts[1] >= 3) {
-			t.setThrowType(ThrowType.FIRED_ON);
-		} else {
-			t.setThrowType(currentThrowType);
-		}
+		t.setThrowType(currentThrowType);
 	}
 	private void applyUIThrowResultToThrow(Throw t){
-		if (currentFireCounts[1] >= 3) {
-			t.setThrowResult(ThrowResult.NA);
+		// some error checking
+//		switch (currentThrowType) {
+//		case ThrowType.BALL_HIGH:
+//		case ThrowType.BALL_RIGHT:
+//		case ThrowType.BALL_LOW:
+//		case ThrowType.BALL_LEFT:
+//		case ThrowType.STRIKE:
+//			if (currentThrowResult != ThrowResult.DROP && 
+//				currentThrowResult != ThrowResult.CATCH) {
+//				currentThrowResult = ThrowResult.CATCH;
+//				applyThrowResultToNumPicker(ThrowResult.CATCH);
+//			}
+//			break;
+//		case ThrowType.TRAP:
+//		case ThrowType.TRAP_REDEEMED:
+//		case ThrowType.SHORT:
+//		case ThrowType.FIRED_ON:
+//			currentThrowResult = ThrowResult.NA;
+//			naView.setBackgroundColor(Color.RED);
+//			break;
+//		default:
+//				break;	
+//		}
+		
+		int throwResult = getThrowResultFromNP();
+		
+		if (throwResult == ThrowResult.NA) {
 			naView.setBackgroundColor(Color.RED);
-		} else {
-			// some error checking
-			switch (currentThrowType) {
-			case ThrowType.BALL_HIGH:
-			case ThrowType.BALL_RIGHT:
-			case ThrowType.BALL_LOW:
-			case ThrowType.BALL_LEFT:
-			case ThrowType.STRIKE:
-				if (currentThrowResult != ThrowResult.DROP && 
-					currentThrowResult != ThrowResult.CATCH) {
-					currentThrowResult = ThrowResult.CATCH;
-					setThrowResultToNP(ThrowResult.CATCH);
-				}
-				break;
-			case ThrowType.TRAP:
-			case ThrowType.TRAP_REDEEMED:
-			case ThrowType.SHORT:
-			case ThrowType.FIRED_ON:
-				currentThrowResult = ThrowResult.NA;
-				naView.setBackgroundColor(Color.RED);
-				break;
-			default:
-					break;	
-			}
-	//		log("currentFireCounts: " + currentFireCounts[0] + ", " + currentFireCounts[1]);
-			if (currentFireCounts[0] >= 3) {
-				currentThrowResult = ThrowResult.NA;
-				naView.setBackgroundColor(Color.RED);
-			}
-			
-			if (currentThrowResult == ThrowResult.BROKEN) {
-				t.setThrowResult(ThrowResult.BROKEN);
-			} else if (currentThrowResult == ThrowResult.NA) {
-				t.setThrowResult(ThrowResult.NA);
-				naView.setBackgroundColor(Color.RED);
-			} else {
-				t.setThrowResult(getThrowResultFromNP());
-			}
-			log("throw type is " + ThrowResult.typeString[t.getThrowResult()]);
 		}
+		
+		t.setThrowResult(throwResult);
+		
+		log("throw type is " + ThrowResult.typeString[t.getThrowResult()]);
+		
 	}
 	private void applyUISpecialMarksToThrow(Throw t){
-		if (currentFireCounts[1] >= 3) {
-			t.isTipped = false;
-			t.setDeadType(DeadType.ALIVE);
-			t.isLineFault = false;
-			t.isGoaltend = false;
-			t.isDrinkHit = false;
-		} else {
+		
 			t.isTipped = currentIsTipped;
 			t.setDeadType(currentDeadType);
 			for (View vw: deadViews) {
@@ -767,7 +750,7 @@ public class GameInProgress extends MenuContainerActivity
 			
 			setErrorButtonState();
 
-		}
+		
 	}
 	//-------------------------------------------------------------
 	
@@ -782,7 +765,7 @@ public class GameInProgress extends MenuContainerActivity
 		setSpecialMarks(t);
 	}
 	private void setThrowResult(Throw t) {
-		setThrowResultToNP(t.getThrowResult());
+		applyThrowResultToNumPicker(t.getThrowResult());
 		currentThrowResult = t.getThrowResult();
 	}
 	private void setThrowType(Throw t){
@@ -807,7 +790,7 @@ public class GameInProgress extends MenuContainerActivity
 	}
 	private void setSpecialMarks(Throw t){
 		currentIsTipped = t.isTipped;
-		currentFireCounts = t.getFireCounts();
+//		currentFireCounts = t.getFireCounts();
 		currentDeadType = t.getDeadType();
 		for (View vw: deadViews) {
 			vw.setBackgroundColor(Color.LTGRAY);
@@ -895,11 +878,17 @@ public class GameInProgress extends MenuContainerActivity
 		case 2:
 			theResult = ThrowResult.STALWART;
 			break;
+		case 3:
+			theResult = ThrowResult.BROKEN;
+			break;
+		case 4:
+			theResult = ThrowResult.NA;
+			break;
 		}
 		return theResult;
 	}
 	
-	public void setThrowResultToNP(int result) {
+	public void applyThrowResultToNumPicker(int result) {
 		naView.setBackgroundColor(Color.LTGRAY);
 		switch (result) { 
 		case ThrowResult.DROP:
@@ -911,7 +900,11 @@ public class GameInProgress extends MenuContainerActivity
 		case ThrowResult.STALWART:
 			resultNp.setValue(2);
 			break;
+		case ThrowResult.BROKEN:
+			resultNp.setValue(3);
+			break;
 		case ThrowResult.NA:
+			resultNp.setValue(4);
 			naView.setBackgroundColor(Color.RED);
 			break;
 		}

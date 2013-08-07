@@ -110,11 +110,11 @@ public class DatabaseUpgrader {
 						" WHERE gameId=" + g.getId() + " AND playerId= " + g.getFirstPlayer().getId() + ";");
 			}
 			
-			// fireCounts will be recalculated if the game is loaded again. should find a better way to handle this 
-			tDao.executeRaw(addColumn("throw", "offenseFireCount", "INTEGER", "0"));			
-			tDao.executeRaw(replaceNulls("throw", "offenseFireCount", "0"));
-			tDao.executeRaw(addColumn("throw", "defenseFireCount", "INTEGER", "0"));
-			tDao.executeRaw(replaceNulls("throw", "defenseFireCount", "0"));
+//			// fireCounts will be recalculated if the game is loaded again. should find a better way to handle this 
+//			tDao.executeRaw(addColumn("throw", "offenseFireCount", "INTEGER", "0"));			
+//			tDao.executeRaw(replaceNulls("throw", "offenseFireCount", "0"));
+//			tDao.executeRaw(addColumn("throw", "defenseFireCount", "INTEGER", "0"));
+//			tDao.executeRaw(replaceNulls("throw", "defenseFireCount", "0"));
 			
 			// other columns
 			tDao.executeRaw(addColumn("throw", "deadType", "INTEGER", "0"));
@@ -225,12 +225,12 @@ public class DatabaseUpgrader {
 					"throwType, throwResult, deadType, isTipped, isGoaltend, isGrabbed, isDrinkHit, isLineFault, " +
 					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
 					"isDefensiveDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
-					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore) " +
+					"isOnFire, isFiredOn, initialOffensivePlayerScore, initialDefensivePlayerScore) " +
 					"SELECT id, throwNumber, gameId, playerId, defensivePlayerId, timestamp, " +
 					"throwType, throwResult, deadType, isTipped, isGoaltend, isGrabbed, isDrinkHit, isLineFault, " +
 					"isOffensiveDrinkDropped, isOffensivePoleKnocked, isOffensiveBottleKnocked, isOffensiveBreakError, " +
 					"isDrinkDropped, isDefensivePoleKnocked, isDefensiveBottleKnocked, isDefensiveBreakError, " +
-					"offenseFireCount, defenseFireCount, initialOffensivePlayerScore, initialDefensivePlayerScore FROM temp;");
+					"isOnFire, isFiredOn, initialOffensivePlayerScore, initialDefensivePlayerScore FROM temp;");
 			tDao.executeRaw("DROP TABLE temp;");
 	}
 	public static String replaceNulls(String tableName, String columnName, String value){
@@ -256,7 +256,6 @@ public class DatabaseUpgrader {
 			oldScores[1] = g.getSecondPlayerScore();
 			
 			ag = new ActiveGame(g, context);
-			// saveAllThrows is extremely slow. any way to speed up?
 			ag.saveAllThrows(); // this also calls updateThrowsFrom(0)
 			ag.saveGame();
 			newScores[0] = ag.getGame().getFirstPlayerScore();
@@ -281,14 +280,14 @@ public class DatabaseUpgrader {
 				Log.w("DatabaseUpgrader.checkThrows()", msg);
 				badThrows.add(t.getId());
 			}
-		}
-		if (badThrows.size() > 0) {
-			//these have to be done after firecounts are updated
-			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
-				" WHERE offenseFireCount>3 AND throwResult != " + ThrowResult.BROKEN + ";");
-			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
-					", throwResult= " + ThrowResult.NA + " WHERE defenseFireCount>=3;");
-		}
+		} 
+//		if (badThrows.size() > 0) {
+//			//these have to be done after firecounts are updated
+//			tDao.executeRaw("UPDATE throw SET throwResult=" + ThrowResult.NA +
+//				" WHERE offenseFireCount>3 AND throwResult != " + ThrowResult.BROKEN + ";");
+//			tDao.executeRaw("UPDATE throw SET throwType=" + ThrowType.FIRED_ON +
+//					", throwResult= " + ThrowResult.NA + " WHERE defenseFireCount>=3;");
+//		}
 		return badThrows;
 	}
 	
